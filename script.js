@@ -1,6 +1,5 @@
 // Database of possible identities
 const metalIdentities = [
-    { name: "Zinc", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 30 seconds", flame: "Pale green/ bluish green flame" },
     { name: "Nickel", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Pale green/ bluish green flame" },
     { name: "Copper", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame" },
     { name: "Silver", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "No Data" },
