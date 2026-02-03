@@ -9,8 +9,8 @@ const metalIdentities = [
 ];
 
 const nonMetalIdentities = [
-    { name: "Iodine", heat: "Sublimates into thick purple vapor.", water: "Turns water dark yellow/brown.", solvent: "Dissolves into a violet solution." },
-    { name: "Chlorine", heat: "Expands as a pale green gas.", water: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid." },
+    { name: "Sulfur", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", water: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water." },
+    { name: "Chlorine", heat: "Pale green gas fills the tube.", water: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid." },
     { name: "Bromine", heat: "Deep red-orange vapors fill the tube.", water: "Heavy orange-red liquid at the bottom.", solvent: "Orange-brown solution forms." },
     { name: "Phosphorus", heat: "Ignites into a bright white light/smoke.", water: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids." }
 ];
