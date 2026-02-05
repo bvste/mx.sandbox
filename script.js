@@ -18,7 +18,7 @@ const nonMetalIdentities = [
     { name: "Phosphorus", description: "a white, red, or black solid.", heat: "Ignites into a bright white light/smoke.", water: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids." }
 ];
 
-// Logic to pick the "Hidden Identity" for this session
+// Logic to pick M and X for this session
 let activeM = metalIdentities[Math.floor(Math.random() * metalIdentities.length)];
 let activeX = nonMetalIdentities[Math.floor(Math.random() * nonMetalIdentities.length)];
 
@@ -41,15 +41,9 @@ const experimentsX = [
     { id: 'conductX', name: "Thermal Probe", static: "Material acts as a thermal insulator." }
 ];
 
-// --- STATE MANAGEMENT ---
-let currentPhase = 'M'; // Starts with Phase 1: Metal
-let completedM = [];    // Stores objects {name, result}
-let completedX = [];    // Stores objects {name, result}
-let activeTest = null;
-
-// Database for Comparison Feature
+// Expand your reference metals list to ensure they have enough choices
 const referenceMetals = [
-{ name: "Nickel", description: "lustrous, silvery-white with a slight golden or brownish tinge.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Pale green/ bluish green flame" },
+    { name: "Nickel", description: "lustrous, silvery-white with a slight golden or brownish tinge.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Pale green/ bluish green flame" },
     { name: "CopperTwo", description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame" },
     { name: "CopperThree", description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame" },
     { name: "Silver", description: "lusterous and brilliant white.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "No Data" },
@@ -59,14 +53,67 @@ const referenceMetals = [
     { name: "Magnesium", description: "lursterous, silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Very blinding white light, white powder formed after" }
 ];
 
-window.onload = () => {
-    if(!sessionStorage.getItem('activeStudent')) window.location.href = 'index.html';
+function startTest(testId) {
+    activeTest = testId;
+    document.getElementById('station-empty').classList.add('hidden');
+    document.getElementById('station-active').classList.add('hidden');
+    document.getElementById('station-setup').classList.remove('hidden');
     
-    // Dynamic Modal Description for the start
-    const modalText = document.querySelector('#mx-modal p');
-    if (modalText) {
-        modalText.innerHTML = `<strong>Element M</strong> is ${activeM.description} <br><br> <strong>Element X</strong> is ${activeX.description}`;
+    const exp = (currentPhase === 'M') ? experimentsM.find(e => e.id === testId) : experimentsX.find(e => e.id === testId);
+    document.getElementById('setup-test-name').innerText = "Setup: " + exp.name;
+
+    // Fill dropdowns with reference metal options
+    const dropdowns = ['ref-1', 'ref-2', 'ref-3'];
+    dropdowns.forEach(id => {
+        const select = document.getElementById(id);
+        select.innerHTML = referenceMetals.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
+    });
+    
+    // For Non-Metals (X), we can just skip setup if you don't have comparison data for X
+    if (currentPhase === 'X') {
+        runComparisonTest(); 
     }
+}
+
+function runComparisonTest() {
+    document.getElementById('station-setup').classList.add('hidden');
+    document.getElementById('station-active').classList.remove('hidden');
+    
+    const exp = (currentPhase === 'M') ? experimentsM.find(e => e.id === activeTest) : experimentsX.find(e => e.id === activeTest);
+    document.getElementById('active-test-name').innerText = exp.name + " Results";
+
+    const zone = document.getElementById('comparison-zone');
+    const userResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
+    
+    // Add the Unknown Sample first
+    let html = `
+        <div class="p-4 bg-blue-900/30 border border-blue-500 rounded-xl md:col-span-2 text-center">
+            <p class="text-[10px] text-blue-400 uppercase font-black tracking-widest">Your Unknown Sample (${currentPhase})</p>
+            <p class="text-xl text-white font-bold">${userResult}</p>
+        </div>
+    `;
+
+    // Add selected comparison metals (Only for Phase M)
+    if (currentPhase === 'M') {
+        const selections = [
+            document.getElementById('ref-1').value,
+            document.getElementById('ref-2').value,
+            document.getElementById('ref-3').value
+        ];
+
+        selections.forEach(name => {
+            const metal = referenceMetals.find(m => m.name === name);
+            html += `
+                <div class="p-4 bg-gray-800 border border-gray-700 rounded-xl">
+                    <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest">${metal.name}</p>
+                    <p class="text-gray-300">${metal[activeTest] || "No data"}</p>
+                </div>
+            `;
+        });
+    }
+
+    zone.innerHTML = html;
+}
     
     openModal('mx-modal');
     loadMenu(); 
