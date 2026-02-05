@@ -12,10 +12,10 @@ const metalIdentities = [
 ];
 
 const nonMetalIdentities = [
-    { name: "Sulfur", description: "distinctively bright lemon-yellow, pale yellow, or greenish-yellow solid.", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", water: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water." },
-    { name: "Chlorine", description: "dense, yellow-green gas.", heat: "Pale green gas fills the tube.", water: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid." },
-    { name: "Bromine", description: "reddish-brown liquid.", heat: "Deep red-orange vapors fill the tube.", water: "Heavy orange-red liquid at the bottom.", solvent: "Orange-brown solution forms." },
-    { name: "Phosphorus", description: "white, red, or black solid.", heat: "Ignites into a bright white light/smoke.", water: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids." }
+    { name: "Sulfur", description: "a distinctively bright lemon-yellow, pale yellow, or greenish-yellow solid.", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", water: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water." },
+    { name: "Chlorine", description: "a dense, yellow-green gas.", heat: "Pale green gas fills the tube.", water: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid." },
+    { name: "Bromine", description: "a reddish-brown liquid.", heat: "Deep red-orange vapors fill the tube.", water: "Heavy orange-red liquid at the bottom.", solvent: "Orange-brown solution forms." },
+    { name: "Phosphorus", description: "a white, red, or black solid.", heat: "Ignites into a bright white light/smoke.", water: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids." }
 ];
 
 // Logic to pick the "Hidden Identity" for this session
