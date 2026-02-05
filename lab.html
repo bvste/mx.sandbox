@@ -11,73 +11,100 @@
         <button onclick="openModal('ack-modal')" class="bg-blue-600/20 text-blue-400 px-4 py-2 rounded-lg border border-blue-500/50 font-bold">Acknowledgements</button>
     </div>
 
-    <div id="selection-screen" class="max-w-6xl mx-auto">
-        <div class="grid grid-cols-2 gap-8 mb-8">
-            <div id="m-list" class="space-y-3">
-                <h3 class="text-xl font-bold text-blue-400">Experiments for M (Pick 3)</h3>
-            </div>
-            <div id="x-list" class="space-y-3">
-                <h3 class="text-xl font-bold text-emerald-400">Experiments for X (Pick 3)</h3>
-            </div>
+    <div class="max-w-6xl mx-auto flex justify-between items-center mb-8 bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl">
+        <div>
+            <h2 id="phase-title" class="text-2xl font-bold text-blue-400 transition-all">Phase 1: Testing Unknown M</h2>
+            <p id="phase-subtitle" class="text-gray-400 text-sm">Select an experiment from the sidebar to perform on your sample.</p>
         </div>
-        <button id="run-btn" disabled onclick="runLab()" class="w-full bg-gray-600 py-4 rounded-xl font-bold opacity-50">Run Experiments</button>
+        <div class="text-right">
+            <span id="exp-count" class="text-2xl font-mono text-white bg-gray-900 px-4 py-2 rounded-lg border border-gray-600">0 / 3</span>
+            <p class="text-[10px] uppercase tracking-widest text-gray-500 mt-2 font-bold">Tests Logged</p>
+        </div>
     </div>
 
-    <div id="results-screen" class="hidden max-w-4xl mx-auto space-y-8">
-        <div id="data-output" class="bg-gray-900 p-6 rounded-xl border border-gray-700 grid grid-cols-2 gap-4"></div>
-        <div class="bg-gray-800 p-6 rounded-xl">
-            <h3 class="text-xl font-bold mb-4">Final Assumptions</h3>
-            <textarea id="assumption" class="w-full bg-gray-900 p-4 rounded-lg border border-gray-600" rows="5" placeholder="Enter your M and X assumptions..."></textarea>
-            <button onclick="finalizeLab()" class="w-full bg-emerald-600 mt-4 py-3 rounded-lg font-bold">Submit to Backend</button>
+    <div id="lab-workspace" class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <div class="lg:col-span-1 space-y-4">
+            <h3 class="font-bold text-gray-500 uppercase tracking-widest text-xs px-2">Available Procedures</h3>
+            <div id="experiment-menu" class="space-y-3">
+                </div>
+        </div>
+
+        <div class="lg:col-span-2 bg-gray-900 rounded-2xl border-2 border-dashed border-gray-700 p-8 flex flex-col items-center justify-center min-h-[450px] relative shadow-inner">
+            <div id="station-empty" class="text-center">
+                <div class="text-7xl mb-4 opacity-20">🔬</div>
+                <p class="text-gray-500 font-medium">Please select a test to begin observation</p>
+            </div>
+
+            <div id="station-active" class="hidden w-full h-full">
+                <div class="flex justify-between items-start mb-6">
+                    <h3 id="active-test-name" class="text-3xl font-bold text-white"></h3>
+                    <span class="bg-blue-600/20 text-blue-400 text-xs font-bold px-3 py-1 rounded-full border border-blue-500/30">Live Test</span>
+                </div>
+
+                <div id="comparison-zone" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    </div>
+
+                <button onclick="logExperiment()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-xl font-bold transition-all transform active:scale-[0.98] shadow-lg shadow-blue-900/40">
+                    Record Result in Lab Notebook
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cer-screen" class="hidden max-w-5xl mx-auto space-y-8">
+        <div class="bg-blue-900/10 border border-blue-500/30 p-6 rounded-2xl">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span>📋</span> Lab Notebook Summary
+            </h3>
+            <div id="summary-log" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                </div>
+        </div>
+
+        <div class="bg-gray-800 p-8 rounded-2xl border border-gray-700 shadow-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-white">Final CER Claim</h3>
+            <p class="text-gray-400 text-sm mb-4">Based on the data above, identify M and X. Support your claim with evidence and reasoning.</p>
+            <textarea id="assumption" class="w-full bg-gray-900 border border-gray-600 p-4 rounded-xl text-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" rows="6" placeholder="Example: I believe M is Zinc because..."></textarea>
+            <button onclick="finalizeLab()" class="w-full bg-emerald-600 hover:bg-emerald-500 mt-6 py-4 rounded-xl font-bold text-lg transition-all shadow-lg shadow-emerald-900/20">
+                Submit CER
+            </button>
         </div>
     </div>
 
     <div id="mx-modal" class="modal">
-        <div class="bg-gray-800 p-8 rounded-xl max-w-md border border-gray-700">
+        <div class="bg-gray-800 p-8 rounded-xl max-w-md border border-gray-700 shadow-2xl">
             <h2 class="text-2xl font-bold text-blue-400 mb-4">Initial Observations</h2>
-            <p class="text-gray-300 italic"></p> 
-            <button onclick="closeModal('mx-modal')" class="w-full bg-blue-600 mt-6 py-2 rounded-lg font-bold">To Lab</button>
-          </div>
-    </div>
-    
-<div id="ack-modal" class="modal">
-    <div class="bg-gray-800 border border-gray-600 w-full max-w-md rounded-2xl shadow-2xl p-8 transform transition-all scale-100 mx-4">
-        <div class="flex justify-between items-center border-b border-gray-700 pb-4 mb-6">
-            <h2 class="text-2xl font-bold text-blue-400">Project Acknowledgements</h2>
-            <button onclick="closeModal('ack-modal')" class="text-gray-400 hover:text-white text-3xl">&times;</button>
+            <p class="text-gray-300 italic leading-relaxed"></p> 
+            <button onclick="closeModal('mx-modal')" class="w-full bg-blue-600 hover:bg-blue-500 mt-6 py-3 rounded-lg font-bold transition-colors">Return to Lab</button>
         </div>
-        <div class="space-y-6">
-            <div>
-                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Development</h4>
-                <ul class="space-y-3">
-                    <li>
-                        <p class="text-blue-300 font-medium">Doyoon Kim</p>
-                        <a href="mailto:dyoonkim07@gmail.com" class="text-blue-400 hover:underline">Contact: dyoonkim07@gmail.com</a>
-                    </li>
-                </ul>
-            </div>
-            <div class="pt-6 border-t border-gray-700">
-                <p class="text-[12px] text-gray-500 leading-relaxed italic">
-                    This sandbox was designed as an interactive tool for the MX Lab. This website is open sourced on GitHub! Special thanks to the open-source community for Tailwind CSS and MathJax.
-                </p>
-            </div>
-        </div>
-        <button onclick="closeModal('ack-modal')" class="w-full mt-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-xl font-bold transition-colors">
-            Return to Lab
-        </button>
     </div>
-</div>
-    
-    <button onclick="resetSelections()" 
-            class="text-gray-500 hover:text-red-400 text-sm font-medium transition-colors underline underline-offset-4 text-center">
-        Reset All Selections
-    </button>
-</div>
 
-<button onclick="checkTeacher()" class="teacher-btn">
-    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-    Teacher Access
-</button>
+    <div id="ack-modal" class="modal">
+        <div class="bg-gray-800 border border-gray-600 w-full max-w-md rounded-2xl shadow-2xl p-8 mx-4">
+            <div class="flex justify-between items-center border-b border-gray-700 pb-4 mb-6">
+                <h2 class="text-2xl font-bold text-blue-400">Project Acknowledgements</h2>
+                <button onclick="closeModal('ack-modal')" class="text-gray-400 hover:text-white text-3xl">&times;</button>
+            </div>
+            <div class="space-y-6">
+                <div>
+                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 text-gray-400">Development</h4>
+                    <p class="text-blue-300 font-medium">Doyoon Kim</p>
+                    <a href="mailto:dyoonkim07@gmail.com" class="text-blue-400 hover:underline text-sm">dyoonkim07@gmail.com</a>
+                </div>
+                <div class="pt-6 border-t border-gray-700">
+                    <p class="text-[12px] text-gray-500 leading-relaxed italic">
+                        This sandbox was designed as an interactive tool for the MX Lab. This website is open sourced on GitHub! Special thanks to the open-source community for Tailwind CSS and MathJax.
+                    </p>
+                </div>
+            </div>
+            <button onclick="closeModal('ack-modal')" class="w-full mt-8 py-3 bg-gray-700 hover:bg-gray-600 rounded-xl font-bold transition-colors">Return to Lab</button>
+        </div>
+    </div>
+
+    <button onclick="checkTeacher()" class="teacher-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        Teacher Access
+    </button>
 
     <script src="script.js"></script>
 </body>
