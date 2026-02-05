@@ -41,68 +41,147 @@ const experimentsX = [
     { id: 'conductX', name: "Thermal Probe", static: "Material acts as a thermal insulator." }
 ];
 
-let selectedM = [];
-let selectedX = [];
+// --- STATE MANAGEMENT ---
+let currentPhase = 'M'; // Starts with Phase 1: Metal
+let completedM = [];    // Stores objects {name, result}
+let completedX = [];    // Stores objects {name, result}
+let activeTest = null;
+
+// Database for Comparison Feature
+const referenceMetals = [
+{ name: "Nickel", description: "lustrous, silvery-white with a slight golden or brownish tinge.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Pale green/ bluish green flame" },
+    { name: "CopperTwo", description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame" },
+    { name: "CopperThree", description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame" },
+    { name: "Silver", description: "lusterous and brilliant white.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "No Data" },
+    { name: "Aluminum", description: "shiny, silver.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "White/silvery white flame" },
+    { name: "IronTwo", description: "silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Red flame" },
+    { name: "IronThree", description: "silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Red flame" },
+    { name: "Magnesium", description: "lursterous, silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Very blinding white light, white powder formed after" }
+];
 
 window.onload = () => {
     if(!sessionStorage.getItem('activeStudent')) window.location.href = 'index.html';
     
+    // Dynamic Modal Description for the start
     const modalText = document.querySelector('#mx-modal p');
     if (modalText) {
-        modalText.innerHTML = `<strong>M</strong> is ${activeM.description} <br><br> <strong>X</strong> is ${activeX.description}`;
+        modalText.innerHTML = `<strong>Element M</strong> is ${activeM.description} <br><br> <strong>Element X</strong> is ${activeX.description}`;
     }
     
     openModal('mx-modal');
-
-    const mList = document.getElementById('m-list');
-    const xList = document.getElementById('x-list');
-
-    experimentsM.forEach(exp => {
-        mList.innerHTML += `<div class="experiment-card" onclick="toggleSelection('${exp.id}', 'm', this)">${exp.name}</div>`;
-    });
-    experimentsX.forEach(exp => {
-        xList.innerHTML += `<div class="experiment-card" onclick="toggleSelection('${exp.id}', 'x', this)">${exp.name}</div>`;
-    });
+    loadMenu(); 
 };
 
-function toggleSelection(id, type, el) {
-    let list = (type === 'm') ? selectedM : selectedX;
-    const idx = list.indexOf(id);
+// --- PHASED UI LOGIC ---
 
-    if (idx > -1) {
-        list.splice(idx, 1);
-        el.classList.remove(`selected-${type}`);
-    } else if (list.length < 3) {
-        list.push(id);
-        el.classList.add(`selected-${type}`);
-    }
+function loadMenu() {
+    const menu = document.getElementById('experiment-menu');
+    menu.innerHTML = '';
+    const list = (currentPhase === 'M') ? experimentsM : experimentsX;
+    const completed = (currentPhase === 'M') ? completedM : completedX;
 
-    const btn = document.getElementById('run-btn');
-    btn.disabled = !(selectedM.length === 3 && selectedX.length === 3);
-    btn.style.opacity = btn.disabled ? "0.5" : "1";
+    list.forEach(exp => {
+        const isDone = completed.find(c => c.name === exp.name);
+        menu.innerHTML += `
+            <button onclick="startTest('${exp.id}')" ${isDone ? 'disabled' : ''} 
+                class="w-full text-left p-4 rounded-xl border transition-all flex justify-between items-center
+                ${isDone ? 'opacity-40 bg-gray-900 border-gray-800 cursor-not-allowed' : 'hover:bg-gray-700 bg-gray-800 border-gray-700 shadow-sm'}">
+                <span class="font-medium">${exp.name}</span>
+                ${isDone ? '<span>✅</span>' : '<span class="text-blue-500">→</span>'}
+            </button>`;
+    });
 }
 
-function runLab() {
-    document.getElementById('selection-screen').classList.add('hidden');
-    document.getElementById('results-screen').classList.remove('hidden');
+function startTest(testId) {
+    activeTest = testId;
+    document.getElementById('station-empty').classList.add('hidden');
+    document.getElementById('station-active').classList.remove('hidden');
     
-    const output = document.getElementById('data-output');
-    
-    let mHtml = "<div><h4 class='text-blue-400 font-bold mb-2'>Results for M</h4>";
-    selectedM.forEach(id => {
-        const exp = experimentsM.find(e => e.id === id);
-        const resultText = exp.static || activeM[id];
-        mHtml += `<div class='bg-gray-800 p-3 rounded mb-2 text-sm'><b>${exp.name}:</b> ${resultText}</div>`;
-    });
-    
-    let xHtml = "<div><h4 class='text-emerald-400 font-bold mb-2'>Results for X</h4>";
-    selectedX.forEach(id => {
-        const exp = experimentsX.find(e => e.id === id);
-        const resultText = exp.static || activeX[id];
-        xHtml += `<div class='bg-gray-800 p-3 rounded mb-2 text-sm'><b>${exp.name}:</b> ${resultText}</div>`;
-    });
+    const exp = (currentPhase === 'M') ? experimentsM.find(e => e.id === testId) : experimentsX.find(e => e.id === testId);
+    document.getElementById('active-test-name').innerText = exp.name;
 
-    output.innerHTML = mHtml + "</div>" + xHtml + "</div>";
+    const zone = document.getElementById('comparison-zone');
+    const userResult = exp.static || (currentPhase === 'M' ? activeM[testId] : activeX[testId]);
+    
+    let html = `
+        <div class="p-5 bg-blue-900/20 border border-blue-500/40 rounded-xl shadow-inner">
+            <p class="text-[10px] text-blue-400 uppercase font-black tracking-widest mb-2 font-bold">Your Unknown Sample</p>
+            <p class="text-lg text-white font-medium">${userResult}</p>
+        </div>
+    `;
+
+    if (currentPhase === 'M') {
+        const ref = referenceMetals[Math.floor(Math.random() * referenceMetals.length)];
+        html += `
+            <div class="p-5 bg-gray-800/50 border border-gray-700 rounded-xl">
+                <p class="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-2 font-bold">Reference: ${ref.name}</p>
+                <p class="text-lg text-gray-400 italic">${ref[testId] || "Comparison data not available for this procedure."}</p>
+            </div>
+        `;
+    }
+    zone.innerHTML = html;
+}
+
+function logExperiment() {
+    const list = (currentPhase === 'M') ? experimentsM : experimentsX;
+    const exp = list.find(e => e.id === activeTest);
+    const result = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
+
+    if(currentPhase === 'M') {
+        completedM.push({name: exp.name, result: result, id: exp.id});
+        document.getElementById('exp-count').innerText = `${completedM.length} / 3`;
+    } else {
+        completedX.push({name: exp.name, result: result, id: exp.id});
+        document.getElementById('exp-count').innerText = `${completedX.length} / 3`;
+    }
+
+    checkPhaseTransition();
+}
+
+function checkPhaseTransition() {
+    if (currentPhase === 'M' && completedM.length === 3) {
+        alert("Phase 1 Complete! Transitioning to Element X testing.");
+        currentPhase = 'X';
+        document.getElementById('phase-title').innerText = "Phase 2: Testing Unknown X";
+        document.getElementById('phase-title').className = "text-2xl font-bold text-emerald-400";
+        document.getElementById('exp-count').innerText = "0 / 3";
+    } else if (currentPhase === 'X' && completedX.length === 3) {
+        showCER();
+    }
+    
+    document.getElementById('station-empty').classList.remove('hidden');
+    document.getElementById('station-active').classList.add('hidden');
+    loadMenu();
+}
+
+function showCER() {
+    document.getElementById('lab-workspace').classList.add('hidden');
+    document.getElementById('cer-screen').classList.remove('hidden');
+    document.getElementById('phase-title').innerText = "Final Lab Report Summary";
+    
+    const log = document.getElementById('summary-log');
+    let html = "<div class='space-y-3'><h4 class='text-blue-400 font-bold uppercase text-xs tracking-widest'>M Observations</h4>";
+    completedM.forEach(e => html += `<div class='text-sm bg-gray-900 p-3 rounded-lg border border-gray-800'><b>${e.name}:</b> ${e.result}</div>`);
+    
+    html += "</div><div class='space-y-3'><h4 class='text-emerald-400 font-bold uppercase text-xs tracking-widest'>X Observations</h4>";
+    completedX.forEach(e => html += `<div class='text-sm bg-gray-900 p-3 rounded-lg border border-gray-800'><b>${e.name}:</b> ${e.result}</div>`);
+    
+    log.innerHTML = html + "</div>";
+}
+
+
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function checkTeacher() {
+    if(prompt("Access Code:") === "MXLabResults") {
+        console.table(JSON.parse(localStorage.getItem('mx_results') || '[]'));
+        alert("Teacher data check enabled. View Console (F12).");
+    }
+}
+
+function resetSelections() {
+    window.location.reload(); // Simplest way to reset the phased state
 }
 
 async function finalizeLab() {
@@ -112,17 +191,17 @@ async function finalizeLab() {
     if(!assumptionText) return alert("Please enter your assumptions.");
 
     const entry = {
-    fName: student.fName,
-    lName: student.lName,
-    period: student.period,
-    actualIdentityM: activeM.name, 
-    actualIdentityX: activeX.name, 
-    mExps: selectedM,
-    xExps: selectedX,
-    assumption: document.getElementById('assumption').value
+        fName: student.fName,
+        lName: student.lName,
+        period: student.period,
+        actualIdentityM: activeM.name, 
+        actualIdentityX: activeX.name, 
+        mExps: completedM.map(e => e.id),
+        xExps: completedX.map(e => e.id),
+        assumption: assumptionText
     };
 
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwsKhE4KFf_c7Ra6i3IAXRJ1Rt-rBGYSgeOdRpy1hKKaf28A2AWZW5odUdS2xTpHeKr2A/exec'; // <--- UPDATE THIS AGAIN IF YOU RE-DEPLOYED
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKHQd1vrdU7taJzdUtm2AwQB4fGVqg8DY9TPjPCf_h40gtvgukOuKj0xoIlfDweLaNPQ/exec'; // You must update the script form every time you deploy scripts app.
 
     try {
         const btn = document.querySelector('button[onclick="finalizeLab()"]');
@@ -137,38 +216,11 @@ async function finalizeLab() {
             body: JSON.stringify(entry)
         });
 
-        alert("Lab Submitted Successfully! Redirecting to entry page...");
+        alert("Lab Submitted Successfully! Redirecting...");
         window.location.href = 'index.html';
     } catch (error) {
         alert("Submission failed. Check your connection.");
         btn.innerText = "Submit to Backend";
         btn.disabled = false;
     }
-}
-
-function openModal(id) { document.getElementById(id).classList.add('active'); }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-function checkTeacher() {
-    if(prompt("Access Code:") === "MXLabResults") {
-        console.table(JSON.parse(localStorage.getItem('mx_results') || '[]'));
-        alert("Teacher data check enabled. View Console (F12).");
-    }
-}
-
-function resetSelections() {
-    selectedM = [];
-    selectedX = [];
-    
-    // This finds all cards and "turns off" their blue/green borders
-    document.querySelectorAll('.experiment-card').forEach(card => {
-        card.classList.remove('selected-m', 'selected-x');
-    });
-    
-    // Disable the run button again
-    const btn = document.getElementById('run-btn');
-    btn.disabled = true;
-    btn.style.opacity = "0.5";
-    btn.classList.remove('bg-blue-600');
-    btn.classList.add('bg-gray-600');
 }
