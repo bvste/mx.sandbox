@@ -41,37 +41,78 @@ const experimentsX = [
     { id: 'conductX', name: "Thermal Probe", static: "Material acts as a thermal insulator." }
 ];
 
-// Expand your reference metals list to ensure they have enough choices
+// --- STATE MANAGEMENT ---
+let currentPhase = 'M'; 
+let completedM = [];    
+let completedX = [];    
+let activeTest = null;
+
+// Database for Comparison Feature
 const referenceMetals = [
-    { name: "Nickel", description: "lustrous, silvery-white with a slight golden or brownish tinge.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Pale green/ bluish green flame" },
-    { name: "CopperTwo", description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame" },
-    { name: "CopperThree", description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame" },
-    { name: "Silver", description: "lusterous and brilliant white.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "No Data" },
-    { name: "Aluminum", description: "shiny, silver.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "White/silvery white flame" },
-    { name: "IronTwo", description: "silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Red flame" },
-    { name: "IronThree", description: "silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Red flame" },
-    { name: "Magnesium", description: "lursterous, silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Very blinding white light, white powder formed after" }
+    { name: "Nickel", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Pale green/ bluish green flame" },
+    { name: "CopperTwo", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame" },
+    { name: "Silver", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "No Data" },
+    { name: "Aluminum", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "White/silvery white flame" },
+    { name: "IronTwo", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Red flame" },
+    { name: "Magnesium", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Blinding white light" }
 ];
+
+window.onload = () => {
+    if(!sessionStorage.getItem('activeStudent')) window.location.href = 'index.html';
+    
+    // Set initial modal text
+    const modalText = document.querySelector('#mx-modal p');
+    if (modalText) {
+        modalText.innerHTML = `<strong>Element M</strong> is ${activeM.description} <br><br> <strong>Element X</strong> is ${activeX.description}`;
+    }
+    
+    openModal('mx-modal');
+    loadMenu(); 
+};
+
+// --- CORE LAB LOGIC ---
+
+function loadMenu() {
+    const menu = document.getElementById('experiment-menu');
+    menu.innerHTML = '';
+    const list = (currentPhase === 'M') ? experimentsM : experimentsX;
+    const completed = (currentPhase === 'M') ? completedM : completedX;
+
+    list.forEach(exp => {
+        const isDone = completed.find(c => c.id === exp.id);
+        menu.innerHTML += `
+            <button onclick="startTest('${exp.id}')" ${isDone ? 'disabled' : ''} 
+                class="w-full text-left p-4 rounded-xl border transition-all flex justify-between items-center
+                ${isDone ? 'opacity-40 bg-gray-900 border-gray-800 cursor-not-allowed' : 'hover:bg-gray-700 bg-gray-800 border-gray-700 shadow-sm'}">
+                <span class="font-medium text-white">${exp.name}</span>
+                ${isDone ? '<span>✅</span>' : '<span class="text-blue-500">→</span>'}
+            </button>`;
+    });
+}
 
 function startTest(testId) {
     activeTest = testId;
+    
+    // Reset view states
     document.getElementById('station-empty').classList.add('hidden');
     document.getElementById('station-active').classList.add('hidden');
-    document.getElementById('station-setup').classList.remove('hidden');
     
     const exp = (currentPhase === 'M') ? experimentsM.find(e => e.id === testId) : experimentsX.find(e => e.id === testId);
-    document.getElementById('setup-test-name').innerText = "Setup: " + exp.name;
-
-    // Fill dropdowns with reference metal options
-    const dropdowns = ['ref-1', 'ref-2', 'ref-3'];
-    dropdowns.forEach(id => {
-        const select = document.getElementById(id);
-        select.innerHTML = referenceMetals.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
-    });
     
-    // For Non-Metals (X), we can just skip setup if you don't have comparison data for X
-    if (currentPhase === 'X') {
-        runComparisonTest(); 
+    if (currentPhase === 'M') {
+        // Show Setup Screen for Metals
+        document.getElementById('station-setup').classList.remove('hidden');
+        document.getElementById('setup-test-name').innerText = "Setup: " + exp.name;
+
+        // Fill dropdowns
+        const dropdowns = ['ref-1', 'ref-2', 'ref-3'];
+        dropdowns.forEach(id => {
+            const select = document.getElementById(id);
+            select.innerHTML = referenceMetals.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
+        });
+    } else {
+        // Skip setup for Non-Metals (Phase X)
+        runComparisonTest();
     }
 }
 
@@ -80,20 +121,17 @@ function runComparisonTest() {
     document.getElementById('station-active').classList.remove('hidden');
     
     const exp = (currentPhase === 'M') ? experimentsM.find(e => e.id === activeTest) : experimentsX.find(e => e.id === activeTest);
-    document.getElementById('active-test-name').innerText = exp.name + " Results";
-
     const zone = document.getElementById('comparison-zone');
     const userResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
     
-    // Add the Unknown Sample first
+    // Unknown Sample Header
     let html = `
-        <div class="p-4 bg-blue-900/30 border border-blue-500 rounded-xl md:col-span-2 text-center">
-            <p class="text-[10px] text-blue-400 uppercase font-black tracking-widest">Your Unknown Sample (${currentPhase})</p>
+        <div class="p-4 bg-blue-900/30 border border-blue-500 rounded-xl md:col-span-2 text-center shadow-lg">
+            <p class="text-[10px] text-blue-400 uppercase font-black tracking-widest">Unknown Sample Result</p>
             <p class="text-xl text-white font-bold">${userResult}</p>
-        </div>
-    `;
+        </div>`;
 
-    // Add selected comparison metals (Only for Phase M)
+    // Add Reference Results (Phase M only)
     if (currentPhase === 'M') {
         const selections = [
             document.getElementById('ref-1').value,
@@ -106,66 +144,14 @@ function runComparisonTest() {
             html += `
                 <div class="p-4 bg-gray-800 border border-gray-700 rounded-xl">
                     <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest">${metal.name}</p>
-                    <p class="text-gray-300">${metal[activeTest] || "No data"}</p>
-                </div>
-            `;
+                    <p class="text-gray-300 text-sm">${metal[activeTest] || "No Data"}</p>
+                </div>`;
         });
+    } else {
+        // For Phase X, just add a placeholder if no comparisons
+        html += `<div class="md:col-span-2 text-center text-gray-500 italic p-4 text-sm">No comparison needed for non-metal phase.</div>`;
     }
-
-    zone.innerHTML = html;
-}
     
-    openModal('mx-modal');
-    loadMenu(); 
-};
-
-// --- PHASED UI LOGIC ---
-
-function loadMenu() {
-    const menu = document.getElementById('experiment-menu');
-    menu.innerHTML = '';
-    const list = (currentPhase === 'M') ? experimentsM : experimentsX;
-    const completed = (currentPhase === 'M') ? completedM : completedX;
-
-    list.forEach(exp => {
-        const isDone = completed.find(c => c.name === exp.name);
-        menu.innerHTML += `
-            <button onclick="startTest('${exp.id}')" ${isDone ? 'disabled' : ''} 
-                class="w-full text-left p-4 rounded-xl border transition-all flex justify-between items-center
-                ${isDone ? 'opacity-40 bg-gray-900 border-gray-800 cursor-not-allowed' : 'hover:bg-gray-700 bg-gray-800 border-gray-700 shadow-sm'}">
-                <span class="font-medium">${exp.name}</span>
-                ${isDone ? '<span>✅</span>' : '<span class="text-blue-500">→</span>'}
-            </button>`;
-    });
-}
-
-function startTest(testId) {
-    activeTest = testId;
-    document.getElementById('station-empty').classList.add('hidden');
-    document.getElementById('station-active').classList.remove('hidden');
-    
-    const exp = (currentPhase === 'M') ? experimentsM.find(e => e.id === testId) : experimentsX.find(e => e.id === testId);
-    document.getElementById('active-test-name').innerText = exp.name;
-
-    const zone = document.getElementById('comparison-zone');
-    const userResult = exp.static || (currentPhase === 'M' ? activeM[testId] : activeX[testId]);
-    
-    let html = `
-        <div class="p-5 bg-blue-900/20 border border-blue-500/40 rounded-xl shadow-inner">
-            <p class="text-[10px] text-blue-400 uppercase font-black tracking-widest mb-2 font-bold">Your Unknown Sample</p>
-            <p class="text-lg text-white font-medium">${userResult}</p>
-        </div>
-    `;
-
-    if (currentPhase === 'M') {
-        const ref = referenceMetals[Math.floor(Math.random() * referenceMetals.length)];
-        html += `
-            <div class="p-5 bg-gray-800/50 border border-gray-700 rounded-xl">
-                <p class="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-2 font-bold">Reference: ${ref.name}</p>
-                <p class="text-lg text-gray-400 italic">${ref[testId] || "Comparison data not available for this procedure."}</p>
-            </div>
-        `;
-    }
     zone.innerHTML = html;
 }
 
@@ -187,7 +173,7 @@ function logExperiment() {
 
 function checkPhaseTransition() {
     if (currentPhase === 'M' && completedM.length === 3) {
-        alert("Phase 1 Complete! Transitioning to Element X testing.");
+        alert("Phase 1 Complete! Transitioning to Element X.");
         currentPhase = 'X';
         document.getElementById('phase-title').innerText = "Phase 2: Testing Unknown X";
         document.getElementById('phase-title').className = "text-2xl font-bold text-emerald-400";
@@ -196,59 +182,43 @@ function checkPhaseTransition() {
         showCER();
     }
     
+    // Reset station view
     document.getElementById('station-empty').classList.remove('hidden');
     document.getElementById('station-active').classList.add('hidden');
+    document.getElementById('station-setup').classList.add('hidden');
     loadMenu();
 }
 
 function showCER() {
     document.getElementById('lab-workspace').classList.add('hidden');
     document.getElementById('cer-screen').classList.remove('hidden');
-    document.getElementById('phase-title').innerText = "Final Lab Report Summary";
     
     const log = document.getElementById('summary-log');
-    let html = "<div class='space-y-3'><h4 class='text-blue-400 font-bold uppercase text-xs tracking-widest'>M Observations</h4>";
-    completedM.forEach(e => html += `<div class='text-sm bg-gray-900 p-3 rounded-lg border border-gray-800'><b>${e.name}:</b> ${e.result}</div>`);
-    
-    html += "</div><div class='space-y-3'><h4 class='text-emerald-400 font-bold uppercase text-xs tracking-widest'>X Observations</h4>";
-    completedX.forEach(e => html += `<div class='text-sm bg-gray-900 p-3 rounded-lg border border-gray-800'><b>${e.name}:</b> ${e.result}</div>`);
-    
+    let html = "<div class='space-y-2'><h4 class='text-blue-400 font-bold'>M Results</h4>";
+    completedM.forEach(e => html += `<div class='text-sm bg-gray-900 p-2 rounded'><b>${e.name}:</b> ${e.result}</div>`);
+    html += "</div><div class='space-y-2'><h4 class='text-emerald-400 font-bold'>X Results</h4>";
+    completedX.forEach(e => html += `<div class='text-sm bg-gray-900 p-2 rounded'><b>${e.name}:</b> ${e.result}</div>`);
     log.innerHTML = html + "</div>";
 }
 
+// --- SYSTEM UTILITIES ---
 
 function openModal(id) { document.getElementById(id).classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-function checkTeacher() {
-    if(prompt("Access Code:") === "MXLabResults") {
-        console.table(JSON.parse(localStorage.getItem('mx_results') || '[]'));
-        alert("Teacher data check enabled. View Console (F12).");
-    }
-}
-
-function resetSelections() {
-    window.location.reload(); // Simplest way to reset the phased state
-}
-
 async function finalizeLab() {
     const student = JSON.parse(sessionStorage.getItem('activeStudent'));
     const assumptionText = document.getElementById('assumption').value;
-    
     if(!assumptionText) return alert("Please enter your assumptions.");
 
     const entry = {
-        fName: student.fName,
-        lName: student.lName,
-        period: student.period,
-        actualIdentityM: activeM.name, 
-        actualIdentityX: activeX.name, 
-        mExps: completedM.map(e => e.id),
-        xExps: completedX.map(e => e.id),
+        fName: student.fName, lName: student.lName, period: student.period,
+        actualIdentityM: activeM.name, actualIdentityX: activeX.name, 
+        mExps: completedM.map(e => e.id), xExps: completedX.map(e => e.id),
         assumption: assumptionText
     };
 
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKHQd1vrdU7taJzdUtm2AwQB4fGVqg8DY9TPjPCf_h40gtvgukOuKj0xoIlfDweLaNPQ/exec'; // You must update the script form every time you deploy scripts app.
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKHQd1vrdU7taJzdUtm2AwQB4fGVqg8DY9TPjPCf_h40gtvgukOuKj0xoIlfDweLaNPQ/exec';
 
     try {
         const btn = document.querySelector('button[onclick="finalizeLab()"]');
@@ -263,11 +233,11 @@ async function finalizeLab() {
             body: JSON.stringify(entry)
         });
 
-        alert("Lab Submitted Successfully! Redirecting...");
+        alert("Lab Submitted Successfully!");
         window.location.href = 'index.html';
     } catch (error) {
-        alert("Submission failed. Check your connection.");
-        btn.innerText = "Submit to Backend";
+        alert("Submission failed.");
+        btn.innerText = "Submit Lab Report";
         btn.disabled = false;
     }
 }
