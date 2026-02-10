@@ -25,7 +25,7 @@
 <div id="lab-workspace" class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
     
     <div class="lg:col-span-1 space-y-4">
-        <h3 class="font-bold text-gray-500 uppercase tracking-widest text-xs px-2">Available Procedures</h3>
+        <h3 class="font-bold text-gray-500 uppercase tracking-widest text-xs px-2">Available Tests</h3>
         <div id="experiment-menu" class="space-y-3">
             </div>
     </div>
@@ -39,7 +39,7 @@
 
         <div id="station-setup" class="hidden w-full">
             <h3 id="setup-test-name" class="text-2xl font-bold mb-2 text-white"></h3>
-            <p class="text-gray-400 mb-6">Choose 3 reference metals to compare against your unknown.</p>
+            <p class="text-gray-400 mb-6">Choose 3 reference metals to compare against your unknown element.</p>
             
             <div class="grid grid-cols-1 gap-4 mb-8">
                 <select id="ref-1" class="bg-gray-800 border border-gray-600 p-3 rounded-xl text-white outline-none focus:border-blue-500"></select>
@@ -56,7 +56,7 @@
             <div id="comparison-zone" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                 </div>
             <button onclick="logExperiment()" class="w-full bg-emerald-600 py-4 rounded-xl font-bold hover:bg-emerald-500 transition-all">
-                Lock Results in Notebook
+                Save Experiment Results
             </button>
         </div>
     </div>
@@ -66,19 +66,12 @@
     <div id="summary-log" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"></div>
     <div class="bg-gray-800 p-8 rounded-2xl border border-gray-700">
         <h3 class="text-2xl font-bold mb-4">Final CER Claim</h3>
-        <textarea id="assumption" class="w-full bg-gray-900 border border-gray-700 p-4 rounded-xl text-white" rows="6"></textarea>
+        <p class="text-gray-400 text-sm mb-4">Based on the data above, identify M and X. Support your claim with evidence and reasoning.</p>
+        <textarea id="assumption" class="w-full bg-gray-900 border border-gray-700 p-4 rounded-xl text-white" rows="6" placeholder="Example: I believe M is Zinc because..."></textarea>
         <button onclick="finalizeLab()" class="w-full bg-emerald-600 mt-4 py-4 rounded-xl font-bold">Submit Lab Report</button>
     </div>
 </div>
 
-        <div class="bg-gray-800 p-8 rounded-2xl border border-gray-700 shadow-2xl">
-            <h3 class="text-2xl font-bold mb-4 text-white">Final CER Claim</h3>
-            <p class="text-gray-400 text-sm mb-4">Based on the data above, identify M and X. Support your claim with evidence and reasoning.</p>
-            <textarea id="assumption" class="w-full bg-gray-900 border border-gray-600 p-4 rounded-xl text-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" rows="6" placeholder="Example: I believe M is Zinc because..."></textarea>
-            <button onclick="finalizeLab()" class="w-full bg-emerald-600 hover:bg-emerald-500 mt-6 py-4 rounded-xl font-bold text-lg transition-all shadow-lg shadow-emerald-900/20">
-                Submit CER
-            </button>
-        </div>
     </div>
 
     <div id="mx-modal" class="modal">
