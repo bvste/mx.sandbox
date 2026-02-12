@@ -74,3 +74,13 @@ body { background-color: var(--lab-bg); font-family: 'Inter', sans-serif; color:
     background: rgba(16, 185, 129, 0.2) !important;
     box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
 }
+
+.cer-result-card {
+    border: 2px solid #1e293b; /* Darker Slate/Navy border */
+    background-color: #0f172a; /* Deeper background */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+}
+
+.cer-result-card:hover {
+    border-color: #334155; /* Subtle highlight on hover */
+}
