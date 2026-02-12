@@ -12,10 +12,10 @@ const metalIdentities = [
 ];
 
 const nonMetalIdentities = [
-    { name: "Sulfur", description: "a distinctively bright lemon-yellow, pale yellow, or greenish-yellow solid.", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", water: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water." },
-    { name: "Chlorine", description: "a dense, yellow-green gas.", heat: "Pale green gas fills the tube.", water: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid." },
-    { name: "Bromine", description: "a reddish-brown liquid.", heat: "Deep red-orange vapors fill the tube.", water: "Heavy orange-red liquid at the bottom.", solvent: "Orange-brown solution forms." },
-    { name: "Phosphorus", description: "a white, red, or black solid.", heat: "Ignites into a bright white light/smoke.", water: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids." }
+    { name: "Sulfur", description: "a distinctively bright lemon-yellow, pale yellow, or greenish-yellow solid.", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", solubility: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water." },
+    { name: "Chlorine", description: "a dense, yellow-green gas.", heat: "Pale green gas fills the tube.", solubility: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid." },
+    { name: "Bromine", description: "a reddish-brown liquid.", heat: "Deep red-orange vapors fill the tube.", solubility: "Heavy orange-red liquid at the bottom.", solvent: "Orange-brown solution forms." },
+    { name: "Phosphorus", description: "a white, red, or black solid.", heat: "Ignites into a bright white light/smoke.", solubility: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids." }
 ];
 
 // Logic to pick M and X for this session
@@ -34,7 +34,7 @@ const experimentsM = [
 
 const experimentsX = [
     { id: 'heat', name: "Bunsen Burner" },
-    { id: 'water', name: "Water Solubility" },
+    { id: 'solubility', name: "Water Solubility" },
     { id: 'solvent', name: "Organic Solvent" },
     { id: 'brittle', name: "Brittleness", static: "Sample shatters into a fine powder." },
     { id: 'starch', name: "Starch Indicator", static: "No reaction (Starch stays white)." },
@@ -58,10 +58,10 @@ const referenceMetals = [
 ];
 
 const referenceNonMetals = [
-    { name: "Sulfur", description: "a distinctively bright lemon-yellow, pale yellow, or greenish-yellow solid.", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", water: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water." },
-    { name: "Chlorine", description: "a dense, yellow-green gas.", heat: "Pale green gas fills the tube.", water: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid." },
-    { name: "Bromine", description: "a reddish-brown liquid.", heat: "Deep red-orange vapors fill the tube.", water: "Heavy orange-red liquid at the bottom.", solvent: "Orange-brown solution forms." },
-    { name: "Phosphorus", description: "a white, red, or black solid.", heat: "Ignites into a bright white light/smoke.", water: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids." }
+    { name: "Sulfur", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", solubility: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water." },
+    { name: "Chlorine", heat: "Pale green gas fills the tube.", solubility: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid." },
+    { name: "Bromine", heat: "Deep red-orange vapors fill the tube.", solubility: "Heavy orange-red liquid at the bottom.", solvent: "Orange-brown solution forms." },
+    { name: "Phosphorus", heat: "Ignites into a bright white light/smoke.", solubility: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids." }
 ];
 
 window.onload = () => {
@@ -123,16 +123,16 @@ function runComparisonTest() {
     
     const exp = (currentPhase === 'M') ? experimentsM.find(e => e.id === activeTest) : experimentsX.find(e => e.id === activeTest);
     const zone = document.getElementById('comparison-zone');
+    
+    // Use static result if it exists, otherwise pull from the active identity
     const userResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
     
-    // Header for the Unknown
     let html = `
         <div class="p-4 bg-blue-900/30 border border-blue-500 rounded-xl md:col-span-2 text-center shadow-lg">
             <p class="text-[10px] text-blue-400 uppercase font-black tracking-widest">Unknown Sample ${currentPhase}</p>
-            <p class="text-xl text-white font-bold">${userResult}</p>
+            <p class="text-xl text-white font-bold">${userResult || "Testing..."}</p>
         </div>`;
 
-    // Comparison Logic
     const selections = [
         document.getElementById('ref-1').value,
         document.getElementById('ref-2').value,
@@ -143,8 +143,10 @@ function runComparisonTest() {
 
     selections.forEach(name => {
         const refObj = currentRefList.find(r => r.name === name);
-        // We use activeTest as the key to get the specific property (e.g., 'heat' or 'water')
-        const refResult = refObj[activeTest] || "No comparative data";
+        
+        // LOGIC FIX: If the experiment is static for the unknown, 
+        // it should probably be static for the reference too (e.g., all metals conduct).
+        const refResult = exp.static || refObj[activeTest] || "No comparative data";
         
         html += `
             <div class="p-4 bg-gray-800 border border-gray-700 rounded-xl">
@@ -155,6 +157,7 @@ function runComparisonTest() {
 
     zone.innerHTML = html;
 }
+
 function logExperiment() {
     const list = (currentPhase === 'M') ? experimentsM : experimentsX;
     const exp = list.find(e => e.id === activeTest);
