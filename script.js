@@ -1,21 +1,21 @@
 // Database of possible identities
 // I also added the descriptions of each M and X which is shown on the very first page
 const metalIdentities = [
-    { name: "Nickel", description: "lustrous, silvery-white with a slight golden or brownish tinge.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Pale green/ bluish green flame" },
-    { name: "CopperTwo", description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame" },
-    { name: "CopperThree", description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame" },
-    { name: "Silver", description: "lusterous and brilliant white.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "No Data" },
-    { name: "Aluminum", description: "shiny, silver.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "White/silvery white flame" },
-    { name: "IronTwo", description: "silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Red flame" },
-    { name: "IronThree", description: "silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Red flame" },
-    { name: "Magnesium", description: "lursterous, silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Very blinding white light, white powder formed after" }
+    { name: "Nickel", description: "lustrous, silvery-white with a slight golden or brownish tinge.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Pale green/ bluish green flame", mass: 58.69},
+    { name: "CopperTwo", description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame", mass: 63.55},
+    { name: "CopperThree", description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame", mass: 63.55},
+    { name: "Silver", description: "lusterous and brilliant white.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "No Data", mass: 107.87},
+    { name: "Aluminum", description: "shiny, silver.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "White/silvery white flame", mass: 26.98},
+    { name: "IronTwo", description: "silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Red flame", mass: 55.85},
+    { name: "IronThree", description: "silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Red flame", mass: 55.85},
+    { name: "Magnesium", description: "lursterous, silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Very blinding white light, white powder formed after", mass: 24.31}
 ];
 
 const nonMetalIdentities = [
-    { name: "Sulfur", description: "a distinctively bright lemon-yellow, pale yellow, or greenish-yellow solid.", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", solubility: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water." },
-    { name: "Chlorine", description: "a dense, yellow-green gas.", heat: "Pale green gas fills the tube.", solubility: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid." },
-    { name: "Bromine", description: "a reddish-brown liquid.", heat: "Deep red-orange vapors fill the tube.", solubility: "Heavy orange-red liquid at the bottom.", solvent: "Orange-brown solution forms." },
-    { name: "Phosphorus", description: "a white, red, or black solid.", heat: "Ignites into a bright white light/smoke.", solubility: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids." }
+    { name: "Sulfur", description: "a distinctively bright lemon-yellow, pale yellow, or greenish-yellow solid.", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", solubility: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water.", mass: 32.07},
+    { name: "Chlorine", description: "a dense, yellow-green gas.", heat: "Pale green gas fills the tube.", solubility: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid.", mass: 70.91},
+    { name: "Bromine", description: "a reddish-brown liquid.", heat: "Deep red-orange vapors fill the tube.", solubility: "Heavy orange-red liquid at the bottom.", solvent: "Orange-brown solution forms.", mass: 159.81},
+    { name: "Phosphorus", description: "a white, red, or black solid.", heat: "Ignites into a bright white light/smoke.", solubility: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids.", mass: 30.97}
 ];
 
 // Logic to pick M and X for this session
@@ -176,20 +176,51 @@ function logExperiment() {
 
 function checkPhaseTransition() {
     if (currentPhase === 'M' && completedM.length === 3) {
+        // Transition to X (Existing logic)
         alert("Phase 1 Complete! Transitioning to Element X.");
         currentPhase = 'X';
         document.getElementById('phase-title').innerText = "Phase 2: Testing Unknown X";
         document.getElementById('phase-title').className = "text-2xl font-bold text-emerald-400";
         document.getElementById('exp-count').innerText = "0 / 3";
-    } else if (currentPhase === 'X' && completedX.length === 3) {
-        showCER();
+        loadMenu();
+    } 
+    else if (currentPhase === 'X' && completedX.length === 3) {
+        // NEW: Instead of showCER(), go to Phase 3
+        alert("Phase 2 Complete! Beginning Molecular Mass Analysis...");
+        runMolarMassPhase(); 
     }
     
     // Reset station view
     document.getElementById('station-empty').classList.remove('hidden');
     document.getElementById('station-active').classList.add('hidden');
     document.getElementById('station-setup').classList.add('hidden');
-    loadMenu();
+}
+
+function runMolarMassPhase() {
+    currentPhase = 'P'; // P for Periodic/Phase 3
+    
+    document.getElementById('phase-title').innerText = "Phase 3: Molar Mass Analysis";
+    document.getElementById('phase-title').className = "text-2xl font-bold text-purple-400";
+    document.getElementById('lab-workspace').classList.remove('hidden'); 
+    document.getElementById('station-empty').classList.add('hidden');
+    document.getElementById('station-active').classList.remove('hidden');
+
+    const zone = document.getElementById('comparison-zone');
+    const totalMass = (activeM.mass + activeX.mass).toFixed(2);
+
+    zone.innerHTML = `
+        <div class="col-span-1 md:col-span-2 bg-gradient-to-br from-purple-900/30 to-gray-900 p-8 rounded-2xl border border-purple-500/50 text-center">
+            <p class="text-purple-400 uppercase tracking-widest text-xs font-bold mb-2">Experimental Mass Spectrometry</p>
+            <h2 class="text-6xl font-black text-white mb-4">${totalMass} <span class="text-xl font-light text-gray-500">g/mol</span></h2>
+            <p class="text-gray-400 max-w-md mx-auto">The sample was ionized and accelerated through a magnetic field to determine the total molecular mass of compound MX.</p>
+        </div>
+    `;
+
+    // Change the "Save" button to move to the Final CER
+    const actionBtn = document.querySelector('#station-active button');
+    actionBtn.innerText = "Continue to Final CER";
+    actionBtn.className = "w-full bg-purple-600 py-4 rounded-xl font-bold hover:bg-purple-500 transition-all text-white mt-4";
+    actionBtn.onclick = showCER; 
 }
 
 function showCER() {
