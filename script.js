@@ -57,6 +57,13 @@ const referenceMetals = [
     { name: "Magnesium", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Blinding white light" }
 ];
 
+const referenceNonMetals = [
+    { name: "Sulfur", description: "a distinctively bright lemon-yellow, pale yellow, or greenish-yellow solid.", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", water: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water." },
+    { name: "Chlorine", description: "a dense, yellow-green gas.", heat: "Pale green gas fills the tube.", water: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid." },
+    { name: "Bromine", description: "a reddish-brown liquid.", heat: "Deep red-orange vapors fill the tube.", water: "Heavy orange-red liquid at the bottom.", solvent: "Orange-brown solution forms." },
+    { name: "Phosphorus", description: "a white, red, or black solid.", heat: "Ignites into a bright white light/smoke.", water: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids." }
+];
+
 window.onload = () => {
     if(!sessionStorage.getItem('activeStudent')) window.location.href = 'index.html';
     
@@ -93,27 +100,21 @@ function loadMenu() {
 function startTest(testId) {
     activeTest = testId;
     
-    // Reset view states
     document.getElementById('station-empty').classList.add('hidden');
     document.getElementById('station-active').classList.add('hidden');
+    document.getElementById('station-setup').classList.remove('hidden');
     
     const exp = (currentPhase === 'M') ? experimentsM.find(e => e.id === testId) : experimentsX.find(e => e.id === testId);
-    
-    if (currentPhase === 'M') {
-        // Show Setup Screen for Metals
-        document.getElementById('station-setup').classList.remove('hidden');
-        document.getElementById('setup-test-name').innerText = "Setup: " + exp.name;
+    document.getElementById('setup-test-name').innerText = "Setup: " + exp.name;
 
-        // Fill dropdowns
-        const dropdowns = ['ref-1', 'ref-2', 'ref-3'];
-        dropdowns.forEach(id => {
-            const select = document.getElementById(id);
-            select.innerHTML = referenceMetals.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
-        });
-    } else {
-        // Skip setup for Non-Metals (Phase X)
-        runComparisonTest();
-    }
+    // Fill dropdowns based on Phase
+    const dropdowns = ['ref-1', 'ref-2', 'ref-3'];
+    const currentRefList = (currentPhase === 'M') ? referenceMetals : referenceNonMetals;
+
+    dropdowns.forEach(id => {
+        const select = document.getElementById(id);
+        select.innerHTML = currentRefList.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
+    });
 }
 
 function runComparisonTest() {
@@ -124,37 +125,36 @@ function runComparisonTest() {
     const zone = document.getElementById('comparison-zone');
     const userResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
     
-    // Unknown Sample Header
+    // Header for the Unknown
     let html = `
         <div class="p-4 bg-blue-900/30 border border-blue-500 rounded-xl md:col-span-2 text-center shadow-lg">
-            <p class="text-[10px] text-blue-400 uppercase font-black tracking-widest">Unknown Sample Result</p>
+            <p class="text-[10px] text-blue-400 uppercase font-black tracking-widest">Unknown Sample ${currentPhase}</p>
             <p class="text-xl text-white font-bold">${userResult}</p>
         </div>`;
 
-    // Add Reference Results (Phase M only)
-    if (currentPhase === 'M') {
-        const selections = [
-            document.getElementById('ref-1').value,
-            document.getElementById('ref-2').value,
-            document.getElementById('ref-3').value
-        ];
+    // Comparison Logic
+    const selections = [
+        document.getElementById('ref-1').value,
+        document.getElementById('ref-2').value,
+        document.getElementById('ref-3').value
+    ];
 
-        selections.forEach(name => {
-            const metal = referenceMetals.find(m => m.name === name);
-            html += `
-                <div class="p-4 bg-gray-800 border border-gray-700 rounded-xl">
-                    <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest">${metal.name}</p>
-                    <p class="text-gray-300 text-sm">${metal[activeTest] || "No Data"}</p>
-                </div>`;
-        });
-    } else {
-        // For Phase X, just add a placeholder if no comparisons
-        html += `<div class="md:col-span-2 text-center text-gray-500 italic p-4 text-sm">No comparison needed for non-metal phase.</div>`;
-    }
-    
+    const currentRefList = (currentPhase === 'M') ? referenceMetals : referenceNonMetals;
+
+    selections.forEach(name => {
+        const refObj = currentRefList.find(r => r.name === name);
+        // We use activeTest as the key to get the specific property (e.g., 'heat' or 'water')
+        const refResult = refObj[activeTest] || "No comparative data";
+        
+        html += `
+            <div class="p-4 bg-gray-800 border border-gray-700 rounded-xl">
+                <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest">${refObj.name}</p>
+                <p class="text-gray-300 text-sm">${refResult}</p>
+            </div>`;
+    });
+
     zone.innerHTML = html;
 }
-
 function logExperiment() {
     const list = (currentPhase === 'M') ? experimentsM : experimentsX;
     const exp = list.find(e => e.id === activeTest);
