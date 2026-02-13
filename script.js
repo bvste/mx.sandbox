@@ -196,31 +196,83 @@ function checkPhaseTransition() {
     document.getElementById('station-setup').classList.add('hidden');
 }
 
-function runMolarMassPhase() {
-    currentPhase = 'P'; // P for Periodic/Phase 3
-    
-    document.getElementById('phase-title').innerText = "Phase 3: Molar Mass Analysis";
-    document.getElementById('phase-title').className = "text-2xl font-bold text-purple-400";
-    document.getElementById('lab-workspace').classList.remove('hidden'); 
-    document.getElementById('station-empty').classList.add('hidden');
-    document.getElementById('station-active').classList.remove('hidden');
+let phase3Attempts = []; 
 
+function runMolarMassPhase() {
+    currentPhase = 'P';
+    document.getElementById('phase-title').innerText = "Phase 3: Molecular Synthesis";
+    document.getElementById('phase-title').className = "text-2xl font-bold text-purple-400";
+    
     const zone = document.getElementById('comparison-zone');
-    const totalMass = (activeM.mass + activeX.mass).toFixed(2);
+    const totalMassActual = (activeM.mass + activeX.mass).toFixed(2);
 
     zone.innerHTML = `
-        <div class="col-span-1 md:col-span-2 bg-gradient-to-br from-purple-900/30 to-gray-900 p-8 rounded-2xl border border-purple-500/50 text-center">
-            <p class="text-purple-400 uppercase tracking-widest text-xs font-bold mb-2">Experimental Mass Spectrometry</p>
-            <h2 class="text-6xl font-black text-white mb-4">${totalMass} <span class="text-xl font-light text-gray-500">g/mol</span></h2>
-            <p class="text-gray-400 max-w-md mx-auto">The sample was ionized and accelerated through a magnetic field to determine the total molecular mass of compound MX.</p>
+        <div class="col-span-1 md:col-span-2 bg-slate-900 p-6 rounded-2xl border-2 border-purple-500/20 text-center mb-4">
+            <p class="text-purple-400 text-[10px] uppercase font-bold tracking-widest">Experimental Result (Target)</p>
+            <h2 class="text-5xl font-black text-white">${totalMassActual} g/mol</h2>
+        </div>
+
+        <div class="col-span-1 md:col-span-2 bg-gray-800 p-6 rounded-2xl border border-gray-700">
+            <h4 class="text-white font-bold mb-4">Compound Builder</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="text-[10px] text-gray-500 uppercase font-bold">Select Metal (M)</label>
+                    <select id="calc-m" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white mt-1">
+                        ${metalIdentities.map(m => `<option value="${m.mass}">${m.name}</option>`).join('')}
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] text-gray-500 uppercase font-bold">Select Non-Metal (X)</label>
+                    <select id="calc-x" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white mt-1">
+                        ${nonMetalIdentities.map(x => `<option value="${x.mass}">${x.name}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+            <button onclick="calculateAttempt()" class="w-full bg-purple-600 hover:bg-purple-500 py-3 rounded-xl font-bold text-white transition-all">
+                Check Molar Mass
+            </button>
+            <div id="calc-output" class="mt-4 text-center hidden">
+                <p id="calc-result-text" class="text-2xl font-mono text-white"></p>
+                <p id="calc-feedback" class="text-sm mt-1"></p>
+            </div>
         </div>
     `;
 
-    // Change the "Save" button to move to the Final CER
+    // Update main action button
     const actionBtn = document.querySelector('#station-active button');
-    actionBtn.innerText = "Continue to Final CER";
-    actionBtn.className = "w-full bg-purple-600 py-4 rounded-xl font-bold hover:bg-purple-500 transition-all text-white mt-4";
-    actionBtn.onclick = showCER; 
+    actionBtn.innerText = "Finalize Lab & Write CER";
+    actionBtn.onclick = showCER;
+}
+
+function calculateAttempt() {
+    const selM = document.getElementById('calc-m');
+    const selX = document.getElementById('calc-x');
+    
+    const mName = selM.options[selM.selectedIndex].text;
+    const xName = selX.options[selX.selectedIndex].text;
+    const mMass = parseFloat(selM.value);
+    const xMass = parseFloat(selX.value);
+    
+    const calculated = (mMass + xMass).toFixed(2);
+    const actual = (activeM.mass + activeX.mass).toFixed(2);
+    
+    // Log this attempt for the CER page
+    phase3Attempts.push({ combo: `${mName}${xName}`, mass: calculated });
+
+    const output = document.getElementById('calc-output');
+    const resultText = document.getElementById('calc-result-text');
+    const feedback = document.getElementById('calc-feedback');
+
+    output.classList.remove('hidden');
+    resultText.innerText = `${calculated} g/mol`;
+
+    if (calculated === actual) {
+        feedback.innerText = "MATCH DETECTED: Mass aligns with experimental data.";
+        feedback.className = "text-emerald-400 font-bold text-sm mt-1";
+    } else {
+        feedback.innerText = "NO MATCH: Mass does not align with experimental data.";
+        feedback.className = "text-red-400 text-sm mt-1";
+    }
 }
 
 function showCER() {
@@ -228,11 +280,43 @@ function showCER() {
     document.getElementById('cer-screen').classList.remove('hidden');
     
     const log = document.getElementById('summary-log');
-    let html = "<div class='space-y-2'><h4 class='text-blue-400 font-bold'>M Results</h4>";
-    completedM.forEach(e => html += `<div class='text-sm bg-gray-900 p-2 rounded'><b>${e.name}:</b> ${e.result}</div>`);
-    html += "</div><div class='space-y-2'><h4 class='text-emerald-400 font-bold'>X Results</h4>";
-    completedX.forEach(e => html += `<div class='text-sm bg-gray-900 p-2 rounded'><b>${e.name}:</b> ${e.result}</div>`);
-    log.innerHTML = html + "</div>";
+    
+    // Header and M/X Results (Using the new .cer-result-card class)
+    let html = `
+        <div class="space-y-4">
+            <h4 class="text-blue-400 font-bold">Element M Tests</h4>
+            ${completedM.map(e => `
+                <div class="cer-result-card p-4 rounded-xl">
+                    <b class="text-gray-400 text-xs uppercase">${e.name}:</b>
+                    <p class="text-white">${e.result}</p>
+                </div>
+            `).join('')}
+        </div>
+        
+        <div class="space-y-4">
+            <h4 class="text-emerald-400 font-bold">Element X Tests</h4>
+            ${completedX.map(e => `
+                <div class="cer-result-card p-4 rounded-xl">
+                    <b class="text-gray-400 text-xs uppercase">${e.name}:</b>
+                    <p class="text-white">${e.result}</p>
+                </div>
+            `).join('')}
+        </div>
+
+        <div class="col-span-1 md:col-span-2 mt-8">
+            <h4 class="text-purple-400 font-bold mb-4 text-center">Molar Mass Comparison Log</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                ${phase3Attempts.map(attempt => `
+                    <div class="cer-result-card p-3 rounded-lg border-l-4 ${attempt.mass === (activeM.mass + activeX.mass).toFixed(2) ? 'border-l-emerald-500' : 'border-l-red-500'}">
+                        <p class="text-[10px] text-gray-500 uppercase font-bold">${attempt.combo}</p>
+                        <p class="text-white font-mono">${attempt.mass} g/mol</p>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+    
+    log.innerHTML = html;
 }
 
 // --- SYSTEM UTILITIES ---
