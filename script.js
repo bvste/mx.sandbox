@@ -172,6 +172,7 @@ function logExperiment() {
     }
 
     checkPhaseTransition();
+    loadMenu();
 }
 
 function checkPhaseTransition() {
