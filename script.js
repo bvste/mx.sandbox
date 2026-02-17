@@ -1,14 +1,14 @@
 // Database of possible identities
 // I also added the descriptions of each M and X which is shown on the very first page
 const metalIdentities = [
-    { name: "Nickel", description: "lustrous, silvery-white with a slight golden or brownish tinge.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Pale green/ bluish green flame", mass: 58.69},
-    { name: "CopperTwo", description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame", mass: 63.55},
-    { name: "CopperThree", description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame", mass: 63.55},
-    { name: "Silver", description: "lusterous and brilliant white.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "No Data", mass: 107.87},
-    { name: "Aluminum", description: "shiny, silver.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "White/silvery white flame", mass: 26.98},
-    { name: "IronTwo", description: "silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Red flame", mass: 55.85},
-    { name: "IronThree", description: "silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Red flame", mass: 55.85},
-    { name: "Magnesium", description: "lursterous, silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Very blinding white light, white powder formed after", mass: 24.31}
+    { name: "Nickel", reactivity: 4, description: "lustrous, silvery-white with a slight golden or brownish tinge.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Pale green/ bluish green flame", mass: 58.69},
+    { name: "CopperTwo", reactivity: 2, description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame", mass: 63.55},
+    { name: "CopperThree", reactivity: 3, description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame", mass: 63.55},
+    { name: "Silver", reactivity: 1, description: "lusterous and brilliant white.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "No Data", mass: 107.87},
+    { name: "Aluminum", reactivity: 7, description: "shiny, silver.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "White/silvery white flame", mass: 26.98},
+    { name: "IronTwo", reactivity: 5, description: "silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Red flame", mass: 55.85},
+    { name: "IronThree", reactivity: 6, description: "silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Red flame", mass: 55.85},
+    { name: "Magnesium", reactivity: 8, description: "lursterous, silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Very blinding white light, white powder formed after", mass: 24.31}
 ];
 
 const nonMetalIdentities = [
@@ -29,7 +29,8 @@ const experimentsM = [
     { id: 'melting', name: "Crucible + Matches" },
     { id: 'conduct', name: "Conductivity Test", static: "Red and Green lights shine brightly" },
     { id: 'water', name: "Water Submerging", static: "Sample sinks in water and does not react." },
-    { id: 'flame', name: "Flame Test"}
+    { id: 'flame', name: "Flame Test"},
+    { id: 'reactive', name: "Reactivity Series"}
 ];
 
 const experimentsX = [
@@ -117,6 +118,18 @@ function startTest(testId) {
     });
 }
 
+function getActivityResult(unknown, reference) {
+    if (unknown.reactivity > reference.reactivity) {
+        return "Reaction occurs. Unknown metal displaces the reference metal.";
+    } 
+    else if (unknown.reactivity < reference.reactivity) {
+        return "No reaction. Unknown metal is less reactive.";
+    } 
+    else {
+        return "No reaction. Metals have similar reactivity.";
+    }
+}
+
 function runComparisonTest() {
     document.getElementById('station-setup').classList.add('hidden');
     document.getElementById('station-active').classList.remove('hidden');
@@ -125,7 +138,12 @@ function runComparisonTest() {
     const zone = document.getElementById('comparison-zone');
     
     // Use static result if it exists, otherwise pull from the active identity
-    const userResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
+    let userResult;
+    if (activeTest === "activity") {
+        userResult = "Use comparison results to determine reactivity.";
+    } else {
+        userResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
+    }
     
     let html = `
         <div class="p-4 bg-blue-900/30 border border-blue-500 rounded-xl md:col-span-2 text-center shadow-lg">
@@ -146,7 +164,12 @@ function runComparisonTest() {
         
         // LOGIC FIX: If the experiment is static for the unknown, 
         // it should probably be static for the reference too (e.g., all metals conduct).
-        const refResult = exp.static || refObj[activeTest] || "No comparative data";
+        let refResult;
+        if (activeTest === "activity") {
+            refResult = getActivityResult(activeM, refObj);
+        } else {
+            refResult = exp.static || refObj[activeTest] || "No comparative data";
+        }
         
         html += `
             <div class="p-4 bg-gray-800 border border-gray-700 rounded-xl">
