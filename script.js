@@ -185,9 +185,18 @@ function checkPhaseTransition() {
         loadMenu(); 
     } 
     else if (currentPhase === 'X' && completedX.length === 3) {
-        const menu = document.getElementById('experiment-menu');
-        if(menu) menu.classList.add('hidden');
-        
+        alert("Phase 2 Complete! Beginning Molecular Mass Analysis...");
+    
+        const menuSidebar = document.getElementById('experiment-menu').parentElement; 
+        if (menuSidebar) menuSidebar.remove(); 
+    
+        const workspace = document.getElementById('lab-workspace');
+        if (workspace) {
+            // This removes the two-column restriction so the content spans 100% width
+            workspace.classList.remove('grid', 'md:grid-cols-[300px,1fr]', 'gap-8');
+            workspace.classList.add('block', 'max-w-4xl', 'mx-auto'); 
+        }
+
         document.getElementById('station-empty').classList.add('hidden');
         document.getElementById('station-setup').classList.add('hidden');
         document.getElementById('station-active').classList.remove('hidden');
