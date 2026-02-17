@@ -226,25 +226,25 @@ function runMolarMassPhase() {
     const totalMass = (massM + massX).toFixed(2);
 
     zone.innerHTML = `
-        <div class="col-span-1 md:col-span-2 flex flex-col md:flex-row items-center justify-center gap-6 mb-8">
-            <div class="flex-1 p-6 bg-blue-900/20 border border-blue-500/30 rounded-2xl text-center shadow-lg w-full">
+        <div class="w-full flex flex-col md:flex-row items-center justify-center gap-6 mb-8">
+            <div class="w-full md:w-1/2 p-8 bg-blue-900/20 border border-blue-500/30 rounded-3xl text-center shadow-lg">
                 <p class="text-blue-400 text-[10px] uppercase font-bold tracking-widest mb-1 italic">Molar Mass of M</p>
-                <h3 class="text-4xl font-black text-white">${massM} <span class="text-xs font-light text-gray-500">g/mol</span></h3>
+                <h3 class="text-5xl font-black text-white">${massM} <span class="text-sm font-light text-gray-500">g/mol</span></h3>
             </div>
 
-            <div class="text-4xl text-gray-700 font-bold">+</div>
+            <div class="text-5xl text-gray-700 font-bold">+</div>
 
-            <div class="flex-1 p-6 bg-emerald-900/20 border border-emerald-500/30 rounded-2xl text-center shadow-lg w-full">
+            <div class="w-full md:w-1/2 p-8 bg-emerald-900/20 border border-emerald-500/30 rounded-3xl text-center shadow-lg">
                 <p class="text-emerald-400 text-[10px] uppercase font-bold tracking-widest mb-1 italic">Molar Mass of X</p>
-                <h3 class="text-4xl font-black text-white">${massX} <span class="text-xs font-light text-gray-500">g/mol</span></h3>
+                <h3 class="text-5xl font-black text-white">${massX} <span class="text-sm font-light text-gray-500">g/mol</span></h3>
             </div>
         </div>
 
-        <div class="col-span-1 md:col-span-2 bg-slate-900 p-10 rounded-3xl border-2 border-purple-500/50 text-center shadow-[0_0_20px_rgba(168,85,247,0.2)]">
-            <p class="text-purple-400 text-xs uppercase font-black tracking-[0.2em] mb-4">Final Experimental Analysis (MX)</p>
-            <h2 class="text-7xl font-black text-white tracking-tighter">${totalMass} <span class="text-2xl font-light text-purple-300/50">g/mol</span></h2>
-            <div class="h-1 w-24 bg-purple-500 mx-auto my-6 rounded-full opacity-50"></div>
-            <p class="text-gray-400 text-sm leading-relaxed max-w-md mx-auto">
+        <div class="w-full bg-slate-900 p-12 rounded-[2.5rem] border-2 border-purple-500/50 text-center shadow-[0_0_30px_rgba(168,85,247,0.15)]">
+            <p class="text-purple-400 text-sm uppercase font-black tracking-[0.3em] mb-4">Final Experimental Analysis (MX)</p>
+            <h2 class="text-8xl font-black text-white tracking-tighter">${totalMass} <span class="text-3xl font-light text-purple-300/50">g/mol</span></h2>
+            <div class="h-1.5 w-32 bg-purple-500 mx-auto my-8 rounded-full opacity-60"></div>
+            <p class="text-gray-300 text-lg leading-relaxed max-w-2xl mx-auto">
                 Identity verification confirmed. Use these values to justify your claim in the Final Lab Report.
             </p>
         </div>
