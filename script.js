@@ -177,21 +177,26 @@ function logExperiment() {
 
 function checkPhaseTransition() {
     if (currentPhase === 'M' && completedM.length === 3) {
-        // Transition to X (Existing logic)
         alert("Phase 1 Complete! Transitioning to Element X.");
         currentPhase = 'X';
         document.getElementById('phase-title').innerText = "Phase 2: Testing Unknown X";
         document.getElementById('phase-title').className = "text-2xl font-bold text-emerald-400";
         document.getElementById('exp-count').innerText = "0 / 3";
-        loadMenu();
+        loadMenu(); 
     } 
     else if (currentPhase === 'X' && completedX.length === 3) {
-        // NEW: Instead of showCER(), go to Phase 3
-        alert("Phase 2 Complete! Beginning Molecular Mass Analysis...");
+        const menu = document.getElementById('experiment-menu');
+        if(menu) menu.classList.add('hidden');
+        
+        document.getElementById('station-empty').classList.add('hidden');
+        document.getElementById('station-setup').classList.add('hidden');
+        document.getElementById('station-active').classList.remove('hidden');
+
         runMolarMassPhase(); 
+        return;
     }
     
-    // Reset station view
+    activeTest = null;
     document.getElementById('station-empty').classList.remove('hidden');
     document.getElementById('station-active').classList.add('hidden');
     document.getElementById('station-setup').classList.add('hidden');
@@ -201,48 +206,48 @@ let phase3Attempts = [];
 
 function runMolarMassPhase() {
     currentPhase = 'P';
-    document.getElementById('phase-title').innerText = "Phase 3: Molecular Synthesis";
+    document.getElementById('phase-title').innerText = "Phase 3: Molecular Analysis";
     document.getElementById('phase-title').className = "text-2xl font-bold text-purple-400";
     
     const zone = document.getElementById('comparison-zone');
-    const totalMassActual = (activeM.mass + activeX.mass).toFixed(2);
+    
+    // Retrieve the secret masses
+    const massM = activeM.mass;
+    const massX = activeX.mass;
+    const totalMass = (massM + massX).toFixed(2);
 
     zone.innerHTML = `
-        <div class="col-span-1 md:col-span-2 bg-slate-900 p-6 rounded-2xl border-2 border-purple-500/20 text-center mb-4">
-            <p class="text-purple-400 text-[10px] uppercase font-bold tracking-widest">Experimental Result (Target)</p>
-            <h2 class="text-5xl font-black text-white">${totalMassActual} g/mol</h2>
+        <div class="col-span-1 md:col-span-2 flex flex-col md:flex-row items-center justify-center gap-6 mb-8">
+            <div class="flex-1 p-6 bg-blue-900/20 border border-blue-500/30 rounded-2xl text-center shadow-lg w-full">
+                <p class="text-blue-400 text-[10px] uppercase font-bold tracking-widest mb-1 italic">Molar Mass of M</p>
+                <h3 class="text-4xl font-black text-white">${massM} <span class="text-xs font-light text-gray-500">g/mol</span></h3>
+            </div>
+
+            <div class="text-4xl text-gray-700 font-bold">+</div>
+
+            <div class="flex-1 p-6 bg-emerald-900/20 border border-emerald-500/30 rounded-2xl text-center shadow-lg w-full">
+                <p class="text-emerald-400 text-[10px] uppercase font-bold tracking-widest mb-1 italic">Molar Mass of X</p>
+                <h3 class="text-4xl font-black text-white">${massX} <span class="text-xs font-light text-gray-500">g/mol</span></h3>
+            </div>
         </div>
 
-        <div class="col-span-1 md:col-span-2 bg-gray-800 p-6 rounded-2xl border border-gray-700">
-            <h4 class="text-white font-bold mb-4">Compound Builder</h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="text-[10px] text-gray-500 uppercase font-bold">Select Metal (M)</label>
-                    <select id="calc-m" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white mt-1">
-                        ${metalIdentities.map(m => `<option value="${m.mass}">${m.name}</option>`).join('')}
-                    </select>
-                </div>
-                <div>
-                    <label class="text-[10px] text-gray-500 uppercase font-bold">Select Non-Metal (X)</label>
-                    <select id="calc-x" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white mt-1">
-                        ${nonMetalIdentities.map(x => `<option value="${x.mass}">${x.name}</option>`).join('')}
-                    </select>
-                </div>
-            </div>
-            <button onclick="calculateAttempt()" class="w-full bg-purple-600 hover:bg-purple-500 py-3 rounded-xl font-bold text-white transition-all">
-                Check Molar Mass
-            </button>
-            <div id="calc-output" class="mt-4 text-center hidden">
-                <p id="calc-result-text" class="text-2xl font-mono text-white"></p>
-                <p id="calc-feedback" class="text-sm mt-1"></p>
-            </div>
+        <div class="col-span-1 md:col-span-2 bg-slate-900 p-10 rounded-3xl border-2 border-purple-500/50 text-center shadow-[0_0_20px_rgba(168,85,247,0.2)]">
+            <p class="text-purple-400 text-xs uppercase font-black tracking-[0.2em] mb-4">Final Experimental Analysis (MX)</p>
+            <h2 class="text-7xl font-black text-white tracking-tighter">${totalMass} <span class="text-2xl font-light text-purple-300/50">g/mol</span></h2>
+            <div class="h-1 w-24 bg-purple-500 mx-auto my-6 rounded-full opacity-50"></div>
+            <p class="text-gray-400 text-sm leading-relaxed max-w-md mx-auto">
+                Identity verification confirmed. Use these values to justify your claim in the Final Lab Report.
+            </p>
         </div>
     `;
 
-    // Update main action button
+    // Ensure the button is present and ready
     const actionBtn = document.querySelector('#station-active button');
-    actionBtn.innerText = "Finalize Lab & Write CER";
-    actionBtn.onclick = showCER;
+    if (actionBtn) {
+        actionBtn.innerText = "Proceed to Final CER Report";
+        actionBtn.className = "w-full bg-purple-600 hover:bg-purple-500 py-4 rounded-2xl font-bold text-white transition-all shadow-lg mt-6 uppercase tracking-widest text-xs";
+        actionBtn.onclick = showCER;
+    }
 }
 
 function calculateAttempt() {
