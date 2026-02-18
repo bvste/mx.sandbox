@@ -119,6 +119,10 @@ function startTest(testId) {
 }
 
 function getActivityResult(unknown, reference) {
+
+    console.log("Unknown:", unknown.reactivity);
+    console.log("Reference:", reference.reactivity);
+
     if (unknown.reactivity > reference.reactivity) {
         return "Reaction occurs. Unknown metal displaces the reference metal.";
     } 
@@ -128,8 +132,6 @@ function getActivityResult(unknown, reference) {
     else {
         return "No reaction. Metals have similar reactivity.";
     }
-    console.log("Unknown:", activeM.reactivity);
-    console.log("Reference:", refObj.reactivity);
 }
 
 function runComparisonTest() {
