@@ -30,7 +30,6 @@ const experimentsM = [
     { id: 'conduct', name: "Conductivity Test", static: "Red and Green lights shine brightly" },
     { id: 'water', name: "Water Submerging", static: "Sample sinks in water and does not react." },
     { id: 'flame', name: "Flame Test"},
-    { id: 'reactive', name: "Reactivity Series"}
 ];
 
 const experimentsX = [
@@ -119,9 +118,6 @@ function startTest(testId) {
 }
 
 function getActivityResult(unknown, reference) {
-
-    console.log("Unknown:", unknown.reactivity);
-    console.log("Reference:", reference.reactivity);
 
     if (unknown.reactivity > reference.reactivity) {
         return "Reaction occurs. Unknown metal displaces the reference metal.";
