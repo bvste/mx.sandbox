@@ -128,6 +128,8 @@ function getActivityResult(unknown, reference) {
     else {
         return "No reaction. Metals have similar reactivity.";
     }
+    console.log("Unknown:", activeM.reactivity);
+    console.log("Reference:", refObj.reactivity);
 }
 
 function runComparisonTest() {
