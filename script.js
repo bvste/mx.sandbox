@@ -316,6 +316,21 @@ function getSolutionData(solutionName) {
     return solutionDatabase.find(sol => sol.name === solutionName);
 }
 
+function convertMetalName(name) {
+    const map = {
+        "Magnesium": "Mg",
+        "Nickel": "Ni",
+        "Silver": "Ag",
+        "Aluminum": "Al",
+        "IronTwo": "Fe (II)",
+        "IronThree": "Fe (III)",
+        "CopperTwo": "Cu (II)",
+        "CopperThree": "Cu (I)"
+    };
+
+    return map[name] || name;
+}
+
 function getReaction(metal, solutionName) {
     const solution = getSolutionData(solutionName);
     if (!solution) return "Solution not found.";
@@ -350,7 +365,12 @@ function runComparisonTest() {
         document.getElementById('ref-3').value
     ];
 
-    const currentRefList = (currentPhase === 'M') ? referenceMetals : referenceNonMetals;
+    let currentRefList;
+        if (activeTest === "activity") {
+            currentRefList = solutionDatabase;
+        } else {
+            currentRefList = (currentPhase === 'M') ? referenceMetals : referenceNonMetals;
+        }
 
     selections.forEach(name => {
         const refObj = currentRefList.find(r => r.name === name);
