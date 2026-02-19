@@ -430,48 +430,61 @@ let phase3Attempts = [];
 
 function runMolarMassPhase() {
     currentPhase = 'P';
-    document.getElementById('phase-title').innerText = "Phase 3: Molecular Analysis";
+    document.getElementById('phase-title').innerText = "Phase 3: Molecular Synthesis";
     document.getElementById('phase-title').className = "text-2xl font-bold text-purple-400";
     
-    const zone = document.getElementById('comparison-zone');
+    const sidebar = document.getElementById('experiment-menu').parentElement;
+    if (sidebar) sidebar.remove();
     
-    // Retrieve the secret masses
-    const massM = activeM.mass;
-    const massX = activeX.mass;
-    const totalMass = (massM + massX).toFixed(2);
+    const workspace = document.getElementById('lab-workspace');
+    workspace.className = "max-w-4xl mx-auto block";
+
+    const zone = document.getElementById('comparison-zone');
+    zone.className = "w-full space-y-8";
 
     zone.innerHTML = `
-        <div class="w-full flex flex-col md:flex-row items-center justify-center gap-6 mb-8">
-            <div class="w-full md:w-1/2 p-8 bg-blue-900/20 border border-blue-500/30 rounded-3xl text-center shadow-lg">
-                <p class="text-blue-400 text-[10px] uppercase font-bold tracking-widest mb-1 italic">Molar Mass of M</p>
-                <h3 class="text-5xl font-black text-white">${massM} <span class="text-sm font-light text-gray-500">g/mol</span></h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="p-6 bg-gray-800 border border-blue-500/30 rounded-2xl">
+                <label class="text-blue-400 text-xs font-bold uppercase tracking-widest">Grams of M to React</label>
+                <input type="number" id="input-m" placeholder="0.00" class="w-full bg-gray-900 border border-gray-700 p-4 rounded-xl text-white mt-2 text-2xl outline-none">
             </div>
-
-            <div class="text-5xl text-gray-700 font-bold">+</div>
-
-            <div class="w-full md:w-1/2 p-8 bg-emerald-900/20 border border-emerald-500/30 rounded-3xl text-center shadow-lg">
-                <p class="text-emerald-400 text-[10px] uppercase font-bold tracking-widest mb-1 italic">Molar Mass of X</p>
-                <h3 class="text-5xl font-black text-white">${massX} <span class="text-sm font-light text-gray-500">g/mol</span></h3>
+            <div class="p-6 bg-gray-800 border border-emerald-500/30 rounded-2xl">
+                <label class="text-emerald-400 text-xs font-bold uppercase tracking-widest">Grams of X to React</label>
+                <input type="number" id="input-x" placeholder="0.00" class="w-full bg-gray-900 border border-gray-700 p-4 rounded-xl text-white mt-2 text-2xl outline-none">
             </div>
         </div>
 
-        <div class="w-full bg-slate-900 p-12 rounded-[2.5rem] border-2 border-purple-500/50 text-center shadow-[0_0_30px_rgba(168,85,247,0.15)]">
-            <p class="text-purple-400 text-sm uppercase font-black tracking-[0.3em] mb-4">Final Experimental Analysis (MX)</p>
-            <h2 class="text-8xl font-black text-white tracking-tighter">${totalMass} <span class="text-3xl font-light text-purple-300/50">g/mol</span></h2>
-            <div class="h-1.5 w-32 bg-purple-500 mx-auto my-8 rounded-full opacity-60"></div>
-            <p class="text-gray-300 text-lg leading-relaxed max-w-2xl mx-auto">
-                Identity verification confirmed. Use these values to justify your claim in the Final Lab Report.
-            </p>
+        <button onclick="synthesizeCompound()" class="w-full bg-purple-600 py-6 rounded-2xl font-black text-white hover:bg-purple-500 transition-all shadow-lg uppercase tracking-widest">
+            Perform Synthesis Reaction
+        </button>
+
+        <div id="mx-result-box" class="hidden bg-slate-900 p-8 rounded-3xl border-2 border-purple-500/50 shadow-2xl">
+            <h3 class="text-purple-400 font-bold uppercase tracking-widest mb-6 text-center">Experimental Results: Unknown Compound MX</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="p-4 border border-gray-700 rounded-xl text-center">
+                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Total Mass Produced</p>
+                    <p id="res-mass" class="text-3xl font-black text-white"></p>
+                </div>
+                <div class="p-4 border border-purple-500/30 bg-purple-900/10 rounded-xl text-center">
+                    <p class="text-[10px] text-purple-400 uppercase font-bold mb-1">Theoretical Molar Mass</p>
+                    <p id="res-molar" class="text-3xl font-black text-white"></p>
+                </div>
+                <div class="p-4 border border-gray-700 rounded-xl text-center">
+                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Physical Appearance</p>
+                    <p id="res-app" class="text-sm text-gray-300 font-medium py-2"></p>
+                </div>
+                <div class="p-4 border border-gray-700 rounded-xl text-center">
+                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Solubility (H₂O)</p>
+                    <p id="res-sol" class="text-sm text-gray-300 font-medium py-2"></p>
+                </div>
+            </div>
         </div>
     `;
 
-    // Ensure the button is present and ready
     const actionBtn = document.querySelector('#station-active button');
-    if (actionBtn) {
-        actionBtn.innerText = "Proceed to Final CER Report";
-        actionBtn.className = "w-full bg-purple-600 hover:bg-purple-500 py-4 rounded-2xl font-bold text-white transition-all shadow-lg mt-6 uppercase tracking-widest text-xs";
-        actionBtn.onclick = showCER;
-    }
+    actionBtn.innerText = "Proceed to Final CER Report";
+    actionBtn.onclick = showCER;
 }
 
 function calculateAttempt() {
