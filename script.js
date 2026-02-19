@@ -513,20 +513,26 @@ function runMolarMassPhase() {
 }
 
 function synthesizeCompound() {
-    const mVal = parseFloat(document.getElementById('input-m').value) || 0;
-    const xVal = parseFloat(document.getElementById('input-x').value) || 0;
+    const mInput = document.getElementById('input-m');
+    const xInput = document.getElementById('input-x');
+    
+    const mVal = parseFloat(mInput.value) || 0;
+    const xVal = parseFloat(xInput.value) || 0;
 
     if (mVal <= 0 || xVal <= 0) return alert("Please enter valid amounts.");
 
     const totalProduced = (mVal + xVal).toFixed(2);
-    const lookupKey = activeM.name + activeX.name;
+    
+    // LOOKUP: Ensure this matches the keys in your Database
+    const lookupKey = activeM.name + activeX.name; 
     const info = compoundDatabase[lookupKey];
 
     if (!info) {
-        return alert("Error: Compound data not found. Please check database keys.");
+        console.error("Missing Database Key:", lookupKey);
+        return alert("Error: Compound data not found for " + lookupKey);
     }
 
-    // Populate UI without revealing names
+    // Populate UI
     document.getElementById('res-mass').innerText = `${totalProduced} g`;
     document.getElementById('res-molar').innerText = `${info.molarMass} g/mol`;
     document.getElementById('res-app').innerText = info.appearance;
@@ -534,12 +540,11 @@ function synthesizeCompound() {
 
     document.getElementById('mx-result-box').classList.remove('hidden');
     
-    // Log for the final CER screen
+    // Log for the final CER screen - Ensure these keys match showCER()
     phase3Attempts.push({
-        input: `${mVal}g M + ${xVal}g X`,
-        total: `${totalProduced}g`,
-        molarMass: info.molarMass,
-        obs: `${info.appearance}, ${info.solubility}`
+        combo: `Reaction: ${mVal}g M + ${xVal}g X`,
+        mass: info.molarMass, // We store the molar mass for the "Evidence" check
+        rawTotal: totalProduced
     });
 }
 
@@ -571,15 +576,24 @@ function showCER() {
             `).join('')}
         </div>
 
+        // Replace the third section (Molar Mass Comparison Log) in showCER with this:
         <div class="col-span-1 md:col-span-2 mt-8">
-            <h4 class="text-purple-400 font-bold mb-4 text-center">Molar Mass Comparison Log</h4>
+            <h4 class="text-purple-400 font-bold mb-4 text-center">Synthesis Log (Theoretical Molar Mass)</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                ${phase3Attempts.map(attempt => `
-                    <div class="cer-result-card p-3 rounded-lg border-l-4 ${attempt.mass === (activeM.mass + activeX.mass).toFixed(2) ? 'border-l-emerald-500' : 'border-l-red-500'}">
-                        <p class="text-[10px] text-gray-500 uppercase font-bold">${attempt.combo}</p>
-                        <p class="text-white font-mono">${attempt.mass} g/mol</p>
-                    </div>
-                `).join('')}
+                ${phase3Attempts.map(attempt => {
+                    // Check if the result matches the correct compound's molar mass
+                    const correctKey = activeM.name + activeX.name;
+                    const correctMass = compoundDatabase[correctKey].molarMass;
+                    const isCorrect = attempt.mass === correctMass;
+        
+                    return `
+                        <div class="cer-result-card p-3 rounded-lg border-l-4 ${isCorrect ? 'border-l-emerald-500' : 'border-l-red-500'} bg-gray-900">
+                            <p class="text-[10px] text-gray-500 uppercase font-bold">${attempt.combo}</p>
+                            <p class="text-white font-mono">${attempt.mass} g/mol</p>
+                            <p class="text-[10px] text-gray-400">Total Yield: ${attempt.rawTotal}g</p>
+                        </div>
+                    `;
+                }).join('')}
             </div>
         </div>
     `;
