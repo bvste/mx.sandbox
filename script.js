@@ -331,9 +331,10 @@ function convertMetalName(name) {
         "IronTwo": "Fe (II)",
         "IronThree": "Fe (III)",
         "CopperTwo": "Cu (II)",
-        "CopperThree": "Cu (I)"
+        "CopperThree": "Cu (I)", // Assuming this is Copper (I)
+        "Iron": "Fe (II)",      // Added for reference list compatibility
+        "Copper": "Cu (II)"     // Added for reference list compatibility
     };
-
     return map[name] || name;
 }
 
@@ -350,12 +351,13 @@ function runComparisonTest() {
     const exp = (currentPhase === 'M') ? experimentsM.find(e => e.id === activeTest) : experimentsX.find(e => e.id === activeTest);
     const zone = document.getElementById('comparison-zone');
     
-    // Use static result if it exists, otherwise pull from the active identity
+    // 1. Get the result for the UNKNOWN Sample
     let userResult;
     if (activeTest === "activity") {
-    refResult = getReaction(activeM.name, refObj.name);
-    }
-    else {
+        // We need to pass the current unknown metal and the first selected solution to show something initial
+        const firstSolName = document.getElementById('ref-1').value;
+        userResult = getReaction(convertMetalName(activeM.name), firstSolName);
+    } else {
         userResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
     }
     
@@ -371,28 +373,25 @@ function runComparisonTest() {
         document.getElementById('ref-3').value
     ];
 
-    let currentRefList;
-        if (activeTest === "activity") {
-            currentRefList = solutionDatabase;
-        } else {
-            currentRefList = (currentPhase === 'M') ? referenceMetals : referenceNonMetals;
-        }
-
-    selections.forEach(name => {
-        const refObj = currentRefList.find(r => r.name === name);
-        
-        // LOGIC FIX: If the experiment is static for the unknown, 
-        // it should probably be static for the reference too (e.g., all metals conduct).
+    // 2. Get results for the REFERENCE selections
+    selections.forEach(selectedName => {
         let refResult;
+        let displayName = selectedName;
+
         if (activeTest === "activity") {
-            refResult = getActivityResult(activeM, refObj);
+            // For activity, we are reacting our Unknown M against the chosen solutions
+            refResult = getReaction(convertMetalName(activeM.name), selectedName);
+            const solData = getSolutionData(selectedName);
+            displayName = solData ? solData.display : selectedName;
         } else {
-            refResult = exp.static || refObj[activeTest] || "No comparative data";
+            const currentRefList = (currentPhase === 'M') ? referenceMetals : referenceNonMetals;
+            const refObj = currentRefList.find(r => r.name === selectedName);
+            refResult = exp.static || (refObj ? refObj[activeTest] : "No comparative data");
         }
         
         html += `
             <div class="p-4 bg-gray-800 border border-gray-700 rounded-xl">
-                <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest">${refObj.name}</p>
+                <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest">${displayName}</p>
                 <p class="text-gray-300 text-sm">${refResult}</p>
             </div>`;
     });
