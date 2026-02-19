@@ -487,35 +487,35 @@ function runMolarMassPhase() {
     actionBtn.onclick = showCER;
 }
 
-function calculateAttempt() {
-    const selM = document.getElementById('calc-m');
-    const selX = document.getElementById('calc-x');
-    
-    const mName = selM.options[selM.selectedIndex].text;
-    const xName = selX.options[selX.selectedIndex].text;
-    const mMass = parseFloat(selM.value);
-    const xMass = parseFloat(selX.value);
-    
-    const calculated = (mMass + xMass).toFixed(2);
-    const actual = (activeM.mass + activeX.mass).toFixed(2);
-    
-    // Log this attempt for the CER page
-    phase3Attempts.push({ combo: `${mName}${xName}`, mass: calculated });
+function synthesizeCompound() {
+    const mVal = parseFloat(document.getElementById('input-m').value) || 0;
+    const xVal = parseFloat(document.getElementById('input-x').value) || 0;
 
-    const output = document.getElementById('calc-output');
-    const resultText = document.getElementById('calc-result-text');
-    const feedback = document.getElementById('calc-feedback');
+    if (mVal <= 0 || xVal <= 0) return alert("Please enter valid amounts.");
 
-    output.classList.remove('hidden');
-    resultText.innerText = `${calculated} g/mol`;
+    const totalProduced = (mVal + xVal).toFixed(2);
+    const lookupKey = activeM.name + activeX.name;
+    const info = compoundDatabase[lookupKey];
 
-    if (calculated === actual) {
-        feedback.innerText = "MATCH DETECTED: Mass aligns with experimental data.";
-        feedback.className = "text-emerald-400 font-bold text-sm mt-1";
-    } else {
-        feedback.innerText = "NO MATCH: Mass does not align with experimental data.";
-        feedback.className = "text-red-400 text-sm mt-1";
+    if (!info) {
+        return alert("Error: Compound data not found. Please check database keys.");
     }
+
+    // Populate UI without revealing names
+    document.getElementById('res-mass').innerText = `${totalProduced} g`;
+    document.getElementById('res-molar').innerText = `${info.molarMass} g/mol`;
+    document.getElementById('res-app').innerText = info.appearance;
+    document.getElementById('res-sol').innerText = info.solubility;
+
+    document.getElementById('mx-result-box').classList.remove('hidden');
+    
+    // Log for the final CER screen
+    phase3Attempts.push({
+        input: `${mVal}g M + ${xVal}g X`,
+        total: `${totalProduced}g`,
+        molarMass: info.molarMass,
+        obs: `${info.appearance}, ${info.solubility}`
+    });
 }
 
 function showCER() {
