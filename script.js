@@ -262,11 +262,18 @@ function startTest(testId) {
 
     // Fill dropdowns based on Phase
     const dropdowns = ['ref-1', 'ref-2', 'ref-3'];
-    const currentRefList = (currentPhase === 'M') ? referenceMetals : referenceNonMetals;
-
+    let currentRefList;
+        if (activeTest === "activity") {
+            currentRefList = solutionDatabase;  // <-- USE SOLUTIONS
+        } else {
+            currentRefList = (currentPhase === 'M') ? referenceMetals : referenceNonMetals;
+        }
     dropdowns.forEach(id => {
         const select = document.getElementById(id);
-        select.innerHTML = currentRefList.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
+        select.innerHTML = currentRefList.map(item => {
+            const label = activeTest === "activity" ? item.display : item.name;
+            return `<option value="${item.name}">${label}</option>`;
+        }).join('');
     });
 }
 
@@ -290,8 +297,9 @@ function runComparisonTest() {
     // Use static result if it exists, otherwise pull from the active identity
     let userResult;
     if (activeTest === "activity") {
-        userResult = "Use comparison results to determine reactivity.";
-    } else {
+    refResult = getReaction(activeM.name, refObj.name);
+    }
+    else {
         userResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
     }
     
