@@ -426,16 +426,8 @@ function checkPhaseTransition() {
     } 
     else if (currentPhase === 'X' && completedX.length === 3) {
         alert("Phase 2 Complete! Beginning Molecular Mass Analysis...");
-    
-        const menuSidebar = document.getElementById('experiment-menu').parentElement; 
-        if (menuSidebar) menuSidebar.remove(); 
-    
-        const workspace = document.getElementById('lab-workspace');
-        if (workspace) {
-            workspace.classList.remove('grid', 'md:grid-cols-[300px,1fr]', 'gap-8');
-            workspace.classList.add('block', 'max-w-4xl', 'mx-auto'); 
-        }
-
+        
+        // Ensure the active station is cleared before building Phase 3
         document.getElementById('station-empty').classList.add('hidden');
         document.getElementById('station-setup').classList.add('hidden');
         document.getElementById('station-active').classList.remove('hidden');
@@ -444,6 +436,7 @@ function checkPhaseTransition() {
         return;
     }
     
+    // Reset the station view for the next test in the current phase
     activeTest = null;
     document.getElementById('station-empty').classList.remove('hidden');
     document.getElementById('station-active').classList.add('hidden');
