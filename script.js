@@ -355,7 +355,7 @@ function runComparisonTest() {
     let userResult;
     if (activeTest === "activity") {
         // React Unknown M with the first chosen solution
-        userResult = getReaction(convertMetalName(activeM.name), document.getElementById('ref-1').value);
+        userResult = "Results of activity test";
     } else {
         userResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
     }
