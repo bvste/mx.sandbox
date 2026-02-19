@@ -18,6 +18,41 @@ const nonMetalIdentities = [
     { name: "Phosphorus", description: "a white, red, or black solid.", heat: "Ignites into a bright white light/smoke.", solubility: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids.", crucible: "Element ignites easily.", mass: 30.97}
 ];
 
+const compoundData = {
+    "CopperOneChloride": { appearance: "White powder, slightly green from oxidized impurities.", solubility: "insoluble", molarMass: 98.999 },
+    "CopperTwoChloride": { appearance: "Dark brown solid.", solubility: "soluble", molarMass: 134.45 },
+    "NickelChloride": { appearance: "Yellow-brown crystals", solubility: "soluble", molarMass: 129.5994 },
+    "IronTwoChloride": { appearance: "Tan Solid", solubility: "soluble", molarMass: 126.751 },
+    "IronThreeChloride": { appearance: "Green-black by reflected light; purple-red by transmitted light; yellow solid as hexahydrate; brown as aqueous solution.", solubility: "soluble", molarMass: 162.204 },
+    "SilverChloride": { appearance: "White solid.", solubility: "insoluble", molarMass: 143.32 },
+    "AluminumChloride": { appearance: "White to gray powder.", solubility: "soluble", molarMass: 133.341 },
+    "MagnesiumChloride": { appearance: "White or colorless crystals", solubility: "soluble", molarMass: 95.211 },
+    "CopperOneBromide": { appearance: "White powder.", solubility: "insoluble", molarMass: 143.45 },
+    "CopperTwoBromide": { appearance: "Grayish black crystals.", solubility: "soluble", molarMass: 223.37 },
+    "NickelBromide": { appearance: "Yellow-brown crystals.", solubility: "soluble", molarMass: 218.53 },
+    "IronTwoBromide": { appearance: "yellow-brown solid.", solubility: "soluble", molarMass: 215.65 },
+    "IronThreeBromide": { appearance: "Brown solid.", solubility: "soluble", molarMass: 295.56 },
+    "SilverBromide": { appearance: "Pale yellow solid.", solubility: "insoluble", molarMass: 187.77 },
+    "AluminumBromide": { appearance: "White to yellowish-red, lumpy solid", solubility: "soluble", molarMass: 266.694 },
+    "MagnesiumBromide": { appearance: "White crystals.", solubility: "soluble", molarMass: 184.113 },
+    "CopperOneSulfide": { appearance: "Black crystals.", solubility: "insoluble", molarMass: 159.16 },
+    "CopperTwoSulfide": { appearance: "N/A, super rare mineral", solubility: "N/A", molarMass: 95.62 },
+    "NickelSulfide": { appearance: "N/A, rare mineral", solubility: "N/A", molarMass: 90.76 },
+    "IronTwoSulfide": { appearance: "Gray, sometimes in lumps or powder.", solubility: "insoluble", molarMass: 87.91 },
+    "IronThreeSulfide": { appearance: "N/A, highly unstable.", solubility: "N/A", molarMass: 207.9 },
+    "SilverSulfide": { appearance: "Gray-blackish crystals.", solubility: "insoluble", molarMass: 247.8 },
+    "AluminumSulfide": { appearance: "Gray solid.", solubility: "soluble", molarMass: 150.162 },
+    "MagnesiumSulfide": { appearance: "White to reddish brown powder.", solubility: "soluble", molarMass: 56.371 },
+    "CopperOnePhosphide": { appearance: "Yellowish gray crystals.", solubility: "insoluble", molarMass: 221.6127 },
+    "CopperTwoPhosphide": { appearance: "N/A, rare mineral.", solubility: "N/A", molarMass: 252.5855 },
+    "NickelPhosphide": { appearance: "N/A, rare mineral.", solubility: "N/A", molarMass: 238.0277 },
+    "IronTwoPhosphide": { appearance: "N/A, rare mineral.", solubility: "N/A", molarMass: 229.4825 },
+    "IronThreePhosphide": { appearance: "Gray needles.", solubility: "insoluble", molarMass: 86.819 },
+    "SilverPhosphide": { appearance: "N/A, rare mineral.", solubility: "N/A", molarMass: 354.57836 },
+    "AluminumPhosphide": { appearance: "Yellow or gray crystals.", solubility: "insoluble", molarMass: 57.955 },
+    "MagnesiumPhosphide": { appearance: "White crystalline solid", solubility: "insoluble", molarMass: 134.861 },    
+    };
+
 // Logic to pick M and X for this session
 let activeM = metalIdentities[Math.floor(Math.random() * metalIdentities.length)];
 let activeX = nonMetalIdentities[Math.floor(Math.random() * nonMetalIdentities.length)];
