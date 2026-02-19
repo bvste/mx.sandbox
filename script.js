@@ -450,15 +450,16 @@ function runMolarMassPhase() {
     document.getElementById('phase-title').innerText = "Phase 3: Molecular Synthesis";
     document.getElementById('phase-title').className = "text-2xl font-bold text-purple-400";
     
-    const sidebar = document.getElementById('experiment-menu').parentElement;
+    // Cleanly remove the sidebar to give the synthesis UI more room
+    const sidebar = document.getElementById('experiment-menu')?.parentElement;
     if (sidebar) sidebar.remove();
     
     const workspace = document.getElementById('lab-workspace');
-    workspace.className = "max-w-4xl mx-auto block";
+    if (workspace) workspace.className = "max-w-4xl mx-auto block";
 
     const zone = document.getElementById('comparison-zone');
+    // We clear the zone and inject the new Stoichiometry-based UI
     zone.className = "w-full space-y-8";
-
     zone.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="p-6 bg-gray-800 border border-blue-500/30 rounded-2xl">
@@ -466,8 +467,8 @@ function runMolarMassPhase() {
                 <input type="number" id="input-m" placeholder="0.00" class="w-full bg-gray-900 border border-gray-700 p-4 rounded-xl text-white mt-2 text-2xl outline-none">
             </div>
             <div class="p-6 bg-gray-800 border border-emerald-500/30 rounded-2xl">
-                <label class="text-emerald-400 text-xs font-bold uppercase tracking-widest">Grams of X to React</label>
-                <input type="number" id="input-x" placeholder="0.00" class="w-full bg-gray-900 border border-gray-700 p-4 rounded-xl text-white mt-2 text-2xl outline-none">
+                <label class="text-emerald-400 text-xs font-bold uppercase tracking-widest">Grams of X (Read-only)</label>
+                <input type="number" id="input-x" placeholder="Consumed X" readonly class="w-full bg-gray-900 border border-gray-700 p-4 rounded-xl text-gray-500 mt-2 text-2xl outline-none">
             </div>
         </div>
 
@@ -477,31 +478,33 @@ function runMolarMassPhase() {
 
         <div id="mx-result-box" class="hidden bg-slate-900 p-8 rounded-3xl border-2 border-purple-500/50 shadow-2xl">
             <h3 class="text-purple-400 font-bold uppercase tracking-widest mb-6 text-center">Experimental Results: Unknown Compound MX</h3>
-            
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="p-4 border border-gray-700 rounded-xl text-center">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Total Mass Produced</p>
                     <p id="res-mass" class="text-3xl font-black text-white"></p>
                 </div>
                 <div class="p-4 border border-purple-500/30 bg-purple-900/10 rounded-xl text-center">
-                    <p class="text-[10px] text-purple-400 uppercase font-bold mb-1">Theoretical Molar Mass</p>
+                    <p class="text-[10px] text-purple-400 uppercase font-bold mb-1">Molar Mass of Product</p>
                     <p id="res-molar" class="text-3xl font-black text-white"></p>
                 </div>
                 <div class="p-4 border border-gray-700 rounded-xl text-center">
-                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Physical Appearance</p>
-                    <p id="res-app" class="text-sm text-gray-300 font-medium py-2"></p>
+                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Appearance</p>
+                    <p id="res-app" class="text-sm text-gray-300"></p>
                 </div>
                 <div class="p-4 border border-gray-700 rounded-xl text-center">
-                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Solubility (H₂O)</p>
-                    <p id="res-sol" class="text-sm text-gray-300 font-medium py-2"></p>
+                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Solubility</p>
+                    <p id="res-sol" class="text-sm text-gray-300"></p>
                 </div>
             </div>
         </div>
     `;
 
+    // Ensure the main action button now leads to the CER report
     const actionBtn = document.querySelector('#station-active button');
-    actionBtn.innerText = "Proceed to Final CER Report";
-    actionBtn.onclick = showCER;
+    if (actionBtn) {
+        actionBtn.innerText = "Proceed to Final CER Report";
+        actionBtn.onclick = showCER;
+    }
 }
 
 function synthesizeCompound() {
