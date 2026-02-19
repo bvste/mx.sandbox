@@ -41,6 +41,144 @@ const experimentsX = [
     { id: 'conductX', name: "Thermal Probe", static: "Material acts as a thermal insulator." }
 ];
 
+//Reactivity series data
+
+const reactivitySeries = [
+    "Calcium",
+    "Magnesium",
+    "Aluminum",
+    "Manganese",
+    "Zinc",
+    "Chromium",
+    "Iron (II)",
+    "Iron (III)",
+    "Cobalt",
+    "Nickel",
+    "Tin",
+    "Copper (I)",
+    "Copper (II)",
+    "Silver"
+];
+
+const reactionMatrix = {
+
+    "Zn": {
+        "HCl": "Bubbles, metal dissolves",
+        "Ca(NO3)2": "Reddish-brown metal coat",
+        "ZnCl2": "yellowish-white metal coat",
+        "Cu(NO3)2": "metal coat",
+        "NiSO4": "Gray solid forms",
+        "AgNO3": "Silver crystals form; solution clears"
+    },
+
+    "Cu (I)": {
+        "AgNO3": "Silver crystals form"
+    },
+
+    "Cu (II)": {
+        "AgNO3": "Silver crystals form"
+    },
+
+    "Ni": {
+        "HCl": "Slow bubbles",
+        "Cu(NO3)2": "Reddish-brown metal coat",
+        "AgNO3": "silver metal coat"
+    },
+
+    "Co": {
+        "HCl": "Slow bubbles",
+        "Cu(NO3)2": "Reddish-brown metal coat",
+        "ZnCl2": "yellowish-white metal coat",
+        "AgNO3": "silver metal coat"
+    },
+
+    "Fe (II)": {
+        "HCl": "Bubbles; solution turns pale green",
+        "Cu(NO3)2": "Reddish-brown metal coat",
+        "ZnCl2": "yellowish-white metal coat",
+        "NiSO4": "silver metal coat",
+        "AgNO3": "silver metal coat"
+    },
+
+    "Fe (III)": {
+        "Cu(NO3)2": "Reddish-brown metal coat",
+        "ZnCl2": "yellowish-white metal coat",
+        "NiSO4": "silver metal coat",
+        "AgNO3": "silver metal coat"
+    },
+
+    "Ag": {
+        // no reactions listed
+    },
+
+    "Cr": {
+        "HCl": "Slow bubbles",
+        "Cu(NO3)2": "Reddish-brown metal coat",
+        "ZnCl2": "yellowish-white metal coat",
+        "NiSO4": "silver metal coat",
+        "AgNO3": "silver metal coat",
+        "FeSO4": "metal coat"
+    },
+
+    "Mn": {
+        "HCl": "Bubbles",
+        "Ca(NO3)2": "Metal coat",
+        "Cu(NO3)2": "Reddish-brown metal coat",
+        "ZnCl2": "yellowish-white metal coat",
+        "NiSO4": "silver metal coat",
+        "CoSO4": "silver metal coat",
+        "FeSO4": "color change",
+        "AgNO3": "silver metal coat",
+        "CrCl3": "silver metal coat"
+    },
+
+    "Mg": {
+        "HCl": "Vigorous bubbling",
+        "Ca(NO3)2": "silver metal coat",
+        "Cu(NO3)2": "Reddish-brown metal coat",
+        "ZnCl2": "yellowish-white metal coat",
+        "NiSO4": "silver metal coat",
+        "CoSO4": "silver metal coat",
+        "FeSO4": "color change",
+        "AgNO3": "silver metal coat",
+        "CrCl3": "silver metal coat",
+        "MnCO3": "silver metal coat"
+    },
+
+    "Ca": {
+        "HCl": "Very vigorous bubbling",
+        "Ca(NO3)2": "vigrous bubbling",
+        "ZnCl2": "silver metal coat",
+        "Cu(NO3)2": "Reddish-brown metal coat",
+        "NiSO4": "yellowish-white metal coat",
+        "CoSO4": "silver metal coat",
+        "FeSO4": "silver metal coat",
+        "AgNO3": "color change",
+        "CrCl3": "silver metal coat",
+        "MnCO3": "silver metal coat",
+        "Mg(NO3)2": "metal coat"
+    },
+
+    "Sn": {
+        "HCl": "Slow bubbles",
+        "Cu(NO3)2": "Reddish-brown metal coat"
+    },
+
+    "Al": {
+        "HCl": "Bubbles after oxide layer removed",
+        "Ca(NO3)2": "silver metal coat",
+        "Cu(NO3)2": "Reddish-brown metal coat",
+        "ZnCl2": "yellowish-white metal coat",
+        "NiSO4": "silver metal coat",
+        "CoSO4": "silver metal coat",
+        "FeSO4": "color change",
+        "AgNO3": "silver metal coat",
+        "CrCl3": "silver metal coat",
+        "MnCO3": "silver metal coat"
+    }
+
+};
+
 // --- STATE MANAGEMENT ---
 let currentPhase = 'M'; 
 let completedM = [];    
@@ -117,17 +255,28 @@ function startTest(testId) {
     });
 }
 
-function getActivityResult(unknown, reference) {
-
-    if (unknown.reactivity > reference.reactivity) {
-        return "Reaction occurs. Unknown metal displaces the reference metal.";
-    } 
-    else if (unknown.reactivity < reference.reactivity) {
-        return "No reaction. Unknown metal is less reactive.";
-    } 
-    else {
-        return "No reaction. Metals have similar reactivity.";
+function getActivityResult(metal, solution) {
+// If exact observation exists, return it
+    if (reactionData[metal] && reactionData[metal][solution]) {
+        return reactionData[metal][solution];
     }
+
+    // Otherwise use reactivity series logic
+    const metalIndex = reactivitySeries.indexOf(metal);
+
+    // Extract metal from solution name (e.g., Cu(NO3)2 → Copper)
+    const solutionMetal = extractMetalFromSolution(solution);
+    const solutionIndex = reactivitySeries.indexOf(solutionMetal);
+
+    if (metalIndex === -1 || solutionIndex === -1) {
+        return "No data available.";
+    }
+
+    if (metalIndex < solutionIndex) {
+        return "Reaction occurs (predicted by reactivity series).";
+    }
+
+    return "No reaction observed.";
 }
 
 function runComparisonTest() {
