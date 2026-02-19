@@ -202,6 +202,21 @@ const referenceNonMetals = [
     { name: "Phosphorus", heat: "Ignites into a bright white light/smoke.", solubility: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids.",  crucible: "Element ignites easily." }
 ];
 
+const solutionDatabase = [
+    {name: "HCl", type: "acid", metal: "H", charge: 1, anion: "Cl", display: "Hydrochloric Acid", color: "colorless"},
+    {name: "Ca(NO3)2", type: "ionic", metal: "Ca", charge: 2, anion: "NO3", display: "Calcium Nitrate", color: "colorless"},
+    {name: "ZnCl2", type: "ionic", metal: "Zn", charge: 2, anion: "Cl", display: "Zinc Chloride", color: "colorless"},
+    {name: "Cu(NO3)2", type: "ionic", metal: "Cu (II)", charge: 2, anion: "NO3", display: "Copper(II) Nitrate", color: "blue"},
+    {name: "NiSO4", type: "ionic", metal: "Ni", charge: 2, anion: "SO4", display: "Nickel(II) Sulfate", color: "green"},
+    {name: "CoSO4", type: "ionic", metal: "Co", charge: 2, anion: "SO4", display: "Cobalt(II) Sulfate", color: "pink"},
+    {name: "FeSO4", type: "ionic", metal: "Fe (II)", charge: 2, anion: "SO4", display: "Iron(II) Sulfate", color: "pale green"},
+    {name: "FeCl3", type: "ionic", metal: "Fe (III)", charge: 3, anion: "Cl", display: "Iron(III) Chloride", color: "yellow"},
+    {name: "AgNO3", type: "ionic", metal: "Ag", charge: 1, anion: "NO3", display: "Silver Nitrate", color: "colorless"},
+    {name: "CrCl3", type: "ionic", metal: "Cr (III)", charge: 3, anion: "Cl", display: "Chromium(III) Chloride", color: "green"},
+    {name: "MnCO3", type: "ionic", metal: "Mn (II)", charge: 2, anion: "CO3", display: "Manganese(II) Carbonate", color: "pale pink"},
+    {name: "Mg(NO3)2", type: "ionic", metal: "Mg", charge: 2, anion: "NO3", display: "Magnesium Nitrate", color: "colorless"}
+];
+
 window.onload = () => {
     if(!sessionStorage.getItem('activeStudent')) window.location.href = 'index.html';
     
@@ -255,28 +270,14 @@ function startTest(testId) {
     });
 }
 
-function getActivityResult(metal, solution) {
-// If exact observation exists, return it
-    if (reactionData[metal] && reactionData[metal][solution]) {
-        return reactionData[metal][solution];
-    }
+function getSolutionData(solutionName) {
+    return solutionDatabase.find(sol => sol.name === solutionName);
+}
 
-    // Otherwise use reactivity series logic
-    const metalIndex = reactivitySeries.indexOf(metal);
-
-    // Extract metal from solution name (e.g., Cu(NO3)2 → Copper)
-    const solutionMetal = extractMetalFromSolution(solution);
-    const solutionIndex = reactivitySeries.indexOf(solutionMetal);
-
-    if (metalIndex === -1 || solutionIndex === -1) {
-        return "No data available.";
-    }
-
-    if (metalIndex < solutionIndex) {
-        return "Reaction occurs (predicted by reactivity series).";
-    }
-
-    return "No reaction observed.";
+function getReaction(metal, solutionName) {
+    const solution = getSolutionData(solutionName);
+    if (!solution) return "Solution not found.";
+    return reactionMatrix[metal]?.[solution.name] || "No reaction observed";
 }
 
 function runComparisonTest() {
