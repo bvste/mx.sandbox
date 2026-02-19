@@ -22,7 +22,7 @@ const nonMetalIdentities = [
 let activeM = metalIdentities[Math.floor(Math.random() * metalIdentities.length)];
 let activeX = nonMetalIdentities[Math.floor(Math.random() * nonMetalIdentities.length)];
 
-// List of available experiment types
+// List of available experiment types, make sure to not to have the same id if adding experiments
 const experimentsM = [
     { id: 'hammer', name: "Hammer Test" },
     { id: 'activity', name: "Activity Testing" },
@@ -215,7 +215,6 @@ function checkPhaseTransition() {
     
         const workspace = document.getElementById('lab-workspace');
         if (workspace) {
-            // This removes the two-column restriction so the content spans 100% width
             workspace.classList.remove('grid', 'md:grid-cols-[300px,1fr]', 'gap-8');
             workspace.classList.add('block', 'max-w-4xl', 'mx-auto'); 
         }
@@ -373,7 +372,8 @@ async function finalizeLab() {
         mExps: completedM.map(e => e.id), xExps: completedX.map(e => e.id),
         assumption: assumptionText
     };
-
+    
+// When you ever update the code of the google script make sure to always update it to the latest doc
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKHQd1vrdU7taJzdUtm2AwQB4fGVqg8DY9TPjPCf_h40gtvgukOuKj0xoIlfDweLaNPQ/exec';
 
     try {
