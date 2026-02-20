@@ -571,7 +571,6 @@ function showCER() {
             `).join('')}
         </div>
 
-        // Replace the third section (Molar Mass Comparison Log) in showCER with this:
         <div class="col-span-1 md:col-span-2 mt-8">
             <h4 class="text-purple-400 font-bold mb-4 text-center">Synthesis Log (Theoretical Molar Mass)</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
