@@ -505,7 +505,6 @@ function runMolarMassPhase() {
     }
 }
 
-// 1. Calculate ONLY the mass for "playing around"
 function calculateActualMass() {
     const mVal = parseFloat(document.getElementById('input-m').value) || 0;
     const xVal = parseFloat(document.getElementById('input-x').value) || 0;
@@ -524,41 +523,6 @@ function calculateActualMass() {
     document.getElementById('mx-result-box').classList.remove('hidden');
 }
 
-// 2. Official Synthesis (Logs result and enables Proceed button)
-function synthesizeCompound() {
-    const mVal = parseFloat(document.getElementById('input-m').value) || 0;
-    const xVal = parseFloat(document.getElementById('input-x').value) || 0;
-
-    if (mVal <= 0 || xVal <= 0) return alert("Enter masses for official logging.");
-
-    const lookupKey = activeM.name + activeX.name;
-    const info = compoundDatabase[lookupKey];
-
-    const molesM = mVal / activeM.mass;
-    const yieldMX = (molesM * info.molarMass).toFixed(2);
-
-    // Update UI
-    document.getElementById('res-mass').innerText = `${yieldMX} g`;
-    document.getElementById('res-molar').innerText = `${info.molarMass} g/mol`;
-    document.getElementById('mx-result-box').classList.remove('hidden');
-
-    // LOG the attempt
-    phase3Attempts.push({
-        combo: `Reaction: ${mVal}g M + ${xVal}g X`,
-        mass: info.molarMass,
-        rawTotal: yieldMX
-    });
-
-    // ENABLE the proceed button
-    const actionBtn = document.querySelector('#station-active button');
-    if (actionBtn) {
-        actionBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        actionBtn.disabled = false;
-        actionBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
-    }
-}
-
-// REPLACE both of your current synthesizeCompound functions with this one:
 function synthesizeCompound() {
     const mInput = document.getElementById('input-m');
     const xInput = document.getElementById('input-x');
