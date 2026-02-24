@@ -449,6 +449,10 @@ function runMolarMassPhase() {
     currentPhase = 'P';
     document.getElementById('phase-title').innerText = "Phase 3: Molecular Synthesis";
     
+    //Unhide the instructions
+    const instructions = document.getElementById('phase3-instructions');
+    if (instructions) instructions.classList.remove('hidden');
+    
     // 1. Hide the "Tests Logged" box (exp-count) just for Phase 3
     const logBox = document.getElementById('exp-count')?.closest('.bg-gray-800');
     if (logBox) logBox.classList.add('hidden');
