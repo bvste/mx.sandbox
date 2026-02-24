@@ -2,8 +2,8 @@
 // I also added the descriptions of each M and X which is shown on the very first page
 const metalIdentities = [
     { name: "Nickel", reactivity: 4, description: "lustrous, silvery-white with a slight golden or brownish tinge.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Pale green/ bluish green flame", mass: 58.69},
-    { name: "CopperOne", reactivity: 2, description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame", mass: 63.55},
-    { name: "CopperTwo", reactivity: 3, description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame", mass: 63.55},
+    { name: "CopperTwo", reactivity: 2, description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame", mass: 63.55},
+    { name: "CopperThree", reactivity: 3, description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame", mass: 63.55},
     { name: "Silver", reactivity: 1, description: "lusterous and brilliant white.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "No Data", mass: 107.87},
     { name: "Aluminum", reactivity: 7, description: "shiny, silver.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "White/silvery white flame", mass: 26.98},
     { name: "IronTwo", reactivity: 5, description: "silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Red flame", mass: 55.85},
@@ -449,11 +449,10 @@ function runMolarMassPhase() {
     currentPhase = 'P';
     document.getElementById('phase-title').innerText = "Phase 3: Molecular Synthesis";
     document.getElementById('phase-title').className = "text-2xl font-bold text-purple-400";
-    document.getElementById('phase-subtitle').innerText = "Select an amount of M and X to use.";
-
+    
     const sidebar = document.getElementById('experiment-menu')?.parentElement;
     if (sidebar) sidebar.remove();
-
+    
     const workspace = document.getElementById('lab-workspace');
     if (workspace) workspace.className = "max-w-4xl mx-auto block";
 
@@ -506,25 +505,22 @@ function runMolarMassPhase() {
     }
 }
 
+// 1. Calculate ONLY the mass for "playing around"
 function calculateActualMass() {
     const mVal = parseFloat(document.getElementById('input-m').value) || 0;
     const xVal = parseFloat(document.getElementById('input-x').value) || 0;
     
     if (mVal <= 0 || xVal <= 0) return alert("Enter both masses to see the reaction preview.");
     
+    // Stoichiometry check: M is limiting
+    const molesM = mVal / activeM.mass;
     const lookupKey = activeM.name + activeX.name;
     const info = compoundDatabase[lookupKey];
-
-    // MATH FIX:
-    const molesM = mVal / activeM.mass;
-    // How much X is actually consumed based on the formula?
-    const massXConsumed = molesM * (info.molarMass - activeM.mass);
     
-    // Total Mass produced cannot violate conservation of mass
-    const yieldMX = (mVal + massXConsumed).toFixed(2);
+    const yieldMX = (molesM * info.molarMass).toFixed(2);
     
     document.getElementById('res-mass').innerText = `${yieldMX} g`;
-    document.getElementById('res-molar').innerText = "---"; 
+    document.getElementById('res-molar').innerText = "---"; // Hide molar mass in preview
     document.getElementById('mx-result-box').classList.remove('hidden');
 }
 
@@ -538,10 +534,8 @@ function synthesizeCompound() {
     const lookupKey = activeM.name + activeX.name;
     const info = compoundDatabase[lookupKey];
 
-    // MATH FIX (Same as above)
     const molesM = mVal / activeM.mass;
-    const massXConsumed = molesM * (info.molarMass - activeM.mass);
-    const yieldMX = (mVal + massXConsumed).toFixed(2);
+    const yieldMX = (molesM * info.molarMass).toFixed(2);
 
     // Update UI
     document.getElementById('res-mass').innerText = `${yieldMX} g`;
@@ -555,34 +549,49 @@ function synthesizeCompound() {
         rawTotal: yieldMX
     });
 
-    // UNLOCK the proceed button that we'll put inside the result box
-    const proceedBtn = document.getElementById('final-proceed-btn');
-    if (proceedBtn) {
-        proceedBtn.disabled = false;
-        proceedBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-700');
-        proceedBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
+    // ENABLE the proceed button
+    const actionBtn = document.querySelector('#station-active button');
+    if (actionBtn) {
+        actionBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        actionBtn.disabled = false;
+        actionBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
     }
 }
 
-function logSynthesisToCER() {
-    const mVal = document.getElementById('input-m').value;
-    const xVal = document.getElementById('input-x').value;
-    const yieldMX = document.getElementById('res-mass').innerText;
+function synthesizeCompound() {
+    const mInput = document.getElementById('input-m');
+    const xInput = document.getElementById('input-x');
+    
+    const mVal = parseFloat(mInput.value) || 0;
+    const xVal = parseFloat(xInput.value) || 0;
 
-    if (!yieldMX || yieldMX === "") {
-        return alert("Please run the synthesis reaction before logging data.");
+    if (mVal <= 0 || xVal <= 0) return alert("Please enter valid amounts.");
+
+    const totalProduced = (mVal + xVal).toFixed(2);
+    
+    // LOOKUP: Ensure this matches the keys in your Database
+    const lookupKey = activeM.name + activeX.name; 
+    const info = compoundDatabase[lookupKey];
+
+    if (!info) {
+        console.error("Missing Database Key:", lookupKey);
+        return alert("Error: Compound data not found for " + lookupKey);
     }
 
-    // Save exactly what was entered and the result
-    phase3Attempts.push({
-        mUsed: mVal,
-        xUsed: xVal,
-        totalYield: yieldMX
-    });
+    // Populate UI
+    document.getElementById('res-mass').innerText = `${totalProduced} g`;
+    document.getElementById('res-molar').innerText = `${info.molarMass} g/mol`;
+    document.getElementById('res-app').innerText = info.appearance;
+    document.getElementById('res-sol').innerText = info.solubility;
 
-    // Show the "Proceed to CER" button now that data is saved
-    document.getElementById('cer-nav-box').classList.remove('hidden');
-    alert("Synthesis data saved! You can now proceed to the CER report or run another trial.");
+    document.getElementById('mx-result-box').classList.remove('hidden');
+    
+    // Log for the final CER screen - Ensure these keys match showCER()
+    phase3Attempts.push({
+        combo: `Reaction: ${mVal}g M + ${xVal}g X`,
+        mass: info.molarMass, // We store the molar mass for the "Evidence" check
+        rawTotal: totalProduced
+    });
 }
 
 function showCER() {
@@ -614,19 +623,22 @@ function showCER() {
         </div>
 
         <div class="col-span-1 md:col-span-2 mt-8">
-            <h4 class="text-purple-400 font-bold mb-4 text-center">Phase 3: Synthesis Measurements</h4>
+            <h4 class="text-purple-400 font-bold mb-4 text-center">Synthesis Log (Theoretical Molar Mass)</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                ${phase3Attempts.map((attempt, idx) => `
-                    <div class="cer-result-card p-4 rounded-lg bg-gray-900 border border-gray-800 shadow-lg">
-                        <p class="text-blue-400 font-bold text-[10px] uppercase mb-2">Trial #${idx + 1}</p>
-                        <div class="space-y-1 text-sm">
-                            <p class="text-gray-400">Metal Used: <span class="text-white">${attempt.mInput} g</span></p>
-                            <p class="text-gray-400">Non-Metal Used: <span class="text-white">${attempt.xInput} g</span></p>
-                            <p class="text-emerald-400 font-bold">Total Product: <span>${attempt.productMass}</span></p>
+                ${phase3Attempts.map(attempt => {
+                    // Check if the result matches the correct compound's molar mass
+                    const correctKey = activeM.name + activeX.name;
+                    const correctMass = compoundDatabase[correctKey].molarMass;
+                    const isCorrect = attempt.mass === correctMass;
+        
+                    return `
+                        <div class="cer-result-card p-3 rounded-lg border-l-4 ${isCorrect ? 'border-l-emerald-500' : 'border-l-red-500'} bg-gray-900">
+                            <p class="text-[10px] text-gray-500 uppercase font-bold">${attempt.combo}</p>
+                            <p class="text-white font-mono">${attempt.mass} g/mol</p>
+                            <p class="text-[10px] text-gray-400">Total Yield: ${attempt.rawTotal}g</p>
                         </div>
-                        <p class="mt-3 text-[9px] text-gray-600 italic">Student Calculation Required for Molar Mass</p>
-                    </div>
-                `).join('')}
+                    `;
+                }).join('')}
             </div>
         </div>
     `;
