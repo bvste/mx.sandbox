@@ -448,37 +448,18 @@ let phase3Attempts = [];
 function runMolarMassPhase() {
     currentPhase = 'P';
     document.getElementById('phase-title').innerText = "Phase 3: Molecular Synthesis";
-    
-    //Unhide the instructions
-    const instructions = document.getElementById('phase3-instructions');
-    if (instructions) instructions.classList.remove('hidden');
-    
-    // 1. Hide the "Tests Logged" box (exp-count) just for Phase 3
-    const logBox = document.getElementById('exp-count')?.closest('.bg-gray-800');
-    if (logBox) logBox.classList.add('hidden');
+    document.getElementById('phase-title').className = "text-2xl font-bold text-purple-400";
+    document.getElementById('phase-subtitle').innerText = "Select an amount of M and X to use.";
 
-    // 2. Repurpose the 'Save Experiment' button in the station footer
-    const stationFooter = document.getElementById('station-active');
-    const saveBtn = stationFooter.querySelector('button');
-    if (saveBtn) {
-        saveBtn.innerText = "Log Data to Lab Manual";
-        saveBtn.onclick = logSynthesisToCER; // Points to our new logging function
-    }
-    stationFooter.classList.remove('hidden'); // Ensure it stays visible
+    const sidebar = document.getElementById('experiment-menu')?.parentElement;
+    if (sidebar) sidebar.remove();
 
-    // 3. Clear the sidebar menu container
-    const sidebarMenu = document.getElementById('experiment-menu');
-    if (sidebarMenu) {
-        sidebarMenu.innerHTML = `<p class="text-gray-500 text-xs italic p-4">Logged synthesis results will appear in the final CER report.</p>`;
-    }
-    
     const workspace = document.getElementById('lab-workspace');
     if (workspace) workspace.className = "max-w-4xl mx-auto block";
 
     const zone = document.getElementById('comparison-zone');
     zone.className = "w-full space-y-8";
-    
-    // 4. Removed the "Theoretical Molar Mass" box entirely
+
     zone.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="p-6 bg-gray-800 border border-blue-500/30 rounded-2xl">
@@ -491,23 +472,38 @@ function runMolarMassPhase() {
             </div>
         </div>
 
-        <button onclick="calculateActualMass()" class="w-full bg-blue-600 py-4 rounded-xl font-bold text-white hover:bg-blue-500 transition-all shadow-md">
-            Run Synthesis Reaction
-        </button>
-
-        <div id="mx-result-box" class="hidden bg-slate-900 p-8 rounded-3xl border-2 border-purple-500/50 shadow-2xl">
-            <div class="text-center">
-                <p class="text-xs text-gray-500 uppercase font-bold mb-2">Measured Mass of Product (MX)</p>
-                <p id="res-mass" class="text-4xl font-black text-white"></p>
-            </div>
-        </div>
-        
-        <div id="cer-nav-box" class="hidden text-center mt-6">
-            <button onclick="showCER()" class="px-8 py-3 bg-emerald-600 text-white rounded-full font-bold hover:bg-emerald-500 shadow-lg">
-                Proceed to Final CER Report →
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+             <button onclick="calculateActualMass()" class="w-full bg-blue-600 py-4 rounded-xl font-bold text-white hover:bg-blue-500 transition-all shadow-md uppercase tracking-wider">
+                Preview Reaction Mass
+            </button>
+            <button onclick="synthesizeCompound()" class="w-full bg-purple-600 py-4 rounded-xl font-black text-white hover:bg-purple-500 transition-all shadow-lg uppercase tracking-widest">
+                Log Official Synthesis
             </button>
         </div>
+
+        <div id="mx-result-box" class="hidden bg-slate-900 p-8 rounded-3xl border-2 border-purple-500/50 shadow-2xl">
+            <h3 class="text-purple-400 font-bold uppercase tracking-widest mb-6 text-center">Experimental Results: Unknown Compound MX</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="p-4 border border-gray-700 rounded-xl text-center">
+                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Total Mass Produced</p>
+                    <p id="res-mass" class="text-3xl font-black text-white"></p>
+                </div>
+                <div class="p-4 border border-purple-500/30 bg-purple-900/10 rounded-xl text-center">
+                    <p class="text-[10px] text-purple-400 uppercase font-bold mb-1">Theoretical Molar Mass</p>
+                    <p id="res-molar" class="text-3xl font-black text-white"></p>
+                </div>
+            </div>
+        </div>
     `;
+
+    // Setup the "Proceed" button in the footer
+    const actionBtn = document.querySelector('#station-active button');
+    if (actionBtn) {
+        actionBtn.innerText = "Proceed to Final CER Report";
+        actionBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        actionBtn.disabled = true; // Disable until log occurs
+        actionBtn.onclick = showCER;
+    }
 }
 
 function calculateActualMass() {
