@@ -2,8 +2,8 @@
 // I also added the descriptions of each M and X which is shown on the very first page
 const metalIdentities = [
     { name: "Nickel", reactivity: 4, description: "lustrous, silvery-white with a slight golden or brownish tinge.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Pale green/ bluish green flame", mass: 58.69},
-    { name: "CopperTwo", reactivity: 2, description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame", mass: 63.55},
-    { name: "CopperThree", reactivity: 3, description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame", mass: 63.55},
+    { name: "CopperOne", reactivity: 2, description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame", mass: 63.55},
+    { name: "CopperTwo", reactivity: 3, description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame", mass: 63.55},
     { name: "Silver", reactivity: 1, description: "lusterous and brilliant white.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "No Data", mass: 107.87},
     { name: "Aluminum", reactivity: 7, description: "shiny, silver.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "White/silvery white flame", mass: 26.98},
     { name: "IronTwo", reactivity: 5, description: "silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Red flame", mass: 55.85},
@@ -558,6 +558,7 @@ function synthesizeCompound() {
     }
 }
 
+// REPLACE both of your current synthesizeCompound functions with this one:
 function synthesizeCompound() {
     const mInput = document.getElementById('input-m');
     const xInput = document.getElementById('input-x');
@@ -565,10 +566,8 @@ function synthesizeCompound() {
     const mVal = parseFloat(mInput.value) || 0;
     const xVal = parseFloat(xInput.value) || 0;
 
-    if (mVal <= 0 || xVal <= 0) return alert("Please enter valid amounts.");
+    if (mVal <= 0 || xVal <= 0) return alert("Please enter valid amounts for both elements.");
 
-    const totalProduced = (mVal + xVal).toFixed(2);
-    
     // LOOKUP: Ensure this matches the keys in your Database
     const lookupKey = activeM.name + activeX.name; 
     const info = compoundDatabase[lookupKey];
@@ -578,20 +577,34 @@ function synthesizeCompound() {
         return alert("Error: Compound data not found for " + lookupKey);
     }
 
-    // Populate UI
-    document.getElementById('res-mass').innerText = `${totalProduced} g`;
+    // Stoichiometry calculation (Metal is limiting)
+    const molesM = mVal / activeM.mass;
+    const yieldMX = (molesM * info.molarMass).toFixed(2);
+
+    // Populate UI results
+    document.getElementById('res-mass').innerText = `${yieldMX} g`;
     document.getElementById('res-molar').innerText = `${info.molarMass} g/mol`;
-    document.getElementById('res-app').innerText = info.appearance;
-    document.getElementById('res-sol').innerText = info.solubility;
+    
+    // Check if these result fields exist in your HTML before setting
+    if(document.getElementById('res-app')) document.getElementById('res-app').innerText = info.appearance;
+    if(document.getElementById('res-sol')) document.getElementById('res-sol').innerText = info.solubility;
 
     document.getElementById('mx-result-box').classList.remove('hidden');
     
-    // Log for the final CER screen - Ensure these keys match showCER()
+    // LOG for the final CER screen
     phase3Attempts.push({
         combo: `Reaction: ${mVal}g M + ${xVal}g X`,
-        mass: info.molarMass, // We store the molar mass for the "Evidence" check
-        rawTotal: totalProduced
+        mass: info.molarMass,
+        rawTotal: yieldMX
     });
+
+    // ENABLE the "Proceed to CER" button
+    const actionBtn = document.querySelector('#station-active button');
+    if (actionBtn) {
+        actionBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        actionBtn.disabled = false;
+        actionBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
+    }
 }
 
 function showCER() {
