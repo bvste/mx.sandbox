@@ -448,6 +448,7 @@ let phase3Attempts = [];
 function runMolarMassPhase() {
     currentPhase = 'P';
     document.getElementById('phase-title').innerText = "Phase 3: Molecular Synthesis";
+    document.getElementById('phase-subtitle').className = "text-purple-300 text-sm";
     
     // Hide the entire station footer (gets rid of the Save button)
     document.getElementById('station-active').classList.add('hidden');
