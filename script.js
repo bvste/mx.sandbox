@@ -448,9 +448,11 @@ let phase3Attempts = [];
 function runMolarMassPhase() {
     currentPhase = 'P';
     document.getElementById('phase-title').innerText = "Phase 3: Molecular Synthesis";
-    document.getElementById('phase-title').className = "text-2xl font-bold text-purple-400";
-    document.getElementById('phase-subtitle').innerText = "Select an amount of M and X to use.";
     
+    // Hide the entire station footer (gets rid of the Save button)
+    document.getElementById('station-active').classList.add('hidden');
+    
+    // Remove sidebar
     const sidebar = document.getElementById('experiment-menu')?.parentElement;
     if (sidebar) sidebar.remove();
     
@@ -459,7 +461,6 @@ function runMolarMassPhase() {
 
     const zone = document.getElementById('comparison-zone');
     zone.className = "w-full space-y-8";
-
     zone.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="p-6 bg-gray-800 border border-blue-500/30 rounded-2xl">
@@ -473,102 +474,90 @@ function runMolarMassPhase() {
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-             <button onclick="calculateActualMass()" class="w-full bg-blue-600 py-4 rounded-xl font-bold text-white hover:bg-blue-500 transition-all shadow-md uppercase tracking-wider">
-                Preview Reaction Mass
+             <button onclick="calculateActualMass()" class="w-full bg-blue-600 py-4 rounded-xl font-bold text-white hover:bg-blue-500 transition-all">
+                Preview Reaction
             </button>
-            <button onclick="synthesizeCompound()" class="w-full bg-purple-600 py-4 rounded-xl font-black text-white hover:bg-purple-500 transition-all shadow-lg uppercase tracking-widest">
+            <button onclick="synthesizeCompound()" class="w-full bg-purple-600 py-4 rounded-xl font-black text-white hover:bg-purple-500 transition-all">
                 Log Official Synthesis
             </button>
         </div>
 
-        <div id="mx-result-box" class="hidden bg-slate-900 p-8 rounded-3xl border-2 border-purple-500/50 shadow-2xl">
-            <h3 class="text-purple-400 font-bold uppercase tracking-widest mb-6 text-center">Experimental Results: Unknown Compound MX</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="p-4 border border-gray-700 rounded-xl text-center">
-                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Total Mass Produced</p>
+        <div id="mx-result-box" class="hidden bg-slate-900 p-8 rounded-3xl border-2 border-purple-500/50">
+            <div class="grid grid-cols-2 gap-6 mb-8">
+                <div class="text-center">
+                    <p class="text-xs text-gray-500 uppercase font-bold">Total Mass Produced</p>
                     <p id="res-mass" class="text-3xl font-black text-white"></p>
                 </div>
-                <div class="p-4 border border-purple-500/30 bg-purple-900/10 rounded-xl text-center">
-                    <p class="text-[10px] text-purple-400 uppercase font-bold mb-1">Theoretical Molar Mass</p>
+                <div class="text-center">
+                    <p class="text-xs text-purple-400 uppercase font-bold">Theoretical Molar Mass</p>
                     <p id="res-molar" class="text-3xl font-black text-white"></p>
                 </div>
             </div>
+            
+            <button id="final-proceed-btn" onclick="showCER()" disabled 
+                class="w-full bg-gray-700 py-4 rounded-xl font-bold text-white opacity-50 cursor-not-allowed transition-all">
+                Proceed to Final CER Report
+            </button>
         </div>
     `;
-
-    // Setup the "Proceed" button in the footer
-    const actionBtn = document.querySelector('#station-active button');
-    if (actionBtn) {
-        actionBtn.innerText = "Proceed to Final CER Report";
-        actionBtn.classList.add('opacity-50', 'cursor-not-allowed');
-        actionBtn.disabled = true; // Disable until log occurs
-        actionBtn.onclick = showCER;
-    }
 }
 
+// 1. Calculate ONLY for "playing around"
 function calculateActualMass() {
     const mVal = parseFloat(document.getElementById('input-m').value) || 0;
     const xVal = parseFloat(document.getElementById('input-x').value) || 0;
     
     if (mVal <= 0 || xVal <= 0) return alert("Enter both masses to see the reaction preview.");
     
-    // Stoichiometry check: M is limiting
-    const molesM = mVal / activeM.mass;
     const lookupKey = activeM.name + activeX.name;
     const info = compoundDatabase[lookupKey];
+
+    // MATH FIX:
+    const molesM = mVal / activeM.mass;
+    // How much X is actually consumed based on the formula?
+    const massXConsumed = molesM * (info.molarMass - activeM.mass);
     
-    const yieldMX = (molesM * info.molarMass).toFixed(2);
+    // Total Mass produced cannot violate conservation of mass
+    const yieldMX = (mVal + massXConsumed).toFixed(2);
     
     document.getElementById('res-mass').innerText = `${yieldMX} g`;
-    document.getElementById('res-molar').innerText = "---"; // Hide molar mass in preview
+    document.getElementById('res-molar').innerText = "---"; 
     document.getElementById('mx-result-box').classList.remove('hidden');
 }
 
+// 2. Official Synthesis (Logs result and enables Proceed button)
 function synthesizeCompound() {
-    const mInput = document.getElementById('input-m');
-    const xInput = document.getElementById('input-x');
-    
-    const mVal = parseFloat(mInput.value) || 0;
-    const xVal = parseFloat(xInput.value) || 0;
+    const mVal = parseFloat(document.getElementById('input-m').value) || 0;
+    const xVal = parseFloat(document.getElementById('input-x').value) || 0;
 
-    if (mVal <= 0 || xVal <= 0) return alert("Please enter valid amounts for both elements.");
+    if (mVal <= 0 || xVal <= 0) return alert("Enter masses for official logging.");
 
-    // LOOKUP: Ensure this matches the keys in your Database
-    const lookupKey = activeM.name + activeX.name; 
+    const lookupKey = activeM.name + activeX.name;
     const info = compoundDatabase[lookupKey];
 
-    if (!info) {
-        console.error("Missing Database Key:", lookupKey);
-        return alert("Error: Compound data not found for " + lookupKey);
-    }
-
-    // Stoichiometry calculation (Metal is limiting)
+    // MATH FIX (Same as above)
     const molesM = mVal / activeM.mass;
-    const yieldMX = (molesM * info.molarMass).toFixed(2);
+    const massXConsumed = molesM * (info.molarMass - activeM.mass);
+    const yieldMX = (mVal + massXConsumed).toFixed(2);
 
-    // Populate UI results
+    // Update UI
     document.getElementById('res-mass').innerText = `${yieldMX} g`;
     document.getElementById('res-molar').innerText = `${info.molarMass} g/mol`;
-    
-    // Check if these result fields exist in your HTML before setting
-    if(document.getElementById('res-app')) document.getElementById('res-app').innerText = info.appearance;
-    if(document.getElementById('res-sol')) document.getElementById('res-sol').innerText = info.solubility;
-
     document.getElementById('mx-result-box').classList.remove('hidden');
-    
-    // LOG for the final CER screen
+
+    // LOG the attempt
     phase3Attempts.push({
         combo: `Reaction: ${mVal}g M + ${xVal}g X`,
         mass: info.molarMass,
         rawTotal: yieldMX
     });
 
-    // ENABLE the "Proceed to CER" button
-    const actionBtn = document.querySelector('#station-active button');
-    if (actionBtn) {
-        actionBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        actionBtn.disabled = false;
-        actionBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
+    // UNLOCK the proceed button that we'll put inside the result box
+    const proceedBtn = document.getElementById('final-proceed-btn');
+    if (proceedBtn) {
+        proceedBtn.disabled = false;
+        proceedBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-700');
+        proceedBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
     }
 }
 
