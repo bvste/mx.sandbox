@@ -459,15 +459,20 @@ function runMolarMassPhase() {
     const zone = document.getElementById('comparison-zone');
     zone.className = "w-full space-y-8";
 
+    // CHANGED: md:grid-cols-3 and added the 3rd box for Yield. Added oninput triggers.
     zone.innerHTML = `
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="p-6 bg-gray-800 border border-blue-500/30 rounded-2xl">
                 <label class="text-blue-400 text-xs font-bold uppercase tracking-widest">Grams of Metal (M)</label>
-                <input type="number" id="input-m" placeholder="0.00" class="w-full bg-gray-900 border border-gray-700 p-4 rounded-xl text-white mt-2 text-2xl outline-none">
+                <input type="number" id="input-m" placeholder="0.00" oninput="updateYieldInline()" class="w-full bg-gray-900 border border-gray-700 p-4 rounded-xl text-white mt-2 text-2xl outline-none">
             </div>
             <div class="p-6 bg-gray-800 border border-emerald-500/30 rounded-2xl">
                 <label class="text-emerald-400 text-xs font-bold uppercase tracking-widest">Grams of Non-Metal (X)</label>
-                <input type="number" id="input-x" placeholder="0.00" class="w-full bg-gray-900 border border-gray-700 p-4 rounded-xl text-white mt-2 text-2xl outline-none">
+                <input type="number" id="input-x" placeholder="0.00" oninput="updateYieldInline()" class="w-full bg-gray-900 border border-gray-700 p-4 rounded-xl text-white mt-2 text-2xl outline-none">
+            </div>
+            <div class="p-6 bg-gray-800 border border-purple-500/30 rounded-2xl flex flex-col justify-center text-center">
+                <label class="text-purple-400 text-xs font-bold uppercase tracking-widest">Yield of MX (g)</label>
+                <p id="inline-yield-display" class="text-4xl font-black text-white mt-2">0.00</p>
             </div>
         </div>
 
@@ -556,6 +561,39 @@ function synthesizeCompound() {
         actionBtn.disabled = false;
         actionBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
     }
+}
+//calculating yield for MX reaction
+function updateYieldInline() {
+    const mVal = parseFloat(document.getElementById('input-m').value) || 0;
+    const xVal = parseFloat(document.getElementById('input-x').value) || 0;
+    const display = document.getElementById('inline-yield-display');
+
+    if (mVal <= 0 && xVal <= 0) {
+        display.innerText = "0.00";
+        return;
+    }
+
+    const lookupKey = activeM.name + activeX.name;
+    const info = compoundDatabase[lookupKey];
+
+    // Get molar masses
+    const massM = activeM.mass;
+    const massCompound = info.molarMass;
+    const massXInCompound = massCompound - massM;
+
+    // Calculate mass fractions
+    const fractionM = massM / massCompound;
+    const fractionX = massXInCompound / massCompound;
+
+    // Calculate potential yield based on available mass of each
+    const yieldFromM = mVal / fractionM;
+    const yieldFromX = xVal / fractionX;
+
+    // Limiting reactant dictates the actual yield
+    const actualYield = Math.min(yieldFromM, yieldFromX);
+
+    // Update the UI
+    display.innerText = actualYield.toFixed(2);
 }
 
 function synthesizeCompound() {
