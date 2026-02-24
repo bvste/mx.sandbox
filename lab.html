@@ -8,18 +8,19 @@
 <body class="p-8">
     <div class="flex justify-between max-w-6xl mx-auto mb-8">
         <button onclick="openModal('mx-modal')" class="bg-blue-600/20 text-blue-400 px-4 py-2 rounded-lg border border-blue-500/50 font-bold">MX Properties</button>
-        <div class="max-w-6xl mx-auto flex justify-between items-center mb-8 bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl">
+        <button onclick="openModal('ack-modal')" class="bg-blue-600/20 text-blue-400 px-4 py-2 rounded-lg border border-blue-500/50 font-bold">Acknowledgements</button>
+    </div>
+
+    <div class="max-w-6xl mx-auto flex justify-between items-center mb-8 bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl">
         <div>
             <h2 id="phase-title" class="text-2xl font-bold text-blue-400 transition-all">Phase 1: Testing Unknown M</h2>
             <p id="phase-subtitle" class="text-gray-400 text-sm">Select an experiment from the sidebar to perform on your sample.</p>
-            <p id="phase-subtitle2" class="hidden text-gray-400 text-sm mt-1">Select an amount of M and X to use.</p>
         </div>
         <div class="text-right">
             <span id="exp-count" class="text-2xl font-mono text-white bg-gray-900 px-4 py-2 rounded-lg border border-gray-600">0 / 3</span>
             <p class="text-[10px] uppercase tracking-widest text-gray-500 mt-2 font-bold">Tests Logged</p>
         </div>
     </div>
-        </div>
 
 <div id="lab-workspace" class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
     
