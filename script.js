@@ -4,7 +4,51 @@ const metalIdentities = [
     { name: "Nickel", reactivity: 4, description: "lustrous, silvery-white with a slight golden or brownish tinge.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Pale green/ bluish green flame", mass: 58.69},
     { name: "CopperOne", reactivity: 2, description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame", mass: 63.55},
     { name: "CopperTwo", reactivity: 3, description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame", mass: 63.55},
-    { name: "Silver", reactivity: 1, description: "lusterous and brilliant white.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "No Data", mass: 107.87},
+    { name: "Silver", reactivity: 1, descrfunction updateYieldInline() {
+    const mVal = parseFloat(document.getElementById('input-m').value) || 0;
+    const xVal = parseFloat(document.getElementById('input-x').value) || 0;
+    const display = document.getElementById('inline-yield-display');
+
+    if (mVal <= 0 || xVal <= 0) {
+        display.innerText = "0.00";
+        return;
+    }
+
+    const lookupKey = activeM.name + activeX.name;
+    const info = compoundDatabase[lookupKey];
+
+    // 1. Oxidation states to determine formula (M_a X_b)
+    const metalCharges = {
+        "Nickel": 2, "CopperOne": 1, "CopperTwo": 2, "Silver": 1, 
+        "Aluminum": 3, "IronTwo": 2, "IronThree": 3, "Magnesium": 2
+    };
+    const nonmetalCharges = {
+        "Chlorine": 1, "Bromine": 1, "Sulfur": 2, "Phosphorus": 3
+    };
+
+    const mCharge = metalCharges[activeM.name];
+    const xCharge = nonmetalCharges[activeX.name];
+
+    // 2. Find the subscripts by crossing charges and simplifying
+    const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+    const divisor = gcd(mCharge, xCharge);
+    
+    // The number of Metal atoms in 1 molecule of the compound
+    const mCount = xCharge / divisor; 
+
+    // 3. Calculate true mass fractions
+    const trueMassM = mCount * activeM.mass;
+    const fractionM = trueMassM / info.molarMass;
+    const fractionX = 1 - fractionM;
+
+    // 4. Limiting Reactant Logic
+    const yieldFromM = mVal / fractionM;
+    const yieldFromX = xVal / fractionX;
+
+    const actualYield = Math.min(yieldFromM, yieldFromX);
+
+    display.innerText = actualYield.toFixed(2);
+}iption: "lusterous and brilliant white.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "No Data", mass: 107.87},
     { name: "Aluminum", reactivity: 7, description: "shiny, silver.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "White/silvery white flame", mass: 26.98},
     { name: "IronTwo", reactivity: 5, description: "silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Red flame", mass: 55.85},
     { name: "IronThree", reactivity: 6, description: "silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Red flame", mass: 55.85},
@@ -568,7 +612,7 @@ function updateYieldInline() {
     const xVal = parseFloat(document.getElementById('input-x').value) || 0;
     const display = document.getElementById('inline-yield-display');
 
-    if (mVal <= 0 && xVal <= 0) {
+    if (mVal <= 0 || xVal <= 0) {
         display.innerText = "0.00";
         return;
     }
@@ -576,23 +620,36 @@ function updateYieldInline() {
     const lookupKey = activeM.name + activeX.name;
     const info = compoundDatabase[lookupKey];
 
-    // Get molar masses
-    const massM = activeM.mass;
-    const massCompound = info.molarMass;
-    const massXInCompound = massCompound - massM;
+    // 1. Oxidation states to determine formula (M_a X_b)
+    const metalCharges = {
+        "Nickel": 2, "CopperOne": 1, "CopperTwo": 2, "Silver": 1, 
+        "Aluminum": 3, "IronTwo": 2, "IronThree": 3, "Magnesium": 2
+    };
+    const nonmetalCharges = {
+        "Chlorine": 1, "Bromine": 1, "Sulfur": 2, "Phosphorus": 3
+    };
 
-    // Calculate mass fractions
-    const fractionM = massM / massCompound;
-    const fractionX = massXInCompound / massCompound;
+    const mCharge = metalCharges[activeM.name];
+    const xCharge = nonmetalCharges[activeX.name];
 
-    // Calculate potential yield based on available mass of each
+    // 2. Find the subscripts by crossing charges and simplifying
+    const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+    const divisor = gcd(mCharge, xCharge);
+    
+    // The number of Metal atoms in 1 molecule of the compound
+    const mCount = xCharge / divisor; 
+
+    // 3. Calculate true mass fractions
+    const trueMassM = mCount * activeM.mass;
+    const fractionM = trueMassM / info.molarMass;
+    const fractionX = 1 - fractionM;
+
+    // 4. Limiting Reactant Logic
     const yieldFromM = mVal / fractionM;
     const yieldFromX = xVal / fractionX;
 
-    // Limiting reactant dictates the actual yield
     const actualYield = Math.min(yieldFromM, yieldFromX);
 
-    // Update the UI
     display.innerText = actualYield.toFixed(2);
 }
 
