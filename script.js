@@ -529,39 +529,6 @@ function calculateActualMass() {
     document.getElementById('mx-result-box').classList.remove('hidden');
 }
 
-// 2. Official Synthesis (Logs result and enables Proceed button)
-function synthesizeCompound() {
-    const mVal = parseFloat(document.getElementById('input-m').value) || 0;
-    const xVal = parseFloat(document.getElementById('input-x').value) || 0;
-
-    if (mVal <= 0 || xVal <= 0) return alert("Enter masses for official logging.");
-
-    const lookupKey = activeM.name + activeX.name;
-    const info = compoundDatabase[lookupKey];
-
-    const molesM = mVal / activeM.mass;
-    const yieldMX = (molesM * info.molarMass).toFixed(2);
-
-    // Update UI
-    document.getElementById('res-mass').innerText = `${yieldMX} g`;
-    document.getElementById('res-molar').innerText = `${info.molarMass} g/mol`;
-    document.getElementById('mx-result-box').classList.remove('hidden');
-
-    // LOG the attempt
-    phase3Attempts.push({
-        combo: `Reaction: ${mVal}g M + ${xVal}g X`,
-        mass: info.molarMass,
-        rawTotal: yieldMX
-    });
-
-    // ENABLE the proceed button
-    const actionBtn = document.querySelector('#station-active button');
-    if (actionBtn) {
-        actionBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        actionBtn.disabled = false;
-        actionBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
-    }
-}
 //calculating yield for MX reaction
 function updateYieldInline() {
     const mVal = parseFloat(document.getElementById('input-m').value) || 0;
@@ -612,37 +579,45 @@ function updateYieldInline() {
 function synthesizeCompound() {
     const mInput = document.getElementById('input-m');
     const xInput = document.getElementById('input-x');
+    const yieldDisplay = document.getElementById('inline-yield-display');
     
     const mVal = parseFloat(mInput.value) || 0;
     const xVal = parseFloat(xInput.value) || 0;
+    const totalProduced = yieldDisplay.innerText; // Get the scientific yield you calculated
 
     if (mVal <= 0 || xVal <= 0) return alert("Please enter valid amounts.");
 
-    const totalProduced = (mVal + xVal).toFixed(2);
-    
-    // LOOKUP: Ensure this matches the keys in your Database
     const lookupKey = activeM.name + activeX.name; 
     const info = compoundDatabase[lookupKey];
 
     if (!info) {
         console.error("Missing Database Key:", lookupKey);
-        return alert("Error: Compound data not found for " + lookupKey);
+        return alert("Error: Compound data not found.");
     }
 
-    // Populate UI
+    // Populate Results Box
     document.getElementById('res-mass').innerText = `${totalProduced} g`;
     document.getElementById('res-molar').innerText = `${info.molarMass} g/mol`;
-    document.getElementById('res-app').innerText = info.appearance;
-    document.getElementById('res-sol').innerText = info.solubility;
-
     document.getElementById('mx-result-box').classList.remove('hidden');
     
-    // Log for the final CER screen - Ensure these keys match showCER()
+    // Log for CER
     phase3Attempts.push({
         combo: `Reaction: ${mVal}g M + ${xVal}g X`,
-        mass: info.molarMass, // We store the molar mass for the "Evidence" check
+        mass: info.molarMass,
         rawTotal: totalProduced
     });
+
+    // --- THE FIX: UNLOCK THE PROCEED BUTTON ---
+    const actionBtn = document.querySelector('#station-active button');
+    if (actionBtn) {
+        actionBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        actionBtn.disabled = false;
+        actionBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
+        // Ensure the click still leads to showCER
+        actionBtn.onclick = showCER; 
+    }
+    
+    alert("Synthesis logged to manual. You may now proceed to the final report.");
 }
 
 function showCER() {
