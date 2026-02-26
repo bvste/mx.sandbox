@@ -459,7 +459,6 @@ function runMolarMassPhase() {
     const zone = document.getElementById('comparison-zone');
     zone.className = "w-full space-y-8";
 
-    // CHANGED: md:grid-cols-3 and added the 3rd box for Yield. Added oninput triggers.
     zone.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="p-6 bg-gray-800 border border-blue-500/30 rounded-2xl">
@@ -487,25 +486,20 @@ function runMolarMassPhase() {
 
         <div id="mx-result-box" class="hidden bg-slate-900 p-8 rounded-3xl border-2 border-purple-500/50 shadow-2xl">
             <h3 class="text-purple-400 font-bold uppercase tracking-widest mb-6 text-center">Experimental Results: Unknown Compound MX</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="p-4 border border-gray-700 rounded-xl text-center">
+            <div class="flex justify-center">
+                <div class="p-6 border border-gray-700 rounded-xl text-center min-w-[200px]">
                     <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Total Mass Produced</p>
-                    <p id="res-mass" class="text-3xl font-black text-white"></p>
-                </div>
-                <div class="p-4 border border-purple-500/30 bg-purple-900/10 rounded-xl text-center">
-                    <p class="text-[10px] text-purple-400 uppercase font-bold mb-1">Theoretical Molar Mass</p>
-                    <p id="res-molar" class="text-3xl font-black text-white"></p>
+                    <p id="res-mass" class="text-5xl font-black text-white"></p>
                 </div>
             </div>
         </div>
     `;
 
-    // Setup the "Proceed" button in the footer
     const actionBtn = document.querySelector('#station-active button');
     if (actionBtn) {
         actionBtn.innerText = "Proceed to Final CER Report";
         actionBtn.classList.add('opacity-50', 'cursor-not-allowed');
-        actionBtn.disabled = true; // Disable until log occurs
+        actionBtn.disabled = true;
         actionBtn.onclick = showCER;
     }
 }
@@ -583,41 +577,35 @@ function synthesizeCompound() {
     
     const mVal = parseFloat(mInput.value) || 0;
     const xVal = parseFloat(xInput.value) || 0;
-    const totalProduced = yieldDisplay.innerText; // Get the scientific yield you calculated
+    const totalProduced = yieldDisplay.innerText;
 
     if (mVal <= 0 || xVal <= 0) return alert("Please enter valid amounts.");
 
     const lookupKey = activeM.name + activeX.name; 
     const info = compoundDatabase[lookupKey];
 
-    if (!info) {
-        console.error("Missing Database Key:", lookupKey);
-        return alert("Error: Compound data not found.");
-    }
+    if (!info) return alert("Error: Compound data not found.");
 
-    // Populate Results Box
+    // Update UI (Mass only)
     document.getElementById('res-mass').innerText = `${totalProduced} g`;
-    document.getElementById('res-molar').innerText = `${info.molarMass} g/mol`;
     document.getElementById('mx-result-box').classList.remove('hidden');
     
     // Log for CER
     phase3Attempts.push({
-        combo: `Reaction: ${mVal}g M + ${xVal}g X`,
-        mass: info.molarMass,
+        combo: `${mVal}g M + ${xVal}g X`,
         rawTotal: totalProduced
     });
 
-    // --- THE FIX: UNLOCK THE PROCEED BUTTON ---
+    // Unlock Proceed Button
     const actionBtn = document.querySelector('#station-active button');
     if (actionBtn) {
         actionBtn.classList.remove('opacity-50', 'cursor-not-allowed');
         actionBtn.disabled = false;
         actionBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
-        // Ensure the click still leads to showCER
         actionBtn.onclick = showCER; 
     }
     
-    alert("Synthesis logged to manual. You may now proceed to the final report.");
+    alert("Calculation is stored in memory for CER. Repeat the process until you are satisfied with your calculations, and move onto the CER.");
 }
 
 function showCER() {
@@ -626,12 +614,11 @@ function showCER() {
     
     const log = document.getElementById('summary-log');
     
-    // Header and M/X Results (Using the new .cer-result-card class)
     let html = `
         <div class="space-y-4">
             <h4 class="text-blue-400 font-bold">Element M Tests</h4>
             ${completedM.map(e => `
-                <div class="cer-result-card p-4 rounded-xl">
+                <div class="cer-result-card p-4 rounded-xl bg-gray-900/50 border border-gray-800">
                     <b class="text-gray-400 text-xs uppercase">${e.name}:</b>
                     <p class="text-white">${e.result}</p>
                 </div>
@@ -641,7 +628,7 @@ function showCER() {
         <div class="space-y-4">
             <h4 class="text-emerald-400 font-bold">Element X Tests</h4>
             ${completedX.map(e => `
-                <div class="cer-result-card p-4 rounded-xl">
+                <div class="cer-result-card p-4 rounded-xl bg-gray-900/50 border border-gray-800">
                     <b class="text-gray-400 text-xs uppercase">${e.name}:</b>
                     <p class="text-white">${e.result}</p>
                 </div>
@@ -649,22 +636,18 @@ function showCER() {
         </div>
 
         <div class="col-span-1 md:col-span-2 mt-8">
-            <h4 class="text-purple-400 font-bold mb-4 text-center">Synthesis Log (Theoretical Molar Mass)</h4>
+            <h4 class="text-purple-400 font-bold mb-4 text-center">Phase 3: Synthesis Evidence Log</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                ${phase3Attempts.map(attempt => {
-                    // Check if the result matches the correct compound's molar mass
-                    const correctKey = activeM.name + activeX.name;
-                    const correctMass = compoundDatabase[correctKey].molarMass;
-                    const isCorrect = attempt.mass === correctMass;
-        
-                    return `
-                        <div class="cer-result-card p-3 rounded-lg border-l-4 ${isCorrect ? 'border-l-emerald-500' : 'border-l-red-500'} bg-gray-900">
-                            <p class="text-[10px] text-gray-500 uppercase font-bold">${attempt.combo}</p>
-                            <p class="text-white font-mono">${attempt.mass} g/mol</p>
-                            <p class="text-[10px] text-gray-400">Total Yield: ${attempt.rawTotal}g</p>
+                ${phase3Attempts.map(attempt => `
+                    <div class="cer-result-card p-4 rounded-lg border border-purple-500/30 bg-gray-900 shadow-xl">
+                        <p class="text-[10px] text-purple-400 uppercase font-bold mb-2">Reaction Trial</p>
+                        <p class="text-gray-400 text-xs italic">${attempt.combo}</p>
+                        <div class="mt-2 pt-2 border-t border-gray-800">
+                            <span class="text-gray-500 text-[10px] uppercase font-bold">Measured Yield:</span>
+                            <p class="text-xl font-black text-white">${attempt.rawTotal} g</p>
                         </div>
-                    `;
-                }).join('')}
+                    </div>
+                `).join('')}
             </div>
         </div>
     `;
