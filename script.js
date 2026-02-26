@@ -504,7 +504,6 @@ function runMolarMassPhase() {
     }
 }
 
-// 1. Calculate ONLY the mass for "playing around"
 function calculateActualMass() {
     const mVal = parseFloat(document.getElementById('input-m').value) || 0;
     const xVal = parseFloat(document.getElementById('input-x').value) || 0;
@@ -605,7 +604,7 @@ function synthesizeCompound() {
         actionBtn.onclick = showCER; 
     }
     
-    alert("Calculation is stored in memory for CER. Repeat the process until you are satisfied with your calculations, and move onto the CER.");
+    alert("Synthesis logged! Use this mass data for your CER calculations.");
 }
 
 function showCER() {
