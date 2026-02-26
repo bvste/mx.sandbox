@@ -5,47 +5,6 @@ const metalIdentities = [
     { name: "CopperOne", reactivity: 2, description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame", mass: 63.55},
     { name: "CopperTwo", reactivity: 3, description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame", mass: 63.55},
     { name: "Silver", reactivity: 1, description: "lusterous and brilliant white.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "No Data", mass: 107.87},
-
-    if (mVal <= 0 || xVal <= 0) {
-        display.innerText = "0.00";
-        return;
-    }
-
-    const lookupKey = activeM.name + activeX.name;
-    const info = compoundDatabase[lookupKey];
-
-    // 1. Oxidation states to determine formula (M_a X_b)
-    const metalCharges = {
-        "Nickel": 2, "CopperOne": 1, "CopperTwo": 2, "Silver": 1, 
-        "Aluminum": 3, "IronTwo": 2, "IronThree": 3, "Magnesium": 2
-    };
-    const nonmetalCharges = {
-        "Chlorine": 1, "Bromine": 1, "Sulfur": 2, "Phosphorus": 3
-    };
-
-    const mCharge = metalCharges[activeM.name];
-    const xCharge = nonmetalCharges[activeX.name];
-
-    // 2. Find the subscripts by crossing charges and simplifying
-    const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
-    const divisor = gcd(mCharge, xCharge);
-    
-    // The number of Metal atoms in 1 molecule of the compound
-    const mCount = xCharge / divisor; 
-
-    // 3. Calculate true mass fractions
-    const trueMassM = mCount * activeM.mass;
-    const fractionM = trueMassM / info.molarMass;
-    const fractionX = 1 - fractionM;
-
-    // 4. Limiting Reactant Logic
-    const yieldFromM = mVal / fractionM;
-    const yieldFromX = xVal / fractionX;
-
-    const actualYield = Math.min(yieldFromM, yieldFromX);
-
-    display.innerText = actualYield.toFixed(2);
-}iption: "lusterous and brilliant white.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "No Data", mass: 107.87},
     { name: "Aluminum", reactivity: 7, description: "shiny, silver.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "White/silvery white flame", mass: 26.98},
     { name: "IronTwo", reactivity: 5, description: "silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Red flame", mass: 55.85},
     { name: "IronThree", reactivity: 6, description: "silvery-gray.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Red flame", mass: 55.85},
