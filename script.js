@@ -450,9 +450,15 @@ function runMolarMassPhase() {
     document.getElementById('phase-title').innerText = "Phase 3: Molecular Synthesis";
     document.getElementById('phase-title').className = "text-2xl font-bold text-purple-400";
     
+    // 1. CLEAR SIDEBAR
     const sidebar = document.getElementById('experiment-menu')?.parentElement;
     if (sidebar) sidebar.remove();
     
+    // 2. HIDE THE REDUNDANT 'SAVE' BUTTON (The issue you mentioned)
+    // We target the button in station-active that usually handles Phase 1/2 logging
+    const oldLogBtn = document.querySelector('#station-active button');
+    if (oldLogBtn) oldLogBtn.style.display = 'none'; 
+
     const workspace = document.getElementById('lab-workspace');
     if (workspace) workspace.className = "max-w-4xl mx-auto block";
 
@@ -484,24 +490,28 @@ function runMolarMassPhase() {
             </button>
         </div>
 
-        <div id="mx-result-box" class="hidden bg-slate-900 p-8 rounded-3xl border-2 border-purple-500/50 shadow-2xl">
-            <h3 class="text-purple-400 font-bold uppercase tracking-widest mb-6 text-center">Experimental Results: Unknown Compound MX</h3>
-            <div class="flex justify-center">
-                <div class="p-6 border border-gray-700 rounded-xl text-center min-w-[200px]">
-                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Total Mass Produced</p>
-                    <p id="res-mass" class="text-5xl font-black text-white"></p>
-                </div>
-            </div>
+        <div id="p3-data-table" class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-gray-800 text-gray-400 text-[10px] uppercase font-bold">
+                    <tr>
+                        <th class="p-4">Trial #</th>
+                        <th class="p-4">Reactants</th>
+                        <th class="p-4 text-right">Experimental Yield</th>
+                    </tr>
+                </thead>
+                <tbody id="p3-log-body" class="text-gray-300 divide-y divide-gray-800">
+                    <tr><td colspan="3" class="p-8 text-center text-gray-600 italic">No official logs yet...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="p3-nav-container" class="mt-8 flex justify-center">
+            <button id="p3-proceed-btn" disabled 
+                class="px-12 py-4 rounded-full font-black uppercase tracking-widest transition-all opacity-30 cursor-not-allowed bg-gray-700 text-gray-400">
+                Proceed to Final CER Report
+            </button>
         </div>
     `;
-
-    const actionBtn = document.querySelector('#station-active button');
-    if (actionBtn) {
-        actionBtn.innerText = "Proceed to Final CER Report";
-        actionBtn.classList.add('opacity-50', 'cursor-not-allowed');
-        actionBtn.disabled = true;
-        actionBtn.onclick = showCER;
-    }
 }
 
 function calculateActualMass() {
@@ -582,29 +592,37 @@ function synthesizeCompound() {
 
     const lookupKey = activeM.name + activeX.name; 
     const info = compoundDatabase[lookupKey];
-
     if (!info) return alert("Error: Compound data not found.");
 
-    // Update UI (Mass only)
-    document.getElementById('res-mass').innerText = `${totalProduced} g`;
-    document.getElementById('mx-result-box').classList.remove('hidden');
-    
-    // Log for CER
+    // 1. ADD TO MEMORY
     phase3Attempts.push({
         combo: `${mVal}g M + ${xVal}g X`,
         rawTotal: totalProduced
     });
 
-    // Unlock Proceed Button
-    const actionBtn = document.querySelector('#station-active button');
+    // 2. REFRESH DATA TABLE UI
+    const logBody = document.getElementById('p3-log-body');
+    logBody.innerHTML = phase3Attempts.map((att, index) => `
+        <tr class="hover:bg-purple-900/10 transition-colors">
+            <td class="p-4 font-bold text-purple-400">#${index + 1}</td>
+            <td class="p-4 text-sm">${att.combo}</td>
+            <td class="p-4 text-right font-mono text-white">${att.rawTotal} g</td>
+        </tr>
+    `).join('');
+
+    // 3. UNLOCK THE CORRECT PROCEED BUTTON
+    const actionBtn = document.getElementById('p3-proceed-btn');
     if (actionBtn) {
-        actionBtn.classList.remove('opacity-50', 'cursor-not-allowed');
         actionBtn.disabled = false;
-        actionBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
+        actionBtn.classList.remove('opacity-30', 'cursor-not-allowed', 'bg-gray-700', 'text-gray-400');
+        actionBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500', 'text-white', 'shadow-xl');
         actionBtn.onclick = showCER; 
     }
     
-    alert("Synthesis logged! Use this mass data for your CER calculations.");
+    // Clear inputs for next trial
+    mInput.value = "";
+    xInput.value = "";
+    yieldDisplay.innerText = "0.00";
 }
 
 function showCER() {
