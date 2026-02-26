@@ -4,10 +4,7 @@ const metalIdentities = [
     { name: "Nickel", reactivity: 4, description: "lustrous, silvery-white with a slight golden or brownish tinge.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Pale green/ bluish green flame", mass: 58.69},
     { name: "CopperOne", reactivity: 2, description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame", mass: 63.55},
     { name: "CopperTwo", reactivity: 3, description: "lustrous and reddish-orange.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Bluish green flame", mass: 63.55},
-    { name: "Silver", reactivity: 1, descrfunction updateYieldInline() {
-    const mVal = parseFloat(document.getElementById('input-m').value) || 0;
-    const xVal = parseFloat(document.getElementById('input-x').value) || 0;
-    const display = document.getElementById('inline-yield-display');
+    { name: "Silver", reactivity: 1, description: "lusterous and brilliant white.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "No Data", mass: 107.87},
 
     if (mVal <= 0 || xVal <= 0) {
         display.innerText = "0.00";
