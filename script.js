@@ -12,10 +12,10 @@ const metalIdentities = [
 ];
 
 const nonMetalIdentities = [
-    { name: "Sulfur", description: "a distinctively bright lemon-yellow, pale yellow, or greenish-yellow solid.", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", solubility: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water.", crucible: "Melts then burns.", brittle: "shatters or crumbles into powder", mass: 32.07},
+    { name: "Sulfur", description: "a distinctively bright lemon-yellow, pale yellow, or greenish-yellow solid.", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", solubility: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water.", crucible: "Melts then burns.", brittle: "Shatters or crumbles into powder", mass: 32.07},
     { name: "Chlorine", description: "a dense, yellow-green gas.", heat: "Pale green gas fills the tube.", solubility: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid.", crucible: "No Data Available.", brittle: "No Data Available", mass: 70.91},
     { name: "Bromine", description: "a reddish-brown liquid.", heat: "Deep red-orange vapors fill the tube.", solubility: "Heavy orange-red liquid at the bottom.", solvent: "Orange-brown solution forms.", crucible: "Element evaporates.", brittle: "No Data Available", mass: 159.81},
-    { name: "Phosphorus", description: "a white, red, or black solid.", heat: "Ignites into a bright white light/smoke.", solubility: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids.", crucible: "Element ignites easily.", brittle: "shatters or crumbles into powder", mass: 30.97}
+    { name: "Phosphorus", description: "a white, red, or black solid.", heat: "Ignites into a bright white light/smoke.", solubility: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids.", crucible: "Element ignites easily.", brittle: "Shatters or crumbles into powder", mass: 30.97}
 ];
 
 const compoundDatabase = {
@@ -237,10 +237,10 @@ const referenceMetals = [
 ];
 
 const referenceNonMetals = [
-    { name: "Sulfur", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", solubility: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water.", crucible: "Melts then burns.", brittle: "shatters or crumbles into powder." },
+    { name: "Sulfur", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", solubility: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water.", crucible: "Melts then burns.", brittle: "Shatters or crumbles into powder." },
     { name: "Chlorine", heat: "Pale green gas fills the tube.", solubility: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid.", crucible: "No Data Available.", brittle: "No Data Available." },
     { name: "Bromine", heat: "Deep red-orange vapors fill the tube.", solubility: "Heavy orange-red liquid at the bottom.", solvent: "Orange-brown solution forms.", crucible: "Element evaporates.", brittle: "No Data Available." },
-    { name: "Phosphorus", heat: "Ignites into a bright white light/smoke.", solubility: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids.",  crucible: "Element ignites easily.", brittle: "shatters or crumbles into powder" }
+    { name: "Phosphorus", heat: "Ignites into a bright white light/smoke.", solubility: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids.",  crucible: "Element ignites easily.", brittle: "Shatters or crumbles into powder" }
 ];
 
 const solutionDatabase = [
@@ -475,11 +475,8 @@ function runMolarMassPhase() {
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-             <button onclick="calculateActualMass()" class="w-full bg-blue-600 py-4 rounded-xl font-bold text-white hover:bg-blue-500 transition-all shadow-md uppercase tracking-wider">
-                Preview Reaction Mass
-            </button>
             <button onclick="synthesizeCompound()" class="w-full bg-purple-600 py-4 rounded-xl font-black text-white hover:bg-purple-500 transition-all shadow-lg uppercase tracking-widest">
-                Log Official Synthesis
+                Save Calculations
             </button>
         </div>
 
