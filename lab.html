@@ -39,7 +39,7 @@
 
         <div id="station-setup" class="hidden w-full">
             <h3 id="setup-test-name" class="text-2xl font-bold mb-2 text-white"></h3>
-            <p class="text-gray-400 mb-6">Choose 3 reference metals to compare against your unknown element.</p>
+            <p class="text-gray-400 mb-6">Choose 3 options to compare against your unknown element.</p>
             
             <div class="grid grid-cols-1 gap-4 mb-8">
                 <select id="ref-1" class="bg-gray-800 border border-gray-600 p-3 rounded-xl text-white outline-none focus:border-blue-500"></select>
@@ -65,7 +65,7 @@
 <div id="cer-screen" class="hidden max-w-4xl mx-auto">
     <div id="summary-log" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"></div>
     <div class="bg-gray-800 p-8 rounded-2xl border border-gray-700">
-        <h3 class="text-2xl font-bold mb-4">Final CER Claim</h3>
+        <h3 class="text-2xl font-bold mb-4">Final CER</h3>
         <p class="text-gray-400 text-sm mb-4">Based on the data above, identify M and X. Support your claim with evidence and reasoning.</p>
         <textarea id="assumption" class="w-full bg-gray-900 border border-gray-700 p-4 rounded-xl text-white" rows="6" placeholder="Example: I believe M is Zinc because..."></textarea>
         <button onclick="finalizeLab()" class="w-full bg-emerald-600 mt-4 py-4 rounded-xl font-bold">Submit Lab Report</button>
@@ -105,7 +105,7 @@
                 </div>
                 <div class="pt-6 border-t border-gray-700">
                     <p class="text-[12px] text-gray-500 leading-relaxed italic">
-                        This sandbox was designed as an interactive tool for the MX Lab. This website is open sourced on GitHub! Special thanks to the open-source community for Tailwind CSS and MathJax.
+                        This was designed to be the assessment for the MX lab! I (Doyoon) had a lot of fun making this for the past 4-ish months and it's super rewarding to develop something for one of my favorite labs at Gunn. Contact me at the email above if there are any errors!
                     </p>
                 </div>
             </div>
@@ -113,10 +113,6 @@
         </div>
     </div>
 
-    <button onclick="checkTeacher()" class="teacher-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-        Teacher Access
-    </button>
 
     <script src="script.js"></script>
 </body>
