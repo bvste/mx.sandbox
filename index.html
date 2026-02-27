@@ -11,7 +11,7 @@
     
     <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700 w-full max-w-md text-center">
         <h1 class="text-3xl font-bold text-blue-400 mb-2">MX Lab Entry</h1>
-        <p class="text-gray-400 text-sm mb-6">Please enter your details to begin the simulation.</p>
+        <p class="text-gray-400 text-sm mb-6">Please sign in below to begin the simulation.</p>
         
         <div class="space-y-4">
             <input type="text" id="fName" placeholder="First Name" 
@@ -49,21 +49,6 @@
             window.location.href = 'lab.html';
         }
 
-        // Teacher Access Logic (Same as lab.html)
-        function checkTeacher() {
-            const code = prompt("Enter Teacher Access Code:");
-            if(code === "MXLabResults") {
-                const logs = JSON.parse(localStorage.getItem('mx_results') || '[]');
-                if(logs.length === 0) {
-                    alert("No student entries have been submitted yet.");
-                } else {
-                    console.table(logs);
-                    alert("Access Granted. " + logs.length + " entries have been printed to the Browser Console (Press F12 to view).");
-                }
-            } else if (code !== null) {
-                alert("Incorrect access code.");
-            }
-        }
     </script>
 </body>
 </html>
