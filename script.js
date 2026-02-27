@@ -12,10 +12,10 @@ const metalIdentities = [
 ];
 
 const nonMetalIdentities = [
-    { name: "Sulfur", description: "a distinctively bright lemon-yellow, pale yellow, or greenish-yellow solid.", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", solubility: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water.", crucible: "Melts then burns.", mass: 32.07},
-    { name: "Chlorine", description: "a dense, yellow-green gas.", heat: "Pale green gas fills the tube.", solubility: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid.", crucible: "No Data Available.", mass: 70.91},
-    { name: "Bromine", description: "a reddish-brown liquid.", heat: "Deep red-orange vapors fill the tube.", solubility: "Heavy orange-red liquid at the bottom.", solvent: "Orange-brown solution forms.", crucible: "Element evaporates.", mass: 159.81},
-    { name: "Phosphorus", description: "a white, red, or black solid.", heat: "Ignites into a bright white light/smoke.", solubility: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids.", crucible: "Element ignites easily.", mass: 30.97}
+    { name: "Sulfur", description: "a distinctively bright lemon-yellow, pale yellow, or greenish-yellow solid.", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", solubility: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water.", crucible: "Melts then burns.", brittle: "shatters or crumbles into powder", mass: 32.07},
+    { name: "Chlorine", description: "a dense, yellow-green gas.", heat: "Pale green gas fills the tube.", solubility: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid.", crucible: "No Data Available.", brittle: "No Data Available", mass: 70.91},
+    { name: "Bromine", description: "a reddish-brown liquid.", heat: "Deep red-orange vapors fill the tube.", solubility: "Heavy orange-red liquid at the bottom.", solvent: "Orange-brown solution forms.", crucible: "Element evaporates.", brittle: "No Data Available", mass: 159.81},
+    { name: "Phosphorus", description: "a white, red, or black solid.", heat: "Ignites into a bright white light/smoke.", solubility: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids.", crucible: "Element ignites easily.", brittle: "shatters or crumbles into powder", mass: 30.97}
 ];
 
 const compoundDatabase = {
@@ -68,7 +68,7 @@ const experimentsM = [
     { id: 'hammer', name: "Hammer Test" },
     { id: 'activity', name: "Activity Testing" },
     { id: 'melting', name: "Crucible + Matches" },
-    { id: 'conduct', name: "Conductivity Test", static: "Red and Green lights shine brightly" },
+    { id: 'conduct', name: "Conductivity Test", static: "Red and Green lights shine brightly." },
     { id: 'water', name: "Water Submerging", static: "Sample sinks in water and does not react." },
     { id: 'flame', name: "Flame Test"},
 ];
@@ -77,9 +77,9 @@ const experimentsX = [
     { id: 'heat', name: "Bunsen Burner" },
     { id: 'solubility', name: "Water Solubility" },
     { id: 'solvent', name: "Organic Solvent" },
-    { id: 'brittle', name: "Brittleness", static: "Sample shatters into a fine powder." },
+    { id: 'brittle', name: "Brittleness"},
     { id: 'crucible', name: "Crucible + Matches"},
-    { id: 'conductX', name: "Thermal Probe", static: "Material acts as a thermal insulator." }
+    { id: 'conductX', name: "Conductivity Test", static: "Red and Green lights remain off." }
 ];
 
 //Reactivity series data
@@ -237,10 +237,10 @@ const referenceMetals = [
 ];
 
 const referenceNonMetals = [
-    { name: "Sulfur", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", solubility: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water.", crucible: "Melts then burns." },
-    { name: "Chlorine", heat: "Pale green gas fills the tube.", solubility: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid.", crucible: "No Data Available." },
-    { name: "Bromine", heat: "Deep red-orange vapors fill the tube.", solubility: "Heavy orange-red liquid at the bottom.", solvent: "Orange-brown solution forms.", crucible: "Element evaporates." },
-    { name: "Phosphorus", heat: "Ignites into a bright white light/smoke.", solubility: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids.",  crucible: "Element ignites easily." }
+    { name: "Sulfur", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", solubility: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water.", crucible: "Melts then burns.", brittle: "shatters or crumbles into powder." },
+    { name: "Chlorine", heat: "Pale green gas fills the tube.", solubility: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid.", crucible: "No Data Available.", brittle: "No Data Available." },
+    { name: "Bromine", heat: "Deep red-orange vapors fill the tube.", solubility: "Heavy orange-red liquid at the bottom.", solvent: "Orange-brown solution forms.", crucible: "Element evaporates.", brittle: "No Data Available." },
+    { name: "Phosphorus", heat: "Ignites into a bright white light/smoke.", solubility: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids.",  crucible: "Element ignites easily.", brittle: "shatters or crumbles into powder" }
 ];
 
 const solutionDatabase = [
@@ -351,10 +351,8 @@ function runComparisonTest() {
     const exp = (currentPhase === 'M') ? experimentsM.find(e => e.id === activeTest) : experimentsX.find(e => e.id === activeTest);
     const zone = document.getElementById('comparison-zone');
     
-    // FIX 1: Define userResult properly for the unknown sample
     let userResult;
     if (activeTest === "activity") {
-        // React Unknown M with the first chosen solution
         userResult = "Results of activity test";
     } else {
         userResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
@@ -427,7 +425,6 @@ function checkPhaseTransition() {
     else if (currentPhase === 'X' && completedX.length === 3) {
         alert("Phase 2 Complete! Beginning Molecular Mass Analysis...");
         
-        // Ensure the active station is cleared before building Phase 3
         document.getElementById('station-empty').classList.add('hidden');
         document.getElementById('station-setup').classList.add('hidden');
         document.getElementById('station-active').classList.remove('hidden');
@@ -436,7 +433,6 @@ function checkPhaseTransition() {
         return;
     }
     
-    // Reset the station view for the next test in the current phase
     activeTest = null;
     document.getElementById('station-empty').classList.remove('hidden');
     document.getElementById('station-active').classList.add('hidden');
@@ -447,15 +443,12 @@ let phase3Attempts = [];
 
 function runMolarMassPhase() {
     currentPhase = 'P';
-    document.getElementById('phase-title').innerText = "Phase 3: Molecular Synthesis";
+    document.getElementById('phase-title').innerText = "Phase 3: Molar Mass Analysis";
     document.getElementById('phase-title').className = "text-2xl font-bold text-purple-400";
     
-    // 1. CLEAR SIDEBAR
     const sidebar = document.getElementById('experiment-menu')?.parentElement;
     if (sidebar) sidebar.remove();
     
-    // 2. HIDE THE REDUNDANT 'SAVE' BUTTON (The issue you mentioned)
-    // We target the button in station-active that usually handles Phase 1/2 logging
     const oldLogBtn = document.querySelector('#station-active button');
     if (oldLogBtn) oldLogBtn.style.display = 'none'; 
 
