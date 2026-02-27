@@ -474,8 +474,8 @@ function runMolarMassPhase() {
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button onclick="synthesizeCompound()" class="w-full bg-purple-600 py-4 rounded-xl font-black text-white hover:bg-purple-500 transition-all shadow-lg uppercase tracking-widest">
+        <div class="flex justify-center mt-4">
+            <button onclick="synthesizeCompound()" class="px-12 py-4 bg-purple-600 rounded-xl font-black text-white hover:bg-purple-500 transition-all shadow-lg uppercase tracking-widest">
                 Save Calculations
             </button>
         </div>
@@ -490,15 +490,15 @@ function runMolarMassPhase() {
                     </tr>
                 </thead>
                 <tbody id="p3-log-body" class="text-gray-300 divide-y divide-gray-800">
-                    <tr><td colspan="3" class="p-8 text-center text-gray-600 italic">No official logs yet...</td></tr>
+                    <tr><td colspan="3" class="p-8 text-center text-gray-600 italic">No calculations logged yet...</td></tr>
                 </tbody>
             </table>
         </div>
 
         <div id="p3-nav-container" class="mt-8 flex justify-center">
             <button id="p3-proceed-btn" disabled 
-                class="px-12 py-4 rounded-full font-black uppercase tracking-widest transition-all opacity-30 cursor-not-allowed bg-gray-700 text-gray-400">
-                Proceed to Final CER Report
+                class="px-12 py-4 rounded-xl font-black uppercase tracking-widest transition-all opacity-30 cursor-not-allowed bg-gray-700 text-gray-400">
+                Proceed to CER
             </button>
         </div>
     `;
@@ -643,7 +643,7 @@ function showCER() {
         </div>
 
         <div class="col-span-1 md:col-span-2 mt-8">
-            <h4 class="text-purple-400 font-bold mb-4 text-center">Phase 3: Synthesis Evidence Log</h4>
+            <h4 class="text-purple-400 font-bold mb-4 text-center">Molar Mass Calculations</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 ${phase3Attempts.map(attempt => `
                     <div class="cer-result-card p-4 rounded-lg border border-purple-500/30 bg-gray-900 shadow-xl">
