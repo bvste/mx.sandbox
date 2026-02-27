@@ -616,6 +616,17 @@ function synthesizeCompound() {
 }
 
 function showCER() {
+    const phaseTitle = document.getElementById('phase-title');
+    if (phaseTitle) {
+        phaseTitle.innerText = "Phase 4: Final CER";
+        phaseTitle.className = "text-2xl font-bold text-lime-300";
+    }
+
+    const expCountContainer = document.getElementById('exp-count')?.parentElement;
+    if (expCountContainer) {
+        expCountContainer.style.display = 'none';
+    }
+    
     document.getElementById('lab-workspace').classList.add('hidden');
     document.getElementById('cer-screen').classList.remove('hidden');
     
