@@ -445,6 +445,11 @@ function runMolarMassPhase() {
     currentPhase = 'P';
     document.getElementById('phase-title').innerText = "Phase 3: Molar Mass Analysis";
     document.getElementById('phase-title').className = "text-2xl font-bold text-purple-400";
+
+    const expCountContainer = document.getElementById('exp-count')?.parentElement;
+    if (expCountContainer) {
+        expCountContainer.style.display = 'none';
+    }
     
     const sidebar = document.getElementById('experiment-menu')?.parentElement;
     if (sidebar) sidebar.remove();
