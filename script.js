@@ -487,11 +487,12 @@ function runMolarMassPhase() {
 
         <div id="p3-data-table" class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
             <table class="w-full text-left border-collapse">
-                <thead class="bg-gray-800 text-gray-400 text-[10px] uppercase font-bold">
+                <thead class="bg-gray-800/30 text-[10px] text-gray-500 uppercase font-bold">
                     <tr>
-                        <th class="p-4">Trial #</th>
-                        <th class="p-4">Reactants</th>
-                        <th class="p-4 text-right">Experimental Yield</th>
+                        <th class="p-4">Trial</th>
+                        <th class="p-4">Yield</th>
+                        <th class="p-4">Appearance</th>
+                        <th class="p-4">Solubility</th>
                     </tr>
                 </thead>
                 <tbody id="p3-log-body" class="text-gray-300 divide-y divide-gray-800">
@@ -583,99 +584,98 @@ function synthesizeCompound() {
     const xVal = parseFloat(xInput.value) || 0;
     const totalProduced = yieldDisplay.innerText;
 
-    if (mVal <= 0 || xVal <= 0) return alert("Please enter valid amounts.");
+    if (mVal <= 0 || xVal <= 0) return alert("Please enter masses for both elements.");
 
+    // PULL FROM YOUR DATABASE
     const lookupKey = activeM.name + activeX.name; 
     const info = compoundDatabase[lookupKey];
-    if (!info) return alert("Error: Compound data not found.");
 
-    // 1. ADD TO MEMORY
+    if (!info) return alert("Error: Compound data not found in database.");
+
+    // STORE DATA (Including the new fields)
     phase3Attempts.push({
         combo: `${mVal}g M + ${xVal}g X`,
-        rawTotal: totalProduced
+        rawTotal: totalProduced,
+        appearance: info.appearance, // Pulled from your dataset
+        solubility: info.solubility   // Pulled from your dataset
     });
 
-    // 2. REFRESH DATA TABLE UI
+    // UPDATE THE DATA TABLE (Now with 2 extra columns)
     const logBody = document.getElementById('p3-log-body');
     logBody.innerHTML = phase3Attempts.map((att, index) => `
-        <tr class="hover:bg-purple-900/10 transition-colors">
+        <tr class="border-b border-gray-800">
             <td class="p-4 font-bold text-purple-400">#${index + 1}</td>
-            <td class="p-4 text-sm">${att.combo}</td>
-            <td class="p-4 text-right font-mono text-white">${att.rawTotal} g</td>
+            <td class="p-4 text-white font-mono">${att.rawTotal} g</td>
+            <td class="p-4 text-gray-400 text-xs">${att.appearance}</td>
+            <td class="p-4 text-gray-400 text-xs">${att.solubility}</td>
         </tr>
     `).join('');
 
-    // 3. UNLOCK THE CORRECT PROCEED BUTTON
-    const actionBtn = document.getElementById('p3-proceed-btn');
-    if (actionBtn) {
-        actionBtn.disabled = false;
-        actionBtn.classList.remove('opacity-30', 'cursor-not-allowed', 'bg-gray-700', 'text-gray-400');
-        actionBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500', 'text-white', 'shadow-xl');
-        actionBtn.onclick = showCER; 
+    // UNLOCK PROCEED BUTTON
+    const proceedBtn = document.getElementById('p3-proceed-btn');
+    if (proceedBtn) {
+        proceedBtn.disabled = false;
+        proceedBtn.classList.remove('opacity-20', 'cursor-not-allowed');
+        proceedBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500', 'text-white', 'opacity-100');
+        proceedBtn.onclick = showCER;
     }
-    
-    // Clear inputs for next trial
-    mInput.value = "";
-    xInput.value = "";
-    yieldDisplay.innerText = "0.00";
+
+    // Reset UI for next trial
+    mInput.value = ""; xInput.value = ""; yieldDisplay.innerText = "0.00";
 }
 
 function showCER() {
+    // 1. Header Cleanup (Phase 4 + New Color)
     const phaseTitle = document.getElementById('phase-title');
     if (phaseTitle) {
-        phaseTitle.innerText = "Phase 4: Final CER";
-        phaseTitle.className = "text-2xl font-bold text-lime-300";
+        phaseTitle.innerText = "Phase 4: Final CER Report";
+        phaseTitle.className = "text-2xl font-bold text-sky-400"; 
     }
 
-    const expCountContainer = document.getElementById('exp-count')?.parentElement;
-    if (expCountContainer) {
-        expCountContainer.style.display = 'none';
-    }
-    
+    // 2. Hide Counter and Workspace
+    const counter = document.getElementById('exp-count');
+    if (counter?.parentElement) counter.parentElement.style.display = 'none';
     document.getElementById('lab-workspace').classList.add('hidden');
     document.getElementById('cer-screen').classList.remove('hidden');
-    
+
+    // 3. Render Logs with Physical Properties
     const log = document.getElementById('summary-log');
-    
-    let html = `
-        <div class="space-y-4">
-            <h4 class="text-blue-400 font-bold">Element M Tests</h4>
-            ${completedM.map(e => `
-                <div class="cer-result-card p-4 rounded-xl bg-gray-900/50 border border-gray-800">
-                    <b class="text-gray-400 text-xs uppercase">${e.name}:</b>
-                    <p class="text-white">${e.result}</p>
-                </div>
-            `).join('')}
-        </div>
-        
-        <div class="space-y-4">
-            <h4 class="text-emerald-400 font-bold">Element X Tests</h4>
-            ${completedX.map(e => `
-                <div class="cer-result-card p-4 rounded-xl bg-gray-900/50 border border-gray-800">
-                    <b class="text-gray-400 text-xs uppercase">${e.name}:</b>
-                    <p class="text-white">${e.result}</p>
-                </div>
-            `).join('')}
+    log.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-4">
+                <h4 class="text-blue-400 font-bold uppercase text-xs tracking-widest">Metal M Evidence</h4>
+                ${completedM.map(e => `<div class="p-3 bg-gray-900 border border-gray-800 rounded-lg text-sm text-gray-300"><b>${e.name}:</b> ${e.result}</div>`).join('')}
+            </div>
+            <div class="space-y-4">
+                <h4 class="text-emerald-400 font-bold uppercase text-xs tracking-widest">Non-Metal X Evidence</h4>
+                ${completedX.map(e => `<div class="p-3 bg-gray-900 border border-gray-800 rounded-lg text-sm text-gray-300"><b>${e.name}:</b> ${e.result}</div>`).join('')}
+            </div>
         </div>
 
-        <div class="col-span-1 md:col-span-2 mt-8">
-            <h4 class="text-purple-400 font-bold mb-4 text-center">Molar Mass Calculations</h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="mt-12">
+            <h4 class="text-purple-400 font-bold mb-4 text-center">Synthesis & Physical Properties of MX</h4>
+            <div class="grid grid-cols-1 gap-4">
                 ${phase3Attempts.map(attempt => `
-                    <div class="cer-result-card p-4 rounded-lg border border-purple-500/30 bg-gray-900 shadow-xl">
-                        <p class="text-[10px] text-purple-400 uppercase font-bold mb-2">Reaction Trial</p>
-                        <p class="text-gray-400 text-xs italic">${attempt.combo}</p>
-                        <div class="mt-2 pt-2 border-t border-gray-800">
-                            <span class="text-gray-500 text-[10px] uppercase font-bold">Measured Yield:</span>
-                            <p class="text-xl font-black text-white">${attempt.rawTotal} g</p>
+                    <div class="p-6 bg-gray-900 border-l-4 border-purple-500 rounded-xl shadow-xl">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <p class="text-[10px] text-gray-500 uppercase font-bold">Measured Yield</p>
+                                <p class="text-2xl font-black text-white">${attempt.rawTotal} g</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-gray-500 uppercase font-bold">Appearance</p>
+                                <p class="text-sm text-gray-300">${attempt.appearance}</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-gray-500 uppercase font-bold">Solubility</p>
+                                <p class="text-sm text-gray-300">${attempt.solubility}</p>
+                            </div>
                         </div>
                     </div>
                 `).join('')}
             </div>
         </div>
     `;
-    
-    log.innerHTML = html;
 }
 
 // --- SYSTEM UTILITIES ---
