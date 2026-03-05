@@ -496,6 +496,7 @@ function runMolarMassPhase() {
                 <thead class="bg-gray-800/30 text-[10px] text-gray-500 uppercase font-bold">
                     <tr>
                         <th class="p-4">Trial</th>
+                        <th class="p-4 text-blue-300">Reactants Used</th>
                         <th class="p-4">Yield</th>
                         <th class="p-4">Excess Leftover</th>
                         <th class="p-4">Appearance</th>
@@ -503,7 +504,7 @@ function runMolarMassPhase() {
                     </tr>
                 </thead>
                 <tbody id="p3-log-body" class="text-gray-300 divide-y divide-gray-800">
-                    <tr><td colspan="5" class="p-8 text-center text-gray-600 italic">No calculations logged yet...</td></tr>
+                    <tr><td colspan="6" class="p-8 text-center text-gray-600 italic">No calculations logged yet...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -545,9 +546,9 @@ function updateYieldInline() {
     const divisor = gcd(mCharge, xCharge);
     
     const mCount = xCharge / divisor; 
-    const xCount = mCharge / divisor; // FIXED: Calculate true X count
+    const xCount = mCharge / divisor; 
 
-    // 2. Calculate true mass fractions dynamically to prevent NaN errors
+    // 2. Calculate true mass fractions dynamically
     const trueMassM = mCount * activeM.mass;
     const trueMassX = xCount * activeX.mass;
     const trueMolarMass = trueMassM + trueMassX;
@@ -609,8 +610,9 @@ function synthesizeCompound() {
     const logBody = document.getElementById('p3-log-body');
     if (logBody) {
         logBody.innerHTML = phase3Attempts.map((att, index) => `
-            <tr class="border-b border-gray-800">
+            <tr class="border-b border-gray-800 hover:bg-gray-800/50 transition-colors">
                 <td class="p-4 font-bold text-purple-400">#${index + 1}</td>
+                <td class="p-4 text-blue-300 font-mono text-sm">${att.combo}</td>
                 <td class="p-4 text-white font-mono">${att.rawTotal} g</td>
                 <td class="p-4 text-red-400 font-mono">${att.excess}</td>
                 <td class="p-4 text-gray-400 text-xs">${att.appearance}</td>
@@ -665,10 +667,14 @@ function showCER() {
             <div class="grid grid-cols-1 gap-4">
                 ${phase3Attempts.map(attempt => `
                     <div class="p-6 bg-gray-900 border-l-4 border-purple-500 rounded-xl shadow-xl">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <div>
+                                <p class="text-[10px] text-gray-500 uppercase font-bold">Reactants Used</p>
+                                <p class="text-lg font-black text-blue-400">${attempt.combo}</p>
+                            </div>
                             <div>
                                 <p class="text-[10px] text-gray-500 uppercase font-bold">Measured Yield</p>
-                                <p class="text-2xl font-black text-white">${attempt.rawTotal} g</p>
+                                <p class="text-lg font-black text-white">${attempt.rawTotal} g</p>
                             </div>
                             <div>
                                 <p class="text-[10px] text-gray-500 uppercase font-bold">Appearance</p>
