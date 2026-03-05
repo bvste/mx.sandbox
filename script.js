@@ -443,13 +443,14 @@ let phase3Attempts = [];
 
 function runMolarMassPhase() {
     currentPhase = 'P';
-    document.getElementById('phase-title').innerText = "Phase 3: Molar Mass Analysis";
-    document.getElementById('phase-title').className = "text-2xl font-bold text-purple-400";
+    const phaseTitle = document.getElementById('phase-title');
+    if(phaseTitle) {
+        phaseTitle.innerText = "Phase 3: Molar Mass Analysis";
+        phaseTitle.className = "text-2xl font-bold text-purple-400";
+    }
 
     const expCountContainer = document.getElementById('exp-count')?.parentElement;
-    if (expCountContainer) {
-        expCountContainer.style.display = 'none';
-    }
+    if (expCountContainer) expCountContainer.style.display = 'none';
     
     const sidebar = document.getElementById('experiment-menu')?.parentElement;
     if (sidebar) sidebar.remove();
@@ -463,6 +464,7 @@ function runMolarMassPhase() {
     const zone = document.getElementById('comparison-zone');
     zone.className = "w-full space-y-8";
 
+    // 4-column layout for M, X, Yield, and Excess
     zone.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="p-4 bg-gray-800 border border-blue-500/30 rounded-2xl">
@@ -478,7 +480,7 @@ function runMolarMassPhase() {
                 <p id="inline-yield-display" class="text-2xl font-black text-white mt-2">0.00</p>
             </div>
             <div class="p-4 bg-gray-800 border border-red-500/30 rounded-2xl flex flex-col justify-center text-center">
-                <label class="text-red-400 text-[10px] font-bold uppercase tracking-widest">Excess Reactant</label>
+                <label class="text-red-400 text-[10px] font-bold uppercase tracking-widest">Excess Leftover</label>
                 <p id="inline-excess-display" class="text-xl font-bold text-gray-500 mt-2">0.00g</p>
             </div>
         </div>
@@ -515,25 +517,6 @@ function runMolarMassPhase() {
     `;
 }
 
-function calculateActualMass() {
-    const mVal = parseFloat(document.getElementById('input-m').value) || 0;
-    const xVal = parseFloat(document.getElementById('input-x').value) || 0;
-    
-    if (mVal <= 0 || xVal <= 0) return alert("Enter both masses to see the reaction preview.");
-    
-    // Stoichiometry check: M is limiting
-    const molesM = mVal / activeM.mass;
-    const lookupKey = activeM.name + activeX.name;
-    const info = compoundDatabase[lookupKey];
-    
-    const yieldMX = (molesM * info.molarMass).toFixed(2);
-    
-    document.getElementById('res-mass').innerText = `${yieldMX} g`;
-    document.getElementById('res-molar').innerText = "---"; // Hide molar mass in preview
-    document.getElementById('mx-result-box').classList.remove('hidden');
-}
-
-//calculating yield for MX reaction
 function updateYieldInline() {
     const mVal = parseFloat(document.getElementById('input-m').value) || 0;
     const xVal = parseFloat(document.getElementById('input-x').value) || 0;
@@ -541,14 +524,12 @@ function updateYieldInline() {
     const excessDisplay = document.getElementById('inline-excess-display');
 
     if (mVal <= 0 || xVal <= 0) {
-        display.innerText = "0.00";
+        if(display) display.innerText = "0.00";
         if(excessDisplay) excessDisplay.innerHTML = "<span class='text-gray-500'>0.00g</span>";
         return;
     }
 
-    const lookupKey = activeM.name + activeX.name;
-    const info = compoundDatabase[lookupKey];
-
+    // 1. Oxidation states to determine empirical formula
     const metalCharges = {
         "Nickel": 2, "CopperOne": 1, "CopperTwo": 2, "Silver": 1, 
         "Aluminum": 3, "IronTwo": 2, "IronThree": 3, "Magnesium": 2
@@ -564,36 +545,37 @@ function updateYieldInline() {
     const divisor = gcd(mCharge, xCharge);
     
     const mCount = xCharge / divisor; 
+    const xCount = mCharge / divisor; // FIXED: Calculate true X count
 
-    // Calculate true mass fractions
+    // 2. Calculate true mass fractions dynamically to prevent NaN errors
     const trueMassM = mCount * activeM.mass;
-    const fractionM = trueMassM / info.molarMass;
-    const fractionX = 1 - fractionM;
+    const trueMassX = xCount * activeX.mass;
+    const trueMolarMass = trueMassM + trueMassX;
 
-    // Limiting Reactant Logic
+    const fractionM = trueMassM / trueMolarMass;
+    const fractionX = trueMassX / trueMolarMass;
+
+    // 3. Limiting Reactant Logic
     const yieldFromM = mVal / fractionM;
     const yieldFromX = xVal / fractionX;
     const actualYield = Math.min(yieldFromM, yieldFromX);
 
-    display.innerText = actualYield.toFixed(2);
+    if(display) display.innerText = actualYield.toFixed(2);
 
-    // --- NEW EXCESS MATH ---
+    // 4. Excess Reactant Logic
     if(excessDisplay) {
-        // Find how much was actually consumed to make the yield
         const massMUsed = actualYield * fractionM;
         const massXUsed = actualYield * fractionX;
 
-        // Find the leftovers
         const excessM = mVal - massMUsed;
         const excessX = xVal - massXUsed;
 
-        // Display the one that is leftover (using > 0.01 to ignore tiny floating point rounding errors)
         if (excessM > 0.01) {
             excessDisplay.innerHTML = `<span class="text-blue-400">${excessM.toFixed(2)}g M</span>`;
         } else if (excessX > 0.01) {
             excessDisplay.innerHTML = `<span class="text-emerald-400">${excessX.toFixed(2)}g X</span>`;
         } else {
-            excessDisplay.innerHTML = `<span class="text-gray-500">None (Perfect Ratio)</span>`;
+            excessDisplay.innerHTML = `<span class="text-gray-500">None</span>`;
         }
     }
 }
@@ -606,7 +588,7 @@ function synthesizeCompound() {
     
     const mVal = parseFloat(mInput.value) || 0;
     const xVal = parseFloat(xInput.value) || 0;
-    const totalProduced = yieldDisplay.innerText;
+    const totalProduced = yieldDisplay ? yieldDisplay.innerText : "0.00";
     const excessLeftover = excessDisplay ? excessDisplay.innerText : "0.00g";
 
     if (mVal <= 0 || xVal <= 0) return alert("Please enter masses for both elements.");
@@ -616,7 +598,6 @@ function synthesizeCompound() {
 
     if (!info) return alert("Error: Compound data not found in database.");
 
-    // Store data (including the new excess field)
     phase3Attempts.push({
         combo: `${mVal}g M + ${xVal}g X`,
         rawTotal: totalProduced,
@@ -625,29 +606,29 @@ function synthesizeCompound() {
         solubility: info.solubility   
     });
 
-    // Update the Data Table
     const logBody = document.getElementById('p3-log-body');
-    logBody.innerHTML = phase3Attempts.map((att, index) => `
-        <tr class="border-b border-gray-800">
-            <td class="p-4 font-bold text-purple-400">#${index + 1}</td>
-            <td class="p-4 text-white font-mono">${att.rawTotal} g</td>
-            <td class="p-4 text-red-400 font-mono">${att.excess}</td>
-            <td class="p-4 text-gray-400 text-xs">${att.appearance}</td>
-            <td class="p-4 text-gray-400 text-xs">${att.solubility}</td>
-        </tr>
-    `).join('');
+    if (logBody) {
+        logBody.innerHTML = phase3Attempts.map((att, index) => `
+            <tr class="border-b border-gray-800">
+                <td class="p-4 font-bold text-purple-400">#${index + 1}</td>
+                <td class="p-4 text-white font-mono">${att.rawTotal} g</td>
+                <td class="p-4 text-red-400 font-mono">${att.excess}</td>
+                <td class="p-4 text-gray-400 text-xs">${att.appearance}</td>
+                <td class="p-4 text-gray-400 text-xs">${att.solubility}</td>
+            </tr>
+        `).join('');
+    }
 
-    // Unlock proceed button
     const proceedBtn = document.getElementById('p3-proceed-btn');
     if (proceedBtn) {
         proceedBtn.disabled = false;
         proceedBtn.classList.remove('opacity-30', 'cursor-not-allowed', 'bg-gray-700', 'text-gray-400');
         proceedBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500', 'text-white', 'opacity-100');
-        proceedBtn.onclick = showCER;
+        proceedBtn.onclick = showCER; 
     }
 
-    // Reset UI for next trial
-    mInput.value = ""; xInput.value = ""; yieldDisplay.innerText = "0.00";
+    mInput.value = ""; xInput.value = ""; 
+    if(yieldDisplay) yieldDisplay.innerText = "0.00";
     if(excessDisplay) excessDisplay.innerHTML = "<span class='text-gray-500'>0.00g</span>";
 }
 
