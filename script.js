@@ -649,16 +649,27 @@ function showCER() {
     document.getElementById('cer-screen').classList.remove('hidden');
 
     // 3. Render Logs with Physical Properties
-    const log = document.getElementById('summary-log');
+const log = document.getElementById('summary-log');
     log.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div class="space-y-4">
-                <h4 class="text-blue-400 font-bold uppercase text-xs tracking-widest">Metal M Evidence</h4>
-                ${completedM.map(e => `<div class="p-3 bg-gray-900 border border-gray-800 rounded-lg text-sm text-gray-300"><b>${e.name}:</b> ${e.result}</div>`).join('')}
+                <h4 class="text-blue-400 font-bold uppercase text-xs tracking-widest px-1">Metal M Evidence</h4>
+                ${completedM.map(e => `
+                    <div class="p-4 bg-gray-900 border-l-4 border-blue-500 rounded-xl shadow-md text-sm text-gray-300">
+                        <b class="text-blue-400 block mb-1 uppercase text-[10px] tracking-tight">${e.name}</b>
+                        <p>${e.result}</p>
+                    </div>
+                `).join('')}
             </div>
+
             <div class="space-y-4">
-                <h4 class="text-emerald-400 font-bold uppercase text-xs tracking-widest">Non-Metal X Evidence</h4>
-                ${completedX.map(e => `<div class="p-3 bg-gray-900 border border-gray-800 rounded-lg text-sm text-gray-300"><b>${e.name}:</b> ${e.result}</div>`).join('')}
+                <h4 class="text-emerald-400 font-bold uppercase text-xs tracking-widest px-1">Non-Metal X Evidence</h4>
+                ${completedX.map(e => `
+                    <div class="p-4 bg-gray-900 border-l-4 border-emerald-500 rounded-xl shadow-md text-sm text-gray-300">
+                        <b class="text-emerald-400 block mb-1 uppercase text-[10px] tracking-tight">${e.name}</b>
+                        <p>${e.result}</p>
+                    </div>
+                `).join('')}
             </div>
         </div>
 
@@ -667,7 +678,7 @@ function showCER() {
             <div class="grid grid-cols-1 gap-4">
                 ${phase3Attempts.map(attempt => `
                     <div class="p-6 bg-gray-900 border-l-4 border-purple-500 rounded-xl shadow-xl">
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
                             <div>
                                 <p class="text-[10px] text-gray-500 uppercase font-bold">Reactants Used</p>
                                 <p class="text-lg font-black text-blue-400">${attempt.combo}</p>
