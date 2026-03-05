@@ -649,62 +649,66 @@ function showCER() {
     document.getElementById('cer-screen').classList.remove('hidden');
 
     // 3. Render Logs with Physical Properties
-const log = document.getElementById('summary-log');
+    const log = document.getElementById('summary-log');
+    log.className = "w-full space-y-8 mt-8"; 
+    
     log.innerHTML = `
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="space-y-4">
-                <h4 class="text-blue-400 font-bold uppercase text-xs tracking-widest px-1">Metal M Evidence</h4>
-                ${completedM.map(e => `
-                    <div class="p-4 bg-gray-900 border-l-4 border-blue-500 rounded-xl shadow-md text-sm text-gray-300">
-                        <b class="text-blue-400 block mb-1 uppercase text-[10px] tracking-tight">${e.name}</b>
-                        <p>${e.result}</p>
-                    </div>
-                `).join('')}
-            </div>
-
-            <div class="space-y-4">
-                <h4 class="text-emerald-400 font-bold uppercase text-xs tracking-widest px-1">Non-Metal X Evidence</h4>
-                ${completedX.map(e => `
-                    <div class="p-4 bg-gray-900 border-l-4 border-emerald-500 rounded-xl shadow-md text-sm text-gray-300">
-                        <b class="text-emerald-400 block mb-1 uppercase text-[10px] tracking-tight">${e.name}</b>
-                        <p>${e.result}</p>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-
-        <div class="mt-12">
-            <h4 class="text-purple-400 font-bold mb-4 text-center">Synthesis & Physical Properties of MX</h4>
-            <div class="grid grid-cols-1 gap-4">
-                ${phase3Attempts.map(attempt => `
-                    <div class="p-6 bg-gray-900 border-l-4 border-purple-500 rounded-xl shadow-xl">
-                        <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
-                            <div>
-                                <p class="text-[10px] text-gray-500 uppercase font-bold">Reactants Used</p>
-                                <p class="text-lg font-black text-blue-400">${attempt.combo}</p>
-                            </div>
-                            <div>
-                                <p class="text-[10px] text-gray-500 uppercase font-bold">Measured Yield</p>
-                                <p class="text-lg font-black text-white">${attempt.rawTotal} g</p>
-                            </div>
-                            <div>
-                                <p class="text-[10px] text-gray-500 uppercase font-bold">Excess Reactant</p>
-                                <p class="text-lg font-black text-red-400">${attempt.excess} g</p>
-                            </div>
-                            <div>
-                                <p class="text-[10px] text-gray-500 uppercase font-bold">Appearance</p>
-                                <p class="text-sm text-gray-300">${attempt.appearance}</p>
-                            </div>
-                            <div>
-                                <p class="text-[10px] text-gray-500 uppercase font-bold">Solubility</p>
-                                <p class="text-sm text-gray-300">${attempt.solubility}</p>
-                            </div>
+        <div class="w-full">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                <div class="lg:col-span-3 space-y-4">
+                    <h4 class="text-blue-400 font-bold uppercase text-xs tracking-widest px-1">Metal M Evidence</h4>
+                    ${completedM.map(e => `
+                        <div class="p-4 bg-gray-900 border-l-4 border-blue-500 rounded-xl shadow-md text-sm text-gray-300">
+                            <b class="text-blue-400 block mb-1 uppercase text-[10px] tracking-tight">${e.name}</b>
+                            <p>${e.result}</p>
                         </div>
+                    `).join('')}
+                </div>
+    
+                <div class="lg:col-span-3 space-y-4">
+                    <h4 class="text-emerald-400 font-bold uppercase text-xs tracking-widest px-1">Non-Metal X Evidence</h4>
+                    ${completedX.map(e => `
+                        <div class="p-4 bg-gray-900 border-l-4 border-emerald-500 rounded-xl shadow-md text-sm text-gray-300">
+                            <b class="text-emerald-400 block mb-1 uppercase text-[10px] tracking-tight">${e.name}</b>
+                            <p>${e.result}</p>
+                        </div>
+                    `).join('')}
+                </div>
+    
+                <div class="lg:col-span-6">
+                    <h4 class="text-purple-400 font-bold mb-4 text-center uppercase text-xs tracking-widest">Synthesis & Physical Properties of MX</h4>
+                    <div class="space-y-4">
+                        ${phase3Attempts.map(attempt => `
+                            <div class="p-6 bg-gray-900 border-l-4 border-purple-500 rounded-xl shadow-xl">
+                                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                                    <div>
+                                        <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Reactants Used</p>
+                                        <p class="text-sm font-black text-blue-400">${attempt.combo}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Measured Yield</p>
+                                        <p class="text-sm font-black text-white">${attempt.rawTotal} g</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Excess Reactant</p>
+                                        <p class="text-sm font-black text-red-400">${attempt.excess} g</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Appearance</p>
+                                        <p class="text-xs text-gray-300 leading-tight">${attempt.appearance}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Solubility</p>
+                                        <p class="text-xs text-gray-300 leading-tight">${attempt.solubility}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
                     </div>
-                `).join('')}
+                </div>
             </div>
-        </div>
-    `;
+        </div>`;
 }
 
 // --- SYSTEM UTILITIES ---
