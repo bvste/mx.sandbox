@@ -678,7 +678,7 @@ function showCER() {
                             </div>
                             <div>
                                 <p class="text-[10px] text-gray-500 uppercase font-bold">Excess Reactant</p>
-                                <p class="text-lg font-black text-red">${attempt.excess} g</p>
+                                <p class="text-lg font-black text-red-400">${attempt.excess} g</p>
                             </div>
                             <div>
                                 <p class="text-[10px] text-gray-500 uppercase font-bold">Appearance</p>
