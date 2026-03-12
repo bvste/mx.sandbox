@@ -40,21 +40,14 @@ const compoundDatabase = {
 
     //Sulfur Groups
     "CopperOneSulfur": { appearance: "Black crystals.", solubility: "insoluble", molarMass: 159.16 },
-    "CopperTwoSulfur": { appearance: "N/A, super rare mineral", solubility: "N/A", molarMass: 95.62 },
-    "NickelSulfur": { appearance: "N/A, rare mineral", solubility: "N/A", molarMass: 90.76 },
     "IronTwoSulfur": { appearance: "Gray, sometimes in lumps or powder.", solubility: "insoluble", molarMass: 87.91 },
-    "IronThreeSulfur": { appearance: "N/A, highly unstable.", solubility: "N/A", molarMass: 207.9 },
     "SilverSulfur": { appearance: "Gray-blackish crystals.", solubility: "insoluble", molarMass: 247.8 },
     "AluminumSulfur": { appearance: "Gray solid.", solubility: "soluble", molarMass: 150.162 },
     "MagnesiumSulfur": { appearance: "White to reddish brown powder.", solubility: "soluble", molarMass: 56.371 },
 
     // Phosphorus Groups
     "CopperOnePhosphorus": { appearance: "Yellowish gray crystals.", solubility: "insoluble", molarMass: 221.6127 },
-    "CopperTwoPhosphorus": { appearance: "N/A, rare mineral.", solubility: "N/A", molarMass: 252.5855 },
-    "NickelPhosphorus": { appearance: "N/A, rare mineral.", solubility: "N/A", molarMass: 238.0277 },
-    "IronTwoPhosphorus": { appearance: "N/A, rare mineral.", solubility: "N/A", molarMass: 229.4825 },
     "IronThreePhosphorus": { appearance: "Gray needles.", solubility: "insoluble", molarMass: 86.819 },
-    "SilverPhosphorus": { appearance: "N/A, rare mineral.", solubility: "N/A", molarMass: 354.57836 },
     "AluminumPhosphorus": { appearance: "Yellow or gray crystals.", solubility: "insoluble", molarMass: 57.955 },
     "MagnesiumPhosphorus": { appearance: "White crystalline solid", solubility: "insoluble", molarMass: 134.861 },    
     };
