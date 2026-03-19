@@ -410,11 +410,17 @@ function runComparisonTest() {
 }
 
 function logExperiment() {
-    // Since it was already auto-saved when the test ran, 
-    // this button now acts solely as a "Back to Menu" transition.
+    // 1. Hide the active results screen
+    document.getElementById('station-active')?.classList.add('hidden');
+    
+    // 2. Unhide the menu and station setup screen!
+    document.getElementById('station-setup')?.classList.remove('hidden');
+    
+    // 3. Check progress and reload the available tests
     checkPhaseTransition();
     loadMenu();
 }
+
 function checkPhaseTransition() {
     if (currentPhase === 'M' && completedM.length === 3) {
         alert("Phase 1 Complete! Transitioning to Element X.");
