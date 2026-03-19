@@ -415,12 +415,16 @@ function logExperiment() {
     // 1. Hide the active results screen
     document.getElementById('station-active')?.classList.add('hidden');
     
-    // 2. Unhide the menu and station setup screen!
-    document.getElementById('station-setup')?.classList.remove('hidden');
+    // 2. Hide the dropdown setup screen
+    document.getElementById('station-setup')?.classList.add('hidden');
     
-    // 3. Check progress and reload the available tests
+    // 3. UNHIDE the actual menu container so the test buttons return!
+    document.getElementById('experiment-menu')?.classList.remove('hidden');
+    
+    // 4. Check progress and reload the available tests
     checkPhaseTransition();
     loadMenu();
+}
 }
 
 function checkPhaseTransition() {
