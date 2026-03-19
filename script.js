@@ -338,12 +338,11 @@ function getReaction(metal, solutionName) {
 }
 
 function runComparisonTest() {
-    document.getElementById('station-setup')?.classList.add('hidden');
-    document.getElementById('station-active')?.classList.remove('hidden');
+    document.getElementById('station-setup').classList.add('hidden');
+    document.getElementById('station-active').classList.remove('hidden');
     
     const exp = (currentPhase === 'M') ? experimentsM.find(e => e.id === activeTest) : experimentsX.find(e => e.id === activeTest);
     const zone = document.getElementById('comparison-zone');
-    if(!zone) return;
     
     let userResult;
     if (activeTest === "activity") {
@@ -359,10 +358,10 @@ function runComparisonTest() {
         </div>`;
 
     const selections = [
-        document.getElementById('ref-1')?.value,
-        document.getElementById('ref-2')?.value,
-        document.getElementById('ref-3')?.value
-    ].filter(Boolean);
+        document.getElementById('ref-1').value,
+        document.getElementById('ref-2').value,
+        document.getElementById('ref-3').value
+    ];
 
     let currentRefList = (activeTest === "activity") ? solutionDatabase : ((currentPhase === 'M') ? referenceMetals : referenceNonMetals);
 
@@ -371,6 +370,7 @@ function runComparisonTest() {
         if (!refObj) return;
 
         let refResult;
+        // FIX 2: Use getReaction for activity series instead of the missing getActivityResult
         if (activeTest === "activity") {
             refResult = getReaction(convertMetalName(activeM.name), name);
         } else {
@@ -387,47 +387,24 @@ function runComparisonTest() {
     });
 
     zone.innerHTML = html;
-
-    // --- AUTO-LOG THE RESULT IMMEDIATELY ---
-    const resultText = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
-    let completedList = currentPhase === 'M' ? completedM : completedX;
-    
-    if (!completedList.find(e => e.id === activeTest)) {
-        completedList.push({name: exp.name, result: resultText, id: exp.id});
-        if(document.getElementById('exp-count')) {
-            document.getElementById('exp-count').innerText = `${completedList.length} / 3`;
-        }
-        
-        if (typeof autoSaveProgress === "function") autoSaveProgress();
-    }
-
-    // OVERRIDE THE BUTTON - Using setAttribute makes it impossible for the browser to ignore
-    const actionBtn = document.querySelector('#station-active button');
-    if (actionBtn) {
-        actionBtn.innerText = "Experiment Saved! Return to Menu";
-        actionBtn.setAttribute("onclick", "logExperiment()"); 
-    }
 }
 
 function logExperiment() {
-    console.log("Return button clicked! Attempting to restore the menu...");
-    
-    // 1. Hide the active results screen
-    document.getElementById('station-active')?.classList.add('hidden');
-    
-    // 2. Unhide EVERYTHING that could possibly be holding your menu
-    document.getElementById('station-setup')?.classList.remove('hidden');
-    document.getElementById('experiment-menu')?.classList.remove('hidden');
-    
-    if(document.getElementById('experiment-menu')) {
-        document.getElementById('experiment-menu').parentElement.classList.remove('hidden');
+    const list = (currentPhase === 'M') ? experimentsM : experimentsX;
+    const exp = list.find(e => e.id === activeTest);
+    const result = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
+
+    if(currentPhase === 'M') {
+        completedM.push({name: exp.name, result: result, id: exp.id});
+        document.getElementById('exp-count').innerText = `${completedM.length} / 3`;
+    } else {
+        completedX.push({name: exp.name, result: result, id: exp.id});
+        document.getElementById('exp-count').innerText = `${completedX.length} / 3`;
     }
-    
-    // 3. Check progress and reload the available tests
+
     checkPhaseTransition();
     loadMenu();
 }
-
 
 function checkPhaseTransition() {
     if (currentPhase === 'M' && completedM.length === 3) {
@@ -622,19 +599,6 @@ function synthesizeCompound() {
         appearance: info.appearance, 
         solubility: info.solubility   
     });
-    // --- LOG TRIAL AUTOMATICALLY ---
-    phase3Attempts.push({
-        combo: `${mVal}g M + ${xVal}g X`,
-        rawTotal: finalYieldStr,
-        excess: excessText,
-        appearance: info.appearance, 
-        solubility: info.solubility   
-    });
-
-    // --- CLOUD AUTO-SAVE ---
-    if (typeof autoSaveProgress === "function") autoSaveProgress();
-
-    const logBody = document.getElementById('p3-log-body');
 
     const logBody = document.getElementById('p3-log-body');
     if (logBody) {
@@ -744,34 +708,6 @@ function showCER() {
 
 function openModal(id) { document.getElementById(id).classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-// --- AUTO-SAVE TO GOOGLE SHEETS ---
-function autoSaveProgress() {
-    const student = JSON.parse(sessionStorage.getItem('activeStudent') || '{}');
-    if(!student.fName) return; // Don't save if no student is active
-    
-    const assumptionInput = document.getElementById('assumption');
-    const assumptionText = assumptionInput ? assumptionInput.value : 'In Progress...';
-
-    const entry = {
-        fName: student.fName, lName: student.lName, period: student.period,
-        actualIdentityM: activeM.name, actualIdentityX: activeX.name, 
-        mExps: completedM.map(e => e.id), xExps: completedX.map(e => e.id),
-        assumption: assumptionText,
-        status: "Auto-Saved Progress" // Tells your Google Sheet this isn't the final submit yet
-    };
-    
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKHQd1vrdU7taJzdUtm2AwQB4fGVqg8DY9TPjPCf_h40gtvgukOuKj0xoIlfDweLaNPQ/exec';
-
-    // Fire and forget (silent background save, no popups or loading screens)
-    fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        cache: 'no-cache',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(entry)
-    }).catch(err => console.log("Auto-save skipped (offline)."));
-}
 
 async function finalizeLab() {
     const student = JSON.parse(sessionStorage.getItem('activeStudent'));
