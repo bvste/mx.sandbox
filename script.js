@@ -409,7 +409,7 @@ function runComparisonTest() {
         actionBtn.onclick = logExperiment; 
     }
 }
-}
+
 
 function logExperiment() {
     // 1. Hide the active results screen
@@ -425,7 +425,7 @@ function logExperiment() {
     checkPhaseTransition();
     loadMenu();
 }
-}
+
 
 function checkPhaseTransition() {
     if (currentPhase === 'M' && completedM.length === 3) {
