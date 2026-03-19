@@ -338,55 +338,32 @@ function getReaction(metal, solutionName) {
 }
 
 function runComparisonTest() {
-    document.getElementById('station-setup').classList.add('hidden');
-    document.getElementById('station-active').classList.remove('hidden');
-    
-    const exp = (currentPhase === 'M') ? experimentsM.find(e => e.id === activeTest) : experimentsX.find(e => e.id === activeTest);
-    const zone = document.getElementById('comparison-zone');
-    
-    let userResult;
-    if (activeTest === "activity") {
-        userResult = "Results of activity test";
-    } else {
-        userResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
-    }
-    
-    let html = `
-        <div class="p-4 bg-blue-900/30 border border-blue-500 rounded-xl md:col-span-2 text-center shadow-lg">
-            <p class="text-[10px] text-blue-400 uppercase font-black tracking-widest">Unknown Sample ${currentPhase}</p>
-            <p class="text-xl text-white font-bold">${userResult || "Testing..."}</p>
-        </div>`;
-
-    const selections = [
-        document.getElementById('ref-1').value,
-        document.getElementById('ref-2').value,
-        document.getElementById('ref-3').value
-    ];
-
-    let currentRefList = (activeTest === "activity") ? solutionDatabase : ((currentPhase === 'M') ? referenceMetals : referenceNonMetals);
-
-    selections.forEach(name => {
-        const refObj = currentRefList.find(r => r.name === name);
-        if (!refObj) return;
-
-        let refResult;
-        // FIX 2: Use getReaction for activity series instead of the missing getActivityResult
-        if (activeTest === "activity") {
-            refResult = getReaction(convertMetalName(activeM.name), name);
-        } else {
-            refResult = exp.static || refObj[activeTest] || "No comparative data";
-        }
-        
-        const displayLabel = activeTest === "activity" ? refObj.display : refObj.name;
-
-        html += `
-            <div class="p-4 bg-gray-800 border border-gray-700 rounded-xl">
-                <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest">${displayLabel}</p>
-                <p class="text-gray-300 text-sm">${refResult}</p>
-            </div>`;
-    });
-
     zone.innerHTML = html;
+
+    autoLogExperiment();
+}
+
+function autoLogExperiment() {
+    const list = (currentPhase === 'M') ? experimentsM : experimentsX;
+    const exp = list.find(e => e.id === activeTest);
+    const result = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
+
+    // Check if already logged to prevent duplicates
+    const completed = (currentPhase === 'M') ? completedM : completedX;
+    if (completed.find(c => c.id === exp.id)) return;
+
+    if(currentPhase === 'M') {
+        completedM.push({name: exp.name, result: result, id: exp.id});
+        document.getElementById('exp-count').innerText = `${completedM.length} / 3`;
+    } else {
+        completedX.push({name: exp.name, result: result, id: exp.id});
+        document.getElementById('exp-count').innerText = `${completedX.length} / 3`;
+    }
+
+    // Refresh the menu to show the "✅" and disable the button immediately
+    loadMenu();
+    
+    checkPhaseTransition();
 }
 
 function logExperiment() {
