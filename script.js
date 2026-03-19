@@ -402,23 +402,23 @@ function runComparisonTest() {
         if (typeof autoSaveProgress === "function") autoSaveProgress();
     }
 
-    // Change the button text so the student knows it auto-saved
+    // Change the button text so the student knows it auto-saved AND tell it to go back to the menu!
     const actionBtn = document.querySelector('#station-active button');
     if (actionBtn) {
         actionBtn.innerText = "Experiment Saved! Return to Menu";
-        actionBtn.onclick = logExperiment; 
+        actionBtn.onclick = logExperiment; // <-- This is the crucial link we were missing!
     }
 }
-
 
 function logExperiment() {
     // 1. Hide the active results screen
     document.getElementById('station-active')?.classList.add('hidden');
     
-    // 2. Hide the dropdown setup screen
+    // 2. Hide the setup screen
     document.getElementById('station-setup')?.classList.add('hidden');
     
-    // 3. UNHIDE the actual menu container so the test buttons return!
+    // 3. UNHIDE the actual menu container so the buttons return!
+    document.getElementById('experiment-menu')?.parentElement.classList.remove('hidden');
     document.getElementById('experiment-menu')?.classList.remove('hidden');
     
     // 4. Check progress and reload the available tests
