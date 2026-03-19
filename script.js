@@ -406,7 +406,9 @@ function runComparisonTest() {
     const actionBtn = document.querySelector('#station-active button');
     if (actionBtn) {
         actionBtn.innerText = "Experiment Saved! Return to Menu";
+        actionBtn.onclick = logExperiment; 
     }
+}
 }
 
 function logExperiment() {
