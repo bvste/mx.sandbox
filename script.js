@@ -338,62 +338,18 @@ function getReaction(metal, solutionName) {
 }
 
 function runComparisonTest() {
-    document.getElementById('station-setup').classList.add('hidden');
-    document.getElementById('station-active').classList.remove('hidden');
-    
-    const exp = (currentPhase === 'M') ? experimentsM.find(e => e.id === activeTest) : experimentsX.find(e => e.id === activeTest);
+    // ... (Keep your existing Result Calculation & HTML Generation logic here) ...
+
+    // 1. Display the results immediately
     const zone = document.getElementById('comparison-zone');
-    
-    // 1. Define result for the unknown
-    let userResult;
-    if (activeTest === "activity") {
-        userResult = "Results of activity test";
-    } else {
-        userResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
-    }
-    
-    let html = `
-        <div class="p-4 bg-blue-900/30 border border-blue-500 rounded-xl md:col-span-2 text-center shadow-lg">
-            <p class="text-[10px] text-blue-400 uppercase font-black tracking-widest">Unknown Sample ${currentPhase}</p>
-            <p class="text-xl text-white font-bold">${userResult || "Testing..."}</p>
-        </div>`;
+    zone.innerHTML = html; // This ensures they SEE the data first
 
-    const selections = [
-        document.getElementById('ref-1').value,
-        document.getElementById('ref-2').value,
-        document.getElementById('ref-3').value
-    ];
-
-    let currentRefList = (activeTest === "activity") ? solutionDatabase : ((currentPhase === 'M') ? referenceMetals : referenceNonMetals);
-
-    selections.forEach(name => {
-        const refObj = currentRefList.find(r => r.name === name);
-        if (!refObj) return;
-
-        let refResult;
-        if (activeTest === "activity") {
-            refResult = getReaction(convertMetalName(activeM.name), name);
-        } else {
-            refResult = exp.static || refObj[activeTest] || "No comparative data";
-        }
-        
-        const displayLabel = activeTest === "activity" ? refObj.display : refObj.name;
-
-        html += `
-            <div class="p-4 bg-gray-800 border border-gray-700 rounded-xl">
-                <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest">${displayLabel}</p>
-                <p class="text-gray-300 text-sm">${refResult}</p>
-            </div>`;
-    });
-
-    zone.innerHTML = html;
-
-    // --- NEW: AUTOMATIC LOGGING LOGIC ---
+    // 2. Identify the experiment
     const list = (currentPhase === 'M') ? experimentsM : experimentsX;
     const currentExp = list.find(e => e.id === activeTest);
     const completed = (currentPhase === 'M') ? completedM : completedX;
 
-    // Only log if it hasn't been logged yet to prevent duplicate entries
+    // 3. LOG THE DATA AUTOMATICALLY (If not already logged)
     if (!completed.find(c => c.id === activeTest)) {
         if (currentPhase === 'M') {
             completedM.push({ name: currentExp.name, result: userResult, id: currentExp.id });
@@ -403,9 +359,37 @@ function runComparisonTest() {
             document.getElementById('exp-count').innerText = `${completedX.length} / 3`;
         }
         
+        // 4. Update the sidebar UI so they see the checkmark ✅
         loadMenu(); 
-        checkPhaseTransition();
+        
+        // 5. LOCK THE CURRENT VIEW
+        // We hide the "Launch" button or any "Cancel" options so they stay on this result
+        const launchBtn = document.querySelector('button[onclick*="runComparisonTest"]');
+        if (launchBtn) {
+            launchBtn.disabled = true;
+            launchBtn.innerText = "Data Recorded";
+            launchBtn.className = "px-6 py-2 bg-gray-700 text-gray-400 rounded-lg cursor-not-allowed";
+        }
     }
+
+    // 6. WAIT for the user to initiate the transition
+    // Instead of calling checkPhaseTransition() automatically, we let them click 
+    // the next sidebar item or a "Finish Phase" button that only appears now.
+    if (completed.length === 3) {
+        showPhaseCompleteButton(); 
+    }
+}
+
+function showPhaseCompleteButton() {
+    const zone = document.getElementById('comparison-zone');
+    // Add a big "Proceed" button at the bottom of the results
+    zone.innerHTML += `
+        <div class="mt-8 flex justify-center w-full md:col-span-2 border-t border-gray-800 pt-6">
+            <button onclick="checkPhaseTransition()" class="px-12 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-full shadow-2xl transition-all animate-bounce uppercase tracking-widest">
+                All Tests Complete - Proceed
+            </button>
+        </div>
+    `;
 }
 
 function checkPhaseTransition() {
