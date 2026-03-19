@@ -398,30 +398,32 @@ function runComparisonTest() {
             document.getElementById('exp-count').innerText = `${completedList.length} / 3`;
         }
         
-        // --- SILENT CLOUD AUTO-SAVE ---
         if (typeof autoSaveProgress === "function") autoSaveProgress();
     }
 
-    // Change the button text so the student knows it auto-saved AND tell it to go back to the menu!
+    // OVERRIDE THE BUTTON - Using setAttribute makes it impossible for the browser to ignore
     const actionBtn = document.querySelector('#station-active button');
     if (actionBtn) {
         actionBtn.innerText = "Experiment Saved! Return to Menu";
-        actionBtn.onclick = logExperiment; // <-- This is the crucial link we were missing!
+        actionBtn.setAttribute("onclick", "logExperiment()"); 
     }
 }
 
 function logExperiment() {
+    console.log("Return button clicked! Attempting to restore the menu...");
+    
     // 1. Hide the active results screen
     document.getElementById('station-active')?.classList.add('hidden');
     
-    // 2. Hide the setup screen
-    document.getElementById('station-setup')?.classList.add('hidden');
-    
-    // 3. UNHIDE the actual menu container so the buttons return!
-    document.getElementById('experiment-menu')?.parentElement.classList.remove('hidden');
+    // 2. Unhide EVERYTHING that could possibly be holding your menu
+    document.getElementById('station-setup')?.classList.remove('hidden');
     document.getElementById('experiment-menu')?.classList.remove('hidden');
     
-    // 4. Check progress and reload the available tests
+    if(document.getElementById('experiment-menu')) {
+        document.getElementById('experiment-menu').parentElement.classList.remove('hidden');
+    }
+    
+    // 3. Check progress and reload the available tests
     checkPhaseTransition();
     loadMenu();
 }
