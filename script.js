@@ -52,9 +52,29 @@ const compoundDatabase = {
     "MagnesiumPhosphorus": { appearance: "White crystalline solid", solubility: "insoluble", molarMass: 134.861 },    
     };
 
-// Logic to pick M and X for this session
-let activeM = metalIdentities[Math.floor(Math.random() * metalIdentities.length)];
-let activeX = nonMetalIdentities[Math.floor(Math.random() * nonMetalIdentities.length)];
+
+// This ensures the randomly picked pair ALWAYS exists in the compoundDatabase
+function initializeIdentities() {
+    let validPair = false;
+    let selectedM, selectedX;
+
+    while (!validPair) {
+        selectedM = metalIdentities[Math.floor(Math.random() * metalIdentities.length)];
+        selectedX = nonMetalIdentities[Math.floor(Math.random() * nonMetalIdentities.length)];
+        
+        // Create the key exactly how synthesizeCompound looks it up
+        const lookupKey = selectedM.name + selectedX.name;
+        
+        if (compoundDatabase[lookupKey]) {
+            validPair = true;
+        }
+    }
+    return { selectedM, selectedX };
+}
+
+const { selectedM, selectedX } = initializeIdentities();
+let activeM = selectedM;
+let activeX = selectedX;
 
 // List of available experiment types, make sure to not to have the same id if adding experiments
 const experimentsM = [
