@@ -349,19 +349,45 @@ function runComparisonTest() {
     let userResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
     if (activeTest === "activity") userResult = "Results of activity test";
 
-    // 3. Build and SHOW the HTML first (So they see it!)
+    // 3. Build the Results HTML (Excluding any manual "Save" button)
     let html = `
         <div class="p-4 bg-blue-900/30 border border-blue-500 rounded-xl md:col-span-2 text-center shadow-lg mb-4">
             <p class="text-[10px] text-blue-400 uppercase font-black tracking-widest">Unknown Sample ${currentPhase}</p>
             <p class="text-xl text-white font-bold">${userResult || "Testing..."}</p>
         </div>`;
 
-    // ... (Your loop for reference samples goes here) ...
-    // Make sure 'html' is fully built before setting zone.innerHTML
+    // Add Comparison References
+    const selections = [
+        document.getElementById('ref-1').value,
+        document.getElementById('ref-2').value,
+        document.getElementById('ref-3').value
+    ];
+
+    let currentRefList = (activeTest === "activity") ? solutionDatabase : ((currentPhase === 'M') ? referenceMetals : referenceNonMetals);
+
+    selections.forEach(name => {
+        const refObj = currentRefList.find(r => r.name === name);
+        if (!refObj) return;
+
+        let refResult;
+        if (activeTest === "activity") {
+            refResult = getReaction(convertMetalName(activeM.name), name);
+        } else {
+            refResult = exp.static || refObj[activeTest] || "No comparative data";
+        }
+        
+        const displayLabel = activeTest === "activity" ? refObj.display : refObj.name;
+        html += `
+            <div class="p-4 bg-gray-800 border border-gray-700 rounded-xl">
+                <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest">${displayLabel}</p>
+                <p class="text-gray-300 text-sm">${refResult}</p>
+            </div>`;
+    });
+
+    // 4. DISPLAY RESULTS IMMEDIATELY
     zone.innerHTML = html;
 
-    // 4. THE AUTO-SAVE LOGIC
-    // We wrap this in a tiny timeout so the UI doesn't "blink" away
+    // 5. AUTO-SAVE LOGIC (Small timeout ensures UI renders first)
     setTimeout(() => {
         const completed = (currentPhase === 'M') ? completedM : completedX;
         
@@ -380,14 +406,13 @@ function runComparisonTest() {
             // Update sidebar ✅ immediately
             loadMenu();
 
-            // 5. Check if we are done with all 3 tests
+            // 6. Provide navigation if all tests are done
             if (completed.length === 3) {
-                // Instead of jumping to the next phase, show a "Continue" button
                 const proceedWrapper = document.createElement('div');
-                proceedWrapper.className = "mt-8 flex justify-center w-full md:col-span-2";
+                proceedWrapper.className = "mt-8 flex justify-center w-full md:col-span-2 border-t border-gray-800 pt-6";
                 proceedWrapper.innerHTML = `
-                    <button onclick="checkPhaseTransition()" class="px-10 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-full shadow-2xl transition-all uppercase tracking-widest">
-                        Phase Complete - Proceed
+                    <button onclick="checkPhaseTransition()" class="px-10 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-full shadow-2xl transition-all uppercase tracking-widest animate-pulse">
+                        All Tests Recorded - Proceed
                     </button>
                 `;
                 zone.appendChild(proceedWrapper);
