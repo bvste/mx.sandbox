@@ -53,7 +53,6 @@ const compoundDatabase = {
     };
 
 
-// This ensures the randomly picked pair ALWAYS exists in the compoundDatabase
 function initializeIdentities() {
     let validPair = false;
     let selectedM, selectedX;
@@ -62,7 +61,6 @@ function initializeIdentities() {
         selectedM = metalIdentities[Math.floor(Math.random() * metalIdentities.length)];
         selectedX = nonMetalIdentities[Math.floor(Math.random() * nonMetalIdentities.length)];
         
-        // Create the key exactly how synthesizeCompound looks it up
         const lookupKey = selectedM.name + selectedX.name;
         
         if (compoundDatabase[lookupKey]) {
@@ -369,7 +367,7 @@ function runComparisonTest() {
     let userResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
     if (activeTest === "activity") userResult = "Results of activity test";
 
-    // 3. Build the Results HTML (Excluding any manual "Save" button)
+    // 3. Build the Results HTML
     let html = `
         <div class="p-4 bg-blue-900/30 border border-blue-500 rounded-xl md:col-span-2 text-center shadow-lg mb-4">
             <p class="text-[10px] text-blue-400 uppercase font-black tracking-widest">Unknown Sample ${currentPhase}</p>
@@ -404,16 +402,24 @@ function runComparisonTest() {
             </div>`;
     });
 
-    // 4. DISPLAY RESULTS IMMEDIATELY
     zone.innerHTML = html;
 
-    // 5. AUTO-SAVE LOGIC (Small timeout ensures UI renders first)
     setTimeout(() => {
         const completed = (currentPhase === 'M') ? completedM : completedX;
         
-        // Prevent duplicate logging
         if (!completed.find(c => c.id === activeTest)) {
-            const logEntry = { name: exp.name, result: userResult, id: exp.id };
+            const referenceCards = Array.from(document.querySelectorAll('#comparison-zone div.p-4.bg-gray-800'));
+            const comparisonData = referenceCards.map(card => ({
+                label: card.querySelector('p.text-\\[10px\\]').innerText,
+                value: card.querySelector('p.text-gray-300').innerText
+            }));
+    
+            const logEntry = { 
+                name: exp.name, 
+                result: userResult, 
+                id: exp.id,
+                comparisons: comparisonData // <--- New field
+            };
             
             if (currentPhase === 'M') {
                 completedM.push(logEntry);
@@ -422,16 +428,14 @@ function runComparisonTest() {
                 completedX.push(logEntry);
                 document.getElementById('exp-count').innerText = `${completedX.length} / 3`;
             }
-
-            // Update sidebar ✅ immediately
+    
             loadMenu();
-
-            // 6. Provide navigation if all tests are done
+    
             if (completed.length === 3) {
                 const proceedWrapper = document.createElement('div');
                 proceedWrapper.className = "mt-8 flex justify-center w-full md:col-span-2 border-t border-gray-800 pt-6";
                 proceedWrapper.innerHTML = `
-                    <button onclick="checkPhaseTransition()" class="px-10 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-full shadow-2xl transition-all uppercase tracking-widest animate-pulse">
+                    <button onclick="checkPhaseTransition()" class="px-10 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-full shadow-2xl transition-all uppercase tracking-widest">
                         All Tests Recorded - Proceed
                     </button>
                 `;
@@ -701,7 +705,16 @@ function showCER() {
                     ${completedM.map(e => `
                         <div class="p-4 bg-gray-900 border-l-4 border-blue-500 rounded-xl shadow-md text-sm text-gray-300">
                             <b class="text-blue-400 block mb-1 uppercase text-[10px] tracking-tight">${e.name}</b>
-                            <p>${e.result}</p>
+                            <p class="font-bold text-white mb-2 underline decoration-blue-500/30">Unknown: ${e.result}</p>
+                            
+                            <div class="space-y-2 mt-2 border-t border-gray-800 pt-2">
+                                ${e.comparisons && e.comparisons.length > 0 ? e.comparisons.map(c => `
+                                    <div class="flex justify-between text-[11px]">
+                                        <span class="text-gray-500 font-bold">${c.label}:</span>
+                                        <span class="text-gray-400 text-right">${c.value}</span>
+                                    </div>
+                                `).join('') : '<p class="text-[10px] text-gray-600 italic">No comparison data recorded.</p>'}
+                            </div>
                         </div>
                     `).join('')}
                 </div>
@@ -711,7 +724,16 @@ function showCER() {
                     ${completedX.map(e => `
                         <div class="p-4 bg-gray-900 border-l-4 border-emerald-500 rounded-xl shadow-md text-sm text-gray-300">
                             <b class="text-emerald-400 block mb-1 uppercase text-[10px] tracking-tight">${e.name}</b>
-                            <p>${e.result}</p>
+                            <p class="font-bold text-white mb-2 underline decoration-emerald-500/30">Unknown: ${e.result}</p>
+                            
+                            <div class="space-y-2 mt-2 border-t border-gray-800 pt-2">
+                                ${e.comparisons && e.comparisons.length > 0 ? e.comparisons.map(c => `
+                                    <div class="flex justify-between text-[11px]">
+                                        <span class="text-gray-500 font-bold">${c.label}:</span>
+                                        <span class="text-gray-400 text-right">${c.value}</span>
+                                    </div>
+                                `).join('') : '<p class="text-[10px] text-gray-600 italic">No comparison data recorded.</p>'}
+                            </div>
                         </div>
                     `).join('')}
                 </div>
