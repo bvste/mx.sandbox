@@ -81,6 +81,7 @@ const experimentsM = [
     { id: 'melting', name: "Crucible + Matches" },
     { id: 'conduct', name: "Conductivity Test", static: "Red and Green lights shine brightly." },
     { id: 'water', name: "Water Submerging", static: "Sample sinks in water and does not react." },
+    { id: 'flame', name: "Flame Test"},
 ];
 
 const experimentsX = [
@@ -624,37 +625,6 @@ function updateYieldInline() {
     }
 }
 
-function renderPhase3Table() {
-    const container = document.getElementById('synthesis-results-table');
-    if (!container) return; // Safety check
-
-    container.innerHTML = phase3Attempts.map((attempt, index) => `
-        <tr class="border-b border-gray-800 hover:bg-white/5 transition-colors">
-            <td class="p-3 text-xs text-gray-400 font-mono">${attempt.combo}</td>
-            <td class="p-3 text-xs text-white font-bold">${attempt.rawTotal}g</td>
-            <td class="p-3 text-xs text-orange-400 italic">${attempt.appearance}</td>
-            <td class="p-3 text-center">
-                <button onclick="showFlameResult(${index})" id="flame-btn-${index}" 
-                        class="px-4 py-1 bg-orange-600 hover:bg-orange-500 text-[10px] text-white font-black rounded-full transition-all uppercase tracking-widest shadow-lg">
-                    Run Flame Test
-                </button>
-                <div id="flame-result-${index}" class="hidden text-[10px] font-black text-orange-300 animate-pulse uppercase tracking-tighter">
-                    🔥 Result: ${attempt.flame}
-                </div>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function showFlameResult(index) {
-    const btn = document.getElementById(`flame-btn-${index}`);
-    const result = document.getElementById(`flame-result-${index}`);
-    if(btn && result) {
-        btn.classList.add('hidden');
-        result.classList.remove('hidden');
-    }
-}
-
 function synthesizeCompound() {
     const mInput = document.getElementById('input-m');
     const xInput = document.getElementById('input-x');
@@ -670,7 +640,6 @@ function synthesizeCompound() {
 
     const lookupKey = activeM.name + activeX.name; 
     const info = compoundDatabase[lookupKey];
-    const flameColor = activeM.flame || "No characteristic color";
 
     if (!info) return alert("Error: Compound data not found in database.");
 
@@ -679,8 +648,7 @@ function synthesizeCompound() {
         rawTotal: totalProduced,
         excess: excessLeftover,
         appearance: info.appearance, 
-        solubility: info.solubility,
-        flame: flameColor
+        solubility: info.solubility   
     });
 
     const logBody = document.getElementById('p3-log-body');
@@ -708,8 +676,6 @@ function synthesizeCompound() {
     mInput.value = ""; xInput.value = ""; 
     if(yieldDisplay) yieldDisplay.innerText = "0.00";
     if(excessDisplay) excessDisplay.innerHTML = "<span class='text-gray-500'>0.00g</span>";
-
-    renderPhase3Table();
 }
 
 function showCER() {
