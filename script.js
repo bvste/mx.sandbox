@@ -326,7 +326,7 @@ function loadMenu() {
                         ? 'opacity-30 bg-gray-900 border-gray-800 cursor-not-allowed text-gray-600' 
                         : 'hover:bg-gray-700 bg-gray-800 border-gray-700 text-white shadow-sm'}">
                 
-                <span class="font-medium uppercase text-[10px] tracking-widest">${exp.name}</span>
+                <span class="font-medium text-[11px] tracking-widest">${exp.name}</span>
                 
                 <div class="flex items-center gap-2">
                     ${isDone ? '<span>✅</span>' : ''}
