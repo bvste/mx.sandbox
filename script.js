@@ -285,21 +285,30 @@ window.onload = () => {
 // --- CORE LAB LOGIC ---
 
 function loadMenu() {
+    // If we have moved to Synthesis, the identification menu should be hidden anyway
+    if (currentPhase === 'Synthesis') {
+        document.getElementById('lab-interface').classList.add('hidden');
+        return;
+    }
+
     const list = document.getElementById('exp-list');
     const title = document.getElementById('phase-title');
     const countDisplay = document.getElementById('exp-count');
     
-    // Determine which experiment list and completion tracker to use
+    // Ensure these arrays exist
     const experiments = (currentPhase === 'M') ? experimentsM : experimentsX;
     const completed = (currentPhase === 'M') ? completedM : completedX;
     
+    if (!experiments) return; // Safety check if arrays are missing
+
     title.innerText = `Phase: Identify Unknown ${currentPhase}`;
     countDisplay.innerText = `${completed.length} / 3`;
 
     list.innerHTML = experiments.map(exp => {
         const isCompleted = completed.find(c => c.id === exp.id);
-        
         const limitReached = completed.length >= 3;
+        
+        // A test is disabled ONLY if the limit is reached AND this isn't a test already done
         const isDisabled = limitReached && !isCompleted;
 
         return `
@@ -313,13 +322,15 @@ function loadMenu() {
                         ? 'bg-gray-900/20 border-gray-800 text-gray-600 cursor-not-allowed opacity-50' 
                         : 'bg-gray-900/50 border-gray-800 text-gray-400 hover:border-blue-500 hover:text-white'}"
             >
-                <span class="text-xs font-bold uppercase tracking-widest">${exp.name}</span>
-                ${isCompleted ? '<span>✅</span>' : isDisabled ? '<span class="text-[10px]">LOCKED</span>' : '<span class="opacity-0 group-hover:opacity-100 transition-all">→</span>'}
+                <span class="text-[11px] font-black uppercase tracking-widest">${exp.name}</span>
+                <div class="flex items-center gap-2">
+                    ${isCompleted ? '<span class="text-emerald-500">✅</span>' : ''}
+                    ${isDisabled ? '<span class="text-[9px] bg-gray-800 px-2 py-1 rounded text-gray-500">LOCKED</span>' : '<span class="opacity-0 group-hover:opacity-100 transition-all text-blue-500">→</span>'}
+                </div>
             </button>
         `;
     }).join('');
 }
-
 function startTest(testId) {
     activeTest = testId;
     
