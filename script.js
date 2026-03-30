@@ -285,76 +285,96 @@ window.onload = () => {
 // --- CORE LAB LOGIC ---
 
 function loadMenu() {
-    // If we have moved to Synthesis, the identification menu should be hidden anyway
-    if (currentPhase === 'Synthesis') {
-        document.getElementById('lab-interface').classList.add('hidden');
+    // 1. Check if we are in Synthesis Phase; if so, stop loading ID tests
+    if (currentPhase === 'Synthesis' || currentPhase === 'P') {
+        const sidebar = document.getElementById('experiment-menu')?.parentElement;
+        if (sidebar) sidebar.classList.add('hidden');
         return;
     }
 
-    const list = document.getElementById('exp-list');
+    // 2. Try to find the menu container (Checking both possible IDs)
+    const menu = document.getElementById('exp-list') || document.getElementById('experiment-menu');
+    if (!menu) return; // Exit if the HTML element is missing
+
     const title = document.getElementById('phase-title');
     const countDisplay = document.getElementById('exp-count');
     
-    // Ensure these arrays exist
+    // 3. Select correct data based on phase
     const experiments = (currentPhase === 'M') ? experimentsM : experimentsX;
     const completed = (currentPhase === 'M') ? completedM : completedX;
     
-    if (!experiments) return; // Safety check if arrays are missing
+    // 4. Update UI Headers
+    if (title) title.innerText = `Phase: Identify Unknown ${currentPhase}`;
+    if (countDisplay) countDisplay.innerText = `${completed.length} / 3`;
 
-    title.innerText = `Phase: Identify Unknown ${currentPhase}`;
-    countDisplay.innerText = `${completed.length} / 3`;
-
-    list.innerHTML = experiments.map(exp => {
-        const isCompleted = completed.find(c => c.id === exp.id);
+    // 5. Build the list
+    menu.innerHTML = experiments.map(exp => {
+        const isDone = completed.find(c => c.id === exp.id);
         const limitReached = completed.length >= 3;
         
-        // A test is disabled ONLY if the limit is reached AND this isn't a test already done
-        const isDisabled = limitReached && !isCompleted;
+        // Disable if 3 tests are done AND this isn't one of them
+        const isDisabled = limitReached && !isDone;
 
         return `
             <button 
-                onclick="${isDisabled ? '' : `startTest('${exp.id}')`}"
-                ${isDisabled ? 'disabled' : ''}
-                class="w-full flex items-center justify-between p-4 rounded-2xl border transition-all group
-                ${isCompleted 
+                onclick="${isDisabled ? '' : `startTest('${exp.id}')`}" 
+                ${isDisabled ? 'disabled' : ''} 
+                class="w-full text-left p-4 rounded-xl border transition-all flex justify-between items-center mb-2
+                ${isDone 
                     ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400' 
-                    : isDisabled
-                        ? 'bg-gray-900/20 border-gray-800 text-gray-600 cursor-not-allowed opacity-50' 
-                        : 'bg-gray-900/50 border-gray-800 text-gray-400 hover:border-blue-500 hover:text-white'}"
-            >
-                <span class="text-[11px] font-black uppercase tracking-widest">${exp.name}</span>
+                    : isDisabled 
+                        ? 'opacity-30 bg-gray-900 border-gray-800 cursor-not-allowed text-gray-600' 
+                        : 'hover:bg-gray-700 bg-gray-800 border-gray-700 text-white shadow-sm'}">
+                
+                <span class="font-medium uppercase text-[10px] tracking-widest">${exp.name}</span>
+                
                 <div class="flex items-center gap-2">
-                    ${isCompleted ? '<span class="text-emerald-500">✅</span>' : ''}
-                    ${isDisabled ? '<span class="text-[9px] bg-gray-800 px-2 py-1 rounded text-gray-500">LOCKED</span>' : '<span class="opacity-0 group-hover:opacity-100 transition-all text-blue-500">→</span>'}
+                    ${isDone ? '<span>✅</span>' : ''}
+                    ${isDisabled ? '<span class="text-[8px] bg-black/40 px-2 py-1 rounded">LOCKED</span>' : '<span class="text-blue-500">→</span>'}
                 </div>
-            </button>
-        `;
+            </button>`;
     }).join('');
 }
+
 function startTest(testId) {
+    const completed = (currentPhase === 'M') ? completedM : completedX;
+    
+    if (completed.length >= 3 && !completed.find(c => c.id === testId)) {
+        // Optional: you can add a toast notification or alert here
+        console.log("Test limit reached for this phase.");
+        return; 
+    }
+
     activeTest = testId;
     
     document.getElementById('station-empty').classList.add('hidden');
     document.getElementById('station-active').classList.add('hidden');
     document.getElementById('station-setup').classList.remove('hidden');
     
-    const exp = (currentPhase === 'M') ? experimentsM.find(e => e.id === testId) : experimentsX.find(e => e.id === testId);
-    document.getElementById('setup-test-name').innerText = "Setup: " + exp.name;
+    const expList = (currentPhase === 'M') ? experimentsM : experimentsX;
+    const exp = expList.find(e => e.id === testId);
+    
+    if (exp) {
+        document.getElementById('setup-test-name').innerText = "Setup: " + exp.name;
+    }
 
-    // Fill dropdowns based on Phase
-    const dropdowns = ['ref-1', 'ref-2', 'ref-3'];
     let currentRefList;
-        if (activeTest === "activity") {
-            currentRefList = solutionDatabase;  // <-- USE SOLUTIONS
-        } else {
-            currentRefList = (currentPhase === 'M') ? referenceMetals : referenceNonMetals;
-        }
+    if (activeTest === "activity") {
+        currentRefList = solutionDatabase; // Use chemical solutions for activity series
+    } else {
+        currentRefList = (currentPhase === 'M') ? referenceMetals : referenceNonMetals;
+    }
+
+    const dropdowns = ['ref-1', 'ref-2', 'ref-3'];
     dropdowns.forEach(id => {
         const select = document.getElementById(id);
-        select.innerHTML = currentRefList.map(item => {
-            const label = activeTest === "activity" ? item.display : item.name;
-            return `<option value="${item.name}">${label}</option>`;
-        }).join('');
+        if (select) {
+            select.innerHTML = currentRefList.map(item => {
+                // Use .display for solutions (HCl, etc), otherwise use .name (Nickel, etc)
+                const label = (activeTest === "activity") ? item.display : item.name;
+                return `<option value="${item.name}">${label}</option>`;
+            }).join('');
+        }
     });
 }
 
