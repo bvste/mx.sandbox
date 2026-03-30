@@ -160,7 +160,8 @@ const reactionMatrix = {
     },
 
     "Ag": {
-        // no reactions listed
+        "Cu(NO3)2": "Silver crystals form"
+        "Cu(NO3)": "Silver crystals form"
     },
 
     "Cr": {
