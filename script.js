@@ -285,21 +285,39 @@ window.onload = () => {
 // --- CORE LAB LOGIC ---
 
 function loadMenu() {
-    const menu = document.getElementById('experiment-menu');
-    menu.innerHTML = '';
-    const list = (currentPhase === 'M') ? experimentsM : experimentsX;
+    const list = document.getElementById('exp-list');
+    const title = document.getElementById('phase-title');
+    const countDisplay = document.getElementById('exp-count');
+    
+    // Determine which experiment list and completion tracker to use
+    const experiments = (currentPhase === 'M') ? experimentsM : experimentsX;
     const completed = (currentPhase === 'M') ? completedM : completedX;
+    
+    title.innerText = `Phase: Identify Unknown ${currentPhase}`;
+    countDisplay.innerText = `${completed.length} / 3`;
 
-    list.forEach(exp => {
-        const isDone = completed.find(c => c.id === exp.id);
-        menu.innerHTML += `
-            <button onclick="startTest('${exp.id}')" ${isDone ? 'disabled' : ''} 
-                class="w-full text-left p-4 rounded-xl border transition-all flex justify-between items-center
-                ${isDone ? 'opacity-40 bg-gray-900 border-gray-800 cursor-not-allowed' : 'hover:bg-gray-700 bg-gray-800 border-gray-700 shadow-sm'}">
-                <span class="font-medium text-white">${exp.name}</span>
-                ${isDone ? '<span>✅</span>' : '<span class="text-blue-500">→</span>'}
-            </button>`;
-    });
+    list.innerHTML = experiments.map(exp => {
+        const isCompleted = completed.find(c => c.id === exp.id);
+        
+        const limitReached = completed.length >= 3;
+        const isDisabled = limitReached && !isCompleted;
+
+        return `
+            <button 
+                onclick="${isDisabled ? '' : `startTest('${exp.id}')`}"
+                ${isDisabled ? 'disabled' : ''}
+                class="w-full flex items-center justify-between p-4 rounded-2xl border transition-all group
+                ${isCompleted 
+                    ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400' 
+                    : isDisabled
+                        ? 'bg-gray-900/20 border-gray-800 text-gray-600 cursor-not-allowed opacity-50' 
+                        : 'bg-gray-900/50 border-gray-800 text-gray-400 hover:border-blue-500 hover:text-white'}"
+            >
+                <span class="text-xs font-bold uppercase tracking-widest">${exp.name}</span>
+                ${isCompleted ? '<span>✅</span>' : isDisabled ? '<span class="text-[10px]">LOCKED</span>' : '<span class="opacity-0 group-hover:opacity-100 transition-all">→</span>'}
+            </button>
+        `;
+    }).join('');
 }
 
 function startTest(testId) {
