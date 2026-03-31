@@ -728,96 +728,116 @@ function synthesizeCompound() {
 }
 
 function showCER() {
-    // 1. Header Cleanup (Phase 4 + New Color)
     const phaseTitle = document.getElementById('phase-title');
     if (phaseTitle) {
-        phaseTitle.innerText = "Phase 4: Final CER Report";
+        phaseTitle.innerText = "Phase 4: Final Lab Summary";
         phaseTitle.className = "text-2xl font-bold text-sky-400"; 
     }
 
-    // 2. Hide Counter and Workspace
     const counter = document.getElementById('exp-count');
     if (counter?.parentElement) counter.parentElement.style.display = 'none';
     document.getElementById('lab-workspace').classList.add('hidden');
     document.getElementById('cer-screen').classList.remove('hidden');
 
-    // 3. Render Logs with Physical Properties
     const log = document.getElementById('summary-log');
-    log.className = "w-full space-y-8 mt-8"; 
+    log.className = "w-full space-y-12 mt-8"; 
     
     log.innerHTML = `
-        <div class="w-full">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                
-                <div class="lg:col-span-3 space-y-4">
-                    <h4 class="text-blue-400 font-bold uppercase text-xs tracking-widest px-1">Metal M Evidence</h4>
+        <div class="w-full space-y-12">
+            
+            <section>
+                <h4 class="text-blue-400 font-bold uppercase text-xs tracking-widest mb-4 px-2 border-l-2 border-blue-500">Metal M: Identification Data</h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     ${completedM.map(e => `
-                        <div class="p-4 bg-gray-900 border-l-4 border-blue-500 rounded-xl shadow-md text-sm text-gray-300">
-                            <b class="text-blue-400 block mb-1 uppercase text-[10px] tracking-tight">${e.name}</b>
-                            <p class="font-bold text-white mb-2 underline decoration-blue-500/30">Unknown: ${e.result}</p>
-                            
-                            <div class="space-y-2 mt-2 border-t border-gray-800 pt-2">
-                                ${e.comparisons && e.comparisons.length > 0 ? e.comparisons.map(c => `
-                                    <div class="flex justify-between text-[11px]">
-                                        <span class="text-gray-500 font-bold">${c.label}:</span>
-                                        <span class="text-gray-400 text-right">${c.value}</span>
-                                    </div>
-                                `).join('') : '<p class="text-[10px] text-gray-600 italic">No comparison data recorded.</p>'}
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-    
-                <div class="lg:col-span-3 space-y-4">
-                    <h4 class="text-emerald-400 font-bold uppercase text-xs tracking-widest px-1">Non-Metal X Evidence</h4>
-                    ${completedX.map(e => `
-                        <div class="p-4 bg-gray-900 border-l-4 border-emerald-500 rounded-xl shadow-md text-sm text-gray-300">
-                            <b class="text-emerald-400 block mb-1 uppercase text-[10px] tracking-tight">${e.name}</b>
-                            <p class="font-bold text-white mb-2 underline decoration-emerald-500/30">Unknown: ${e.result}</p>
-                            
-                            <div class="space-y-2 mt-2 border-t border-gray-800 pt-2">
-                                ${e.comparisons && e.comparisons.length > 0 ? e.comparisons.map(c => `
-                                    <div class="flex justify-between text-[11px]">
-                                        <span class="text-gray-500 font-bold">${c.label}:</span>
-                                        <span class="text-gray-400 text-right">${c.value}</span>
-                                    </div>
-                                `).join('') : '<p class="text-[10px] text-gray-600 italic">No comparison data recorded.</p>'}
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-    
-                <div class="lg:col-span-6">
-                    <h4 class="text-purple-400 font-bold mb-4 text-center uppercase text-xs tracking-widest">Synthesis & Physical Properties of MX</h4>
-                    <div class="space-y-4">
-                        ${phase3Attempts.map(attempt => `
-                            <div class="p-6 bg-gray-900 border-l-4 border-purple-500 rounded-xl shadow-xl">
-                                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                                    <div>
-                                        <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Reactants Used</p>
-                                        <p class="text-sm font-black text-blue-400">${attempt.combo}</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Measured Yield</p>
-                                        <p class="text-sm font-black text-white">${attempt.rawTotal} g</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Excess Reactant</p>
-                                        <p class="text-sm font-black text-red-400">${attempt.excess} g</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Appearance</p>
-                                        <p class="text-xs text-gray-300 leading-tight">${attempt.appearance}</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Solubility</p>
-                                        <p class="text-xs text-gray-300 leading-tight">${attempt.solubility}</p>
-                                    </div>
+                        <div class="p-5 bg-gray-900 border border-gray-800 rounded-2xl shadow-md">
+                            <b class="text-blue-400 block mb-2 uppercase text-[10px] tracking-widest">${e.name}</b>
+                            <div class="flex flex-col gap-3">
+                                <div class="bg-black/40 p-2 rounded-lg border border-blue-500/20">
+                                    <p class="text-[9px] text-gray-500 uppercase font-bold">Unknown Result</p>
+                                    <p class="text-sm font-bold text-white">${e.result}</p>
+                                </div>
+                                <div class="space-y-1">
+                                    <p class="text-[9px] text-gray-500 uppercase font-bold mb-1">Reference Comparisons</p>
+                                    ${e.comparisons && e.comparisons.length > 0 ? e.comparisons.map(c => `
+                                        <div class="flex justify-between text-[11px] py-1 border-b border-gray-800/50">
+                                            <span class="text-gray-400">${c.label}:</span>
+                                            <span class="text-white font-medium">${c.value}</span>
+                                        </div>
+                                    `).join('') : '<p class="text-[10px] text-gray-600 italic">No data.</p>'}
                                 </div>
                             </div>
-                        `).join('')}
-                    </div>
+                        </div>
+                    `).join('')}
                 </div>
+            </section>
+
+            <section>
+                <h4 class="text-emerald-400 font-bold uppercase text-xs tracking-widest mb-4 px-2 border-l-2 border-emerald-500">Non-Metal X: Identification Data</h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    ${completedX.map(e => `
+                        <div class="p-5 bg-gray-900 border border-gray-800 rounded-2xl shadow-md">
+                            <b class="text-emerald-400 block mb-2 uppercase text-[10px] tracking-widest">${e.name}</b>
+                            <div class="flex flex-col gap-3">
+                                <div class="bg-black/40 p-2 rounded-lg border border-emerald-500/20">
+                                    <p class="text-[9px] text-gray-500 uppercase font-bold">Unknown Result</p>
+                                    <p class="text-sm font-bold text-white">${e.result}</p>
+                                </div>
+                                <div class="space-y-1">
+                                    <p class="text-[9px] text-gray-500 uppercase font-bold mb-1">Reference Comparisons</p>
+                                    ${e.comparisons && e.comparisons.length > 0 ? e.comparisons.map(c => `
+                                        <div class="flex justify-between text-[11px] py-1 border-b border-gray-800/50">
+                                            <span class="text-gray-400">${c.label}:</span>
+                                            <span class="text-white font-medium">${c.value}</span>
+                                        </div>
+                                    `).join('') : '<p class="text-[10px] text-gray-600 italic">No data.</p>'}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </section>
+
+            <section>
+                <h4 class="text-purple-400 font-bold uppercase text-xs tracking-widest mb-4 px-2 border-l-2 border-purple-500 text-center">MX Compound Synthesis & Final Analysis</h4>
+                <div class="space-y-4">
+                    ${phase3Attempts.map(attempt => `
+                        <div class="p-6 bg-gray-900 border border-purple-500/30 rounded-3xl shadow-xl">
+                            <div class="grid grid-cols-2 md:grid-cols-6 gap-6 items-center">
+                                <div>
+                                    <p class="text-[9px] text-gray-500 uppercase font-bold">Reactants</p>
+                                    <p class="text-sm font-black text-blue-400">${attempt.combo}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] text-gray-500 uppercase font-bold">Yield</p>
+                                    <p class="text-sm font-black text-white">${attempt.rawTotal} g</p>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] text-gray-500 uppercase font-bold">Flame Test</p>
+                                    <p class="text-sm font-black text-orange-400 uppercase italic underline decoration-orange-500/50">${attempt.flame || "N/A"}</p>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <p class="text-[9px] text-gray-500 uppercase font-bold">Physical Appearance</p>
+                                    <p class="text-xs text-gray-300 italic">"${attempt.appearance}"</p>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] text-gray-500 uppercase font-bold">Solubility</p>
+                                    <p class="text-xs text-gray-300">${attempt.solubility}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </section>
+
+            <div class="p-10 bg-gradient-to-br from-blue-900/20 to-purple-900/20 border border-white/10 rounded-[3rem] text-center shadow-2xl backdrop-blur-sm">
+                <h3 class="text-2xl font-black text-white uppercase tracking-tighter mb-4 italic">Final Review Complete</h3>
+                <p class="text-gray-400 max-w-2xl mx-auto text-sm mb-8">
+                    Review your observations for M, X, and the resulting compound MX. Ensure your data supports your 
+                    identification claim before submitting.
+                </p>
+                <button onclick="finalizeLab()" class="px-16 py-5 bg-sky-600 hover:bg-sky-500 text-white font-black rounded-2xl transition-all uppercase tracking-widest shadow-lg hover:scale-105 active:scale-95">
+                    Submit Laboratory Records
+                </button>
             </div>
         </div>`;
 }
