@@ -286,34 +286,25 @@ window.onload = () => {
 // --- CORE LAB LOGIC ---
 
 function loadMenu() {
-    // 1. Check if we are in Synthesis Phase; if so, stop loading ID tests
+    // 1. Exit if in Synthesis
     if (currentPhase === 'Synthesis' || currentPhase === 'P') {
-        const sidebar = document.getElementById('experiment-menu')?.parentElement;
-        if (sidebar) sidebar.classList.add('hidden');
+        const workspace = document.getElementById('lab-workspace');
+        if (workspace) workspace.classList.add('hidden');
         return;
     }
 
-    // 2. Try to find the menu container (Checking both possible IDs)
     const menu = document.getElementById('exp-list') || document.getElementById('experiment-menu');
-    if (!menu) return; // Exit if the HTML element is missing
+    if (!menu) return; 
 
-    const title = document.getElementById('phase-title');
-    const countDisplay = document.getElementById('exp-count');
-    
-    // 3. Select correct data based on phase
     const experiments = (currentPhase === 'M') ? experimentsM : experimentsX;
     const completed = (currentPhase === 'M') ? completedM : completedX;
     
-    // 4. Update UI Headers
-    if (title) title.innerText = `Phase: Identify Unknown ${currentPhase}`;
-    if (countDisplay) countDisplay.innerText = `${completed.length} / 3`;
+    document.getElementById('phase-title').innerText = `Phase: Identify Unknown ${currentPhase}`;
+    document.getElementById('exp-count').innerText = `${completed.length} / 3`;
 
-    // 5. Build the list
-    menu.innerHTML = experiments.map(exp => {
+    let menuHTML = experiments.map(exp => {
         const isDone = completed.find(c => c.id === exp.id);
         const limitReached = completed.length >= 3;
-        
-        // Disable if 3 tests are done AND this isn't one of them
         const isDisabled = limitReached && !isDone;
 
         return `
@@ -326,15 +317,31 @@ function loadMenu() {
                     : isDisabled 
                         ? 'opacity-30 bg-gray-900 border-gray-800 cursor-not-allowed text-gray-600' 
                         : 'hover:bg-gray-700 bg-gray-800 border-gray-700 text-white shadow-sm'}">
-                
-                <span class="font-medium text-[14px] tracking-widest">${exp.name}</span>
-                
+                <span class="font-medium text-[11px] tracking-widest">${exp.name}</span>
                 <div class="flex items-center gap-2">
                     ${isDone ? '<span>✅</span>' : ''}
                     ${isDisabled ? '<span class="text-[8px] bg-black/40 px-2 py-1 rounded">LOCKED</span>' : '<span class="text-blue-500">→</span>'}
                 </div>
             </button>`;
     }).join('');
+
+    if (completed.length >= 3) {
+        const nextLabel = (currentPhase === 'M') ? "Proceed to Non-Metal X" : "Begin Synthesis Phase";
+        
+        menuHTML += `
+            <div class="mt-8 pt-6 border-t border-gray-800">
+                <button onclick="checkPhaseTransition()" 
+                    class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl shadow-lg transition-all uppercase tracking-widest text-xs">
+                    ${nextLabel}
+                </button>
+                <p class="text-[9px] text-center text-gray-500 mt-3 uppercase font-bold tracking-widest">
+                    Phase ${currentPhase} Complete
+                </p>
+            </div>
+        `;
+    }
+
+    menu.innerHTML = menuHTML;
 }
 
 function startTest(testId) {
@@ -508,29 +515,22 @@ function showPhaseCompleteButton() {
 }
 
 function checkPhaseTransition() {
-    if (currentPhase === 'M' && completedM.length === 3) {
-        alert("Phase 1 Complete! Transitioning to Element X.");
+    if (currentPhase === 'M') {
         currentPhase = 'X';
-        document.getElementById('phase-title').innerText = "Phase 2: Testing Unknown X";
-        document.getElementById('phase-title').className = "text-2xl font-bold text-emerald-400";
-        document.getElementById('exp-count').innerText = "0 / 3";
-        loadMenu(); 
-    } 
-    else if (currentPhase === 'X' && completedX.length === 3) {
-        alert("Phase 2 Complete! Beginning Molecular Mass Analysis...");
-        
-        document.getElementById('station-empty').classList.add('hidden');
+        activeTest = null;
         document.getElementById('station-setup').classList.add('hidden');
-        document.getElementById('station-active').classList.remove('hidden');
-
-        runMolarMassPhase(); 
-        return;
+        document.getElementById('station-active').classList.add('hidden');
+        document.getElementById('station-empty').classList.remove('hidden');
+        loadMenu(); 
+    } else if (currentPhase === 'X') {
+        currentPhase = 'Synthesis';
+        document.getElementById('lab-workspace').classList.add('hidden');
+        // Show your Phase 3 (Synthesis) workspace
+        document.getElementById('phase-3-workspace').classList.remove('hidden');
+        
+        document.getElementById('phase-title').innerText = "Phase 3: Compound Synthesis";
+        document.getElementById('phase-subtitle').innerText = "Vary the masses of M and X to synthesize your compound.";
     }
-    
-    activeTest = null;
-    document.getElementById('station-empty').classList.remove('hidden');
-    document.getElementById('station-active').classList.add('hidden');
-    document.getElementById('station-setup').classList.add('hidden');
 }
 
 let phase3Attempts = []; 
