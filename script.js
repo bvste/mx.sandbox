@@ -12,10 +12,10 @@ const metalIdentities = [
 ];
 
 const nonMetalIdentities = [
-    { name: "Sulfur", description: "a distinctively bright lemon-yellow, pale yellow, or greenish-yellow solid.", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", solubility: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water.", brittle: "Shatters or crumbles into powder", mass: 32.07},
-    { name: "Chlorine", description: "a dense, yellow-green gas.", heat: "Pale green gas fills the tube.", solubility: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid.", brittle: "No Data Available", mass: 70.91},
-    { name: "Bromine", description: "a reddish-brown liquid.", heat: "Deep red-orange vapors fill the tube.", solubility: "Heavy orange-red liquid at the bottom.", solvent: "Orange-brown solution forms.", brittle: "No Data Available", mass: 159.81},
-    { name: "Phosphorus", description: "a white solid.", heat: "Ignites into a bright white light/smoke.", solubility: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids.", brittle: "Shatters or crumbles into powder", mass: 30.97}
+    { name: "Sulfur", description: "a distinctively bright lemon-yellow, pale yellow, or greenish-yellow solid.", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", solubility: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water.", brittle: "Shatters or crumbles into powder", starch: "Remains the same", mass: 32.07},
+    { name: "Chlorine", description: "a dense, yellow-green gas.", heat: "Pale green gas fills the tube.", solubility: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid.", brittle: "No Data Available", starch: "No Data Available", mass: 70.91},
+    { name: "Bromine", description: "a reddish-brown liquid.", heat: "Deep red-orange vapors fill the tube.", solubility: "Heavy orange-red liquid at the bottom.", solvent: "Orange-brown solution forms.", brittle: "No Data Available", starch: "No Data Available", mass: 159.81},
+    { name: "Phosphorus", description: "a white solid.", heat: "Ignites into a bright white light/smoke.", solubility: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids.", brittle: "Shatters or crumbles into powder", starch: "Remains the same", mass: 30.97}
 ];
 
 const compoundDatabase = {
@@ -89,7 +89,7 @@ const experimentsX = [
     { id: 'solubility', name: "Water Solubility" },
     { id: 'solvent', name: "Organic Solvent" },
     { id: 'brittle', name: "Brittleness"},
-    { id: 'startch', name: "Starch Test", static: "The mixture remains brownish-yellow."},
+    { id: 'starch', name: "Starch Test"},
     { id: 'conductX', name: "Conductivity Test", static: "Red and Green lights remain off." }
 ];
 
@@ -248,10 +248,11 @@ const referenceMetals = [
 ];
 
 const referenceNonMetals = [
-    { name: "Sulfur", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", solubility: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water.", brittle: "Shatters or crumbles into powder." },
-    { name: "Chlorine", heat: "Pale green gas fills the tube.", solubility: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid.", brittle: "No Data Available." },
-    { name: "Bromine", heat: "Deep red-orange vapors fill the tube.", solubility: "Heavy orange-red liquid at the bottom.", solvent: "Orange-brown solution forms.", brittle: "No Data Available." },
-    { name: "Phosphorus", heat: "Ignites into a bright white light/smoke.", solubility: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids.", brittle: "Shatters or crumbles into powder" }
+    { name: "Sulfur", heat: "Melts into a yellow liquid. Turns into red vapor when heated further", solubility: "Sinks to the bottom of the beaker.", solvent: "Does not dissolve in water.", brittle: "Shatters or crumbles into powder.", starch: "Remains the same" },
+    { name: "Chlorine", heat: "Pale green gas fills the tube.", solubility: "Creates a pale, acidic bleach-like solution.", solvent: "Dissolves into a light yellow liquid.", brittle: "No Data Available.", starch: "No Data Available." },
+    { name: "Bromine", heat: "Deep red-orange vapors fill the tube.", solubility: "Heavy orange-red liquid at the bottom.", solvent: "Orange-brown solution forms.", brittle: "No Data Available.", starch: "No Data Available." },
+    { name: "Phosphorus", heat: "Ignites into a bright white light/smoke.", solubility: "Does not dissolve; stays as a waxy solid.", solvent: "Partially dissolves in organic liquids.", brittle: "Shatters or crumbles into powder", starch: "Remains the same" },
+    { name: "Iodine", heat: "Deep purple vapors fill the tube.", solubility: "Does not dissolve.", solvent: "Partially dissolves in organic liquids.", brittle: "Shatters or crumbles into powder", starch: "Turns into Blue-Black solution"}
 ];
 
 const solutionDatabase = [
