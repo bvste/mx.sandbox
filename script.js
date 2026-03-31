@@ -831,19 +831,13 @@ function showCER() {
             </section>
 
             <div class="p-10 bg-gradient-to-br from-blue-900/20 to-purple-900/20 border border-white/10 rounded-[3rem] text-center shadow-2xl backdrop-blur-sm">
-                <h3 class="text-2xl font-black text-white uppercase tracking-tighter mb-4 italic">Final Review Complete</h3>
+                <h3 class="text-2xl font-black text-white uppercase tracking-tighter mb-4 italic">All experiments complete!</h3>
                 <p class="text-gray-400 max-w-2xl mx-auto text-sm mb-8">
-                    Review your observations for M, X, and the resulting compound MX. Ensure your data supports your 
-                    identification claim before submitting.
+                    Before you leave the page or submit, remember to take a screenshot of your result page. For your CER, navigate back to the Schoology CER assignment.
                 </p>
                 <button onclick="finalizeLab()" class="px-16 py-5 bg-sky-600 hover:bg-sky-500 text-white font-black rounded-2xl transition-all uppercase tracking-widest shadow-lg hover:scale-105 active:scale-95">
-                    Submit Laboratory Records
+                    Submit Experiment Results
                 </button>
-            </div>
-
-            <div class="mt-12 p-8 border-t border-gray-800 text-center">
-            <h3 class="text-xl font-bold text-white mb-2 underline decoration-sky-500">Analysis Complete</h3>
-            <p class="text-gray-400 text-sm">All laboratory data has been recorded. Use the evidence summary above to complete your formal lab report in your notebook.</p>
             </div>
         </div>`;
 }
