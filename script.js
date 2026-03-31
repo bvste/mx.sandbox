@@ -799,7 +799,7 @@ function showCER() {
             </section>
 
             <section>
-                <h4 class="text-purple-400 font-bold uppercase text-xs tracking-widest mb-4 px-2 border-l-2 border-purple-500 text-center">MX Compound Synthesis & Final Analysis</h4>
+                <h4 class="text-purple-400 font-bold uppercase text-xs tracking-widest mb-4 px-2 border-l-2 border-purple-500">MX Compound Synthesis & Final Physical Observations</h4>
                 <div class="space-y-4">
                     ${phase3Attempts.map(attempt => `
                         <div class="p-6 bg-gray-900 border border-purple-500/30 rounded-3xl shadow-xl">
@@ -811,10 +811,6 @@ function showCER() {
                                 <div>
                                     <p class="text-[9px] text-gray-500 uppercase font-bold">Yield</p>
                                     <p class="text-sm font-black text-white">${attempt.rawTotal} g</p>
-                                </div>
-                                <div>
-                                    <p class="text-[9px] text-gray-500 uppercase font-bold">Flame Test</p>
-                                    <p class="text-sm font-black text-orange-400 uppercase italic underline decoration-orange-500/50">${attempt.flame || "N/A"}</p>
                                 </div>
                                 <div class="md:col-span-2">
                                     <p class="text-[9px] text-gray-500 uppercase font-bold">Physical Appearance</p>
