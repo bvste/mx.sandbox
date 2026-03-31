@@ -736,11 +736,12 @@ function showCER() {
 
     const counter = document.getElementById('exp-count');
     if (counter?.parentElement) counter.parentElement.style.display = 'none';
+    
+    // These lines are critical! They hide the lab and show the results screen
     document.getElementById('lab-workspace').classList.add('hidden');
     document.getElementById('cer-screen').classList.remove('hidden');
 
     const log = document.getElementById('summary-log');
-    log.className = "w-full space-y-12 mt-8"; 
     
     log.innerHTML = `
         <div class="w-full space-y-12">
@@ -838,6 +839,11 @@ function showCER() {
                 <button onclick="finalizeLab()" class="px-16 py-5 bg-sky-600 hover:bg-sky-500 text-white font-black rounded-2xl transition-all uppercase tracking-widest shadow-lg hover:scale-105 active:scale-95">
                     Submit Laboratory Records
                 </button>
+            </div>
+
+            <div class="mt-12 p-8 border-t border-gray-800 text-center">
+            <h3 class="text-xl font-bold text-white mb-2 underline decoration-sky-500">Analysis Complete</h3>
+            <p class="text-gray-400 text-sm">All laboratory data has been recorded. Use the evidence summary above to complete your formal lab report in your notebook.</p>
             </div>
         </div>`;
 }
