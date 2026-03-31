@@ -102,6 +102,23 @@
         </div>
     </div>
 
+    <div id="warning-modal" class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4">
+    <div class="bg-gray-800 border border-orange-500/50 w-full max-w-md rounded-2xl shadow-2xl p-8">
+        <div class="text-center">
+            <div class="text-5xl mb-4">⚠️</div>
+            <h2 class="text-2xl font-black text-orange-400 uppercase tracking-tighter mb-2">Protocol Warning</h2>
+            <p class="text-gray-300 leading-relaxed mb-6">
+                Laboratory resources are limited. You are permitted to perform <span class="text-white font-bold underline">exactly 3 tests</span> for Metal M and <span class="text-white font-bold underline">3 tests</span> for Non-Metal X.
+            </p>
+            <p class="text-xs text-gray-500 italic mb-8">
+                Choose your experiments wisely; once a test is logged, it cannot be exchanged.
+            </p>
+            <button onclick="closeWarning()" class="w-full py-4 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-xl transition-all uppercase tracking-widest shadow-lg">
+                I Understand
+            </button>
+        </div>
+    </div>
+</div>
 
     <script src="script.js"></script>
 </body>
