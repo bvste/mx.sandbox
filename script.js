@@ -431,7 +431,6 @@ function runComparisonTest() {
             <p class="text-xl text-white font-bold">${userResult || "Testing..."}</p>
         </div>`;
 
-    // Add Comparison References
     const selections = [
         document.getElementById('ref-1').value,
         document.getElementById('ref-2').value,
@@ -461,45 +460,30 @@ function runComparisonTest() {
 
     zone.innerHTML = html;
 
-    setTimeout(() => {
-        const completed = (currentPhase === 'M') ? completedM : completedX;
+    // 4. Log the data and refresh the menu
+    const completed = (currentPhase === 'M') ? completedM : completedX;
+    
+    if (!completed.find(c => c.id === activeTest)) {
+        const referenceCards = Array.from(document.querySelectorAll('#comparison-zone div.p-4.bg-gray-800'));
+        const comparisonData = referenceCards.map(card => ({
+            label: card.querySelector('p.text-\\[10px\\]').innerText,
+            value: card.querySelector('p.text-gray-300').innerText
+        }));
+
+        const logEntry = { 
+            name: exp.name, 
+            result: userResult, 
+            id: exp.id,
+            comparisons: comparisonData 
+        };
         
-        if (!completed.find(c => c.id === activeTest)) {
-            const referenceCards = Array.from(document.querySelectorAll('#comparison-zone div.p-4.bg-gray-800'));
-            const comparisonData = referenceCards.map(card => ({
-                label: card.querySelector('p.text-\\[10px\\]').innerText,
-                value: card.querySelector('p.text-gray-300').innerText
-            }));
-    
-            const logEntry = { 
-                name: exp.name, 
-                result: userResult, 
-                id: exp.id,
-                comparisons: comparisonData // <--- New field
-            };
-            
-            if (currentPhase === 'M') {
-                completedM.push(logEntry);
-                document.getElementById('exp-count').innerText = `${completedM.length} / 3`;
-            } else {
-                completedX.push(logEntry);
-                document.getElementById('exp-count').innerText = `${completedX.length} / 3`;
-            }
-    
-            loadMenu();
-    
-            if (completed.length === 3) {
-                const proceedWrapper = document.createElement('div');
-                proceedWrapper.className = "mt-8 flex justify-center w-full md:col-span-2 border-t border-gray-800 pt-6";
-                proceedWrapper.innerHTML = `
-                    <button onclick="checkPhaseTransition()" class="px-10 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-full shadow-2xl transition-all uppercase tracking-widest">
-                        All Tests Recorded - Proceed
-                    </button>
-                `;
-                zone.appendChild(proceedWrapper);
-            }
+        if (currentPhase === 'M') {
+            completedM.push(logEntry);
+        } else {
+            completedX.push(logEntry);
         }
-    }, 100); 
+        loadMenu(); 
+    }
 }
 
 function showPhaseCompleteButton() {
@@ -854,23 +838,27 @@ function closeWarning() {
 
 async function finalizeLab() {
     const student = JSON.parse(sessionStorage.getItem('activeStudent'));
-    const assumptionText = document.getElementById('assumption').value;
-    if(!assumptionText) return alert("Please enter your assumptions.");
-
+    // Removed the check for "assumption" textbox since we removed it from HTML
+    
     const entry = {
-        fName: student.fName, lName: student.lName, period: student.period,
-        actualIdentityM: activeM.name, actualIdentityX: activeX.name, 
-        mExps: completedM.map(e => e.id), xExps: completedX.map(e => e.id),
-        assumption: assumptionText
+        fName: student?.fName || "Unknown", 
+        lName: student?.lName || "Student", 
+        period: student?.period || "N/A",
+        actualIdentityM: activeM.name, 
+        actualIdentityX: activeX.name, 
+        mExps: completedM.map(e => e.id), 
+        xExps: completedX.map(e => e.id),
+        assumption: "See Physical Lab Notebook" // Default text
     };
     
-// When you ever update the code of the google script make sure to always update it to the latest doc
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKHQd1vrdU7taJzdUtm2AwQB4fGVqg8DY9TPjPCf_h40gtvgukOuKj0xoIlfDweLaNPQ/exec';
 
     try {
         const btn = document.querySelector('button[onclick="finalizeLab()"]');
-        btn.innerText = "Submitting...";
-        btn.disabled = true;
+        if (btn) {
+            btn.innerText = "Submitting...";
+            btn.disabled = true;
+        }
 
         await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
@@ -883,8 +871,12 @@ async function finalizeLab() {
         alert("Lab Submitted Successfully!");
         window.location.href = 'index.html';
     } catch (error) {
+        console.error(error);
         alert("Submission failed.");
-        btn.innerText = "Submit Lab Report";
-        btn.disabled = false;
+        const btn = document.querySelector('button[onclick="finalizeLab()"]');
+        if (btn) {
+            btn.innerText = "Submit Experiment Results";
+            btn.disabled = false;
+        }
     }
 }
