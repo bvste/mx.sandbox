@@ -502,18 +502,36 @@ function checkPhaseTransition() {
     if (currentPhase === 'M') {
         currentPhase = 'X';
         activeTest = null;
-        document.getElementById('station-setup').classList.add('hidden');
-        document.getElementById('station-active').classList.add('hidden');
-        document.getElementById('station-empty').classList.remove('hidden');
+        
+        // Reset UI for Phase X
+        const setup = document.getElementById('station-setup');
+        const active = document.getElementById('station-active');
+        const empty = document.getElementById('station-empty');
+        
+        if (setup) setup.classList.add('hidden');
+        if (active) active.classList.add('hidden');
+        if (empty) empty.classList.remove('hidden');
+        
         loadMenu(); 
     } else if (currentPhase === 'X') {
+        // Transition to Synthesis
         currentPhase = 'Synthesis';
-        document.getElementById('lab-workspace').classList.add('hidden');
-        // Show your Phase 3 (Synthesis) workspace
-        document.getElementById('phase-3-workspace').classList.remove('hidden');
         
-        document.getElementById('phase-title').innerText = "Phase 3: Compound Synthesis";
-        document.getElementById('phase-subtitle').innerText = "Vary the masses of M and X to synthesize your compound.";
+        // 1. Hide the Phase 1/2 identification layout
+        const labWorkspace = document.getElementById('lab-workspace');
+        if (labWorkspace) labWorkspace.classList.add('hidden');
+        
+        // 2. Prepare the Phase 3 workspace
+        const phase3 = document.getElementById('phase-3-workspace');
+        if (phase3) {
+            phase3.classList.remove('hidden');
+            // Call the function that builds the Molar Mass UI
+            runMolarMassPhase();
+        } else {
+            // Fallback: If you haven't added the phase-3-workspace div yet, 
+            // we jump straight to the Summary
+            showCER();
+        }
     }
 }
 
