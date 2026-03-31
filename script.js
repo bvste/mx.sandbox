@@ -844,6 +844,14 @@ function showCER() {
 function openModal(id) { document.getElementById(id).classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
+function closeWarning() {
+    const modal = document.getElementById('warning-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    }
+}
+
 async function finalizeLab() {
     const student = JSON.parse(sessionStorage.getItem('activeStudent'));
     const assumptionText = document.getElementById('assumption').value;
