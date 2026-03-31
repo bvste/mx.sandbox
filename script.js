@@ -852,10 +852,10 @@ function showCER() {
             <div class="p-12 bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-[3rem] text-center shadow-inner mb-20">
                 <h3 class="text-2xl font-black text-white uppercase tracking-tighter mb-4 italic">Laboratory Data Logged</h3>
                 <p class="text-gray-500 max-w-md mx-auto text-sm mb-10 leading-relaxed">
-                    All findings for M, X, and the MX synthesis have been finalized. Review your notebook entries before officially submitting the record.
+                    You finished all experiments! Make sure to take a screenshot before submitting and move onto the CER on Schoology.
                 </p>
                 <button onclick="finalizeLab()" class="px-20 py-5 bg-sky-600 hover:bg-sky-500 text-white font-black rounded-2xl transition-all uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(2,132,199,0.3)] hover:scale-105 active:scale-95">
-                    Submit Final Lab Report
+                    Submit All Experiments
                 </button>
             </div>
         </div>`;
