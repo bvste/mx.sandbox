@@ -734,47 +734,57 @@ function showCER() {
     const phaseTitle = document.getElementById('phase-title');
     if (phaseTitle) {
         phaseTitle.innerText = "Phase 4: Final Lab Summary";
-        phaseTitle.className = "text-2xl font-bold text-sky-400"; 
+        phaseTitle.className = "text-2xl font-bold text-sky-400 mb-2"; 
     }
 
-    // Hide counters and workspace
+    // 1. Completely hide the count and the lab workspace
     const counter = document.getElementById('exp-count');
-    if (counter?.parentElement) counter.parentElement.style.display = 'none';
+    if (counter?.parentElement) {
+        counter.parentElement.style.display = 'none';
+    }
     
-    const workspace = document.getElementById('lab-workspace');
-    if (workspace) workspace.classList.add('hidden');
+    const labWorkspace = document.getElementById('lab-workspace');
+    if (labWorkspace) {
+        labWorkspace.classList.add('hidden');
+        labWorkspace.style.display = 'none'; // Extra insurance to remove from flow
+    }
 
+    // 2. Reset the CER Screen and its Parent
     const cerScreen = document.getElementById('cer-screen');
     if (cerScreen) {
         cerScreen.classList.remove('hidden');
-        // Ensure the screen doesn't center content vertically
-        cerScreen.className = "max-w-6xl mx-auto flex flex-col justify-start items-start pt-4";
+        // We override any centering from the body/parent to force it to the top
+        cerScreen.style.marginTop = "0";
+        cerScreen.className = "max-w-6xl mx-auto block pt-0"; 
     }
 
     const log = document.getElementById('summary-log');
-    // Removed space-y-12 and mt-8 to prevent pushing content down
-    log.className = "w-full space-y-6"; 
+    // Remove 'grid' or 'flex' from the log container itself to stop it from 
+    // trying to center its children vertically.
+    log.className = "w-full space-y-10"; 
     
     log.innerHTML = `
-        <div class="w-full">
-            <section class="mb-10">
-                <div class="flex items-center gap-4 mb-4">
-                    <h4 class="text-blue-400 font-bold uppercase text-xs tracking-widest px-2 border-l-2 border-blue-500">Metal M Data</h4>
-                    <div class="h-[1px] flex-grow bg-gray-800"></div>
+        <div class="w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
+            
+            <section class="mb-12">
+                <div class="flex items-center gap-4 mb-6">
+                    <h4 class="text-blue-400 font-bold uppercase text-[10px] tracking-[0.3em] px-3 border-l-4 border-blue-600">Metal M: Identification Data</h4>
+                    <div class="h-[1px] flex-grow bg-gradient-to-r from-blue-600/50 to-transparent"></div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     ${completedM.map(e => `
-                        <div class="p-5 bg-gray-900 border border-gray-800 rounded-2xl shadow-md">
-                            <b class="text-blue-400 block mb-2 uppercase text-[10px] tracking-widest">${e.name}</b>
-                            <div class="bg-black/40 p-2 rounded-lg border border-blue-500/20 mb-3">
-                                <p class="text-[9px] text-gray-500 uppercase font-bold">Unknown Result</p>
-                                <p class="text-sm font-bold text-white">${e.result}</p>
+                        <div class="p-6 bg-gray-900/50 border border-gray-800 rounded-3xl shadow-xl hover:border-blue-500/30 transition-colors">
+                            <b class="text-blue-400 block mb-3 uppercase text-[10px] tracking-widest">${e.name}</b>
+                            <div class="bg-black/60 p-3 rounded-xl border border-blue-500/20 mb-4">
+                                <p class="text-[9px] text-gray-500 uppercase font-black mb-1">Unknown Result</p>
+                                <p class="text-sm font-bold text-white tracking-tight">${e.result}</p>
                             </div>
-                            <div class="space-y-1">
+                            <div class="space-y-1.5">
+                                <p class="text-[9px] text-gray-600 uppercase font-bold mb-2">Reference Comparisons</p>
                                 ${e.comparisons ? e.comparisons.map(c => `
-                                    <div class="flex justify-between text-[11px] py-1 border-b border-gray-800/50">
-                                        <span class="text-gray-400">${c.label}:</span>
-                                        <span class="text-white font-medium">${c.value}</span>
+                                    <div class="flex justify-between text-[11px] py-1.5 border-b border-gray-800/50">
+                                        <span class="text-gray-500">${c.label}:</span>
+                                        <span class="text-gray-300 font-semibold">${c.value}</span>
                                     </div>
                                 `).join('') : ''}
                             </div>
@@ -783,24 +793,25 @@ function showCER() {
                 </div>
             </section>
 
-            <section class="mb-10">
-                <div class="flex items-center gap-4 mb-4">
-                    <h4 class="text-emerald-400 font-bold uppercase text-xs tracking-widest px-2 border-l-2 border-emerald-500">Non-Metal X Data</h4>
-                    <div class="h-[1px] flex-grow bg-gray-800"></div>
+            <section class="mb-12">
+                <div class="flex items-center gap-4 mb-6">
+                    <h4 class="text-emerald-400 font-bold uppercase text-[10px] tracking-[0.3em] px-3 border-l-4 border-emerald-600">Non-Metal X: Identification Data</h4>
+                    <div class="h-[1px] flex-grow bg-gradient-to-r from-emerald-600/50 to-transparent"></div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     ${completedX.map(e => `
-                        <div class="p-5 bg-gray-900 border border-gray-800 rounded-2xl shadow-md">
-                            <b class="text-emerald-400 block mb-2 uppercase text-[10px] tracking-widest">${e.name}</b>
-                            <div class="bg-black/40 p-2 rounded-lg border border-emerald-500/20 mb-3">
-                                <p class="text-[9px] text-gray-500 uppercase font-bold">Unknown Result</p>
-                                <p class="text-sm font-bold text-white">${e.result}</p>
+                        <div class="p-6 bg-gray-900/50 border border-gray-800 rounded-3xl shadow-xl hover:border-emerald-500/30 transition-colors">
+                            <b class="text-emerald-400 block mb-3 uppercase text-[10px] tracking-widest">${e.name}</b>
+                            <div class="bg-black/60 p-3 rounded-xl border border-emerald-500/20 mb-4">
+                                <p class="text-[9px] text-gray-500 uppercase font-black mb-1">Unknown Result</p>
+                                <p class="text-sm font-bold text-white tracking-tight">${e.result}</p>
                             </div>
-                            <div class="space-y-1">
+                            <div class="space-y-1.5">
+                                <p class="text-[9px] text-gray-600 uppercase font-bold mb-2">Reference Comparisons</p>
                                 ${e.comparisons ? e.comparisons.map(c => `
-                                    <div class="flex justify-between text-[11px] py-1 border-b border-gray-800/50">
-                                        <span class="text-gray-400">${c.label}:</span>
-                                        <span class="text-white font-medium">${c.value}</span>
+                                    <div class="flex justify-between text-[11px] py-1.5 border-b border-gray-800/50">
+                                        <span class="text-gray-500">${c.label}:</span>
+                                        <span class="text-gray-300 font-semibold">${c.value}</span>
                                     </div>
                                 `).join('') : ''}
                             </div>
@@ -809,40 +820,42 @@ function showCER() {
                 </div>
             </section>
 
-            <section class="mb-10">
-                <div class="flex items-center gap-4 mb-4">
-                    <h4 class="text-purple-400 font-bold uppercase text-xs tracking-widest px-2 border-l-2 border-purple-500">Synthesis Results</h4>
-                    <div class="h-[1px] flex-grow bg-gray-800"></div>
+            <section class="mb-16">
+                <div class="flex items-center gap-4 mb-6">
+                    <h4 class="text-purple-400 font-bold uppercase text-[10px] tracking-[0.3em] px-3 border-l-4 border-purple-600">MX Synthesis Records</h4>
+                    <div class="h-[1px] flex-grow bg-gradient-to-r from-purple-600/50 to-transparent"></div>
                 </div>
-                <div class="space-y-3">
+                <div class="space-y-4">
                     ${phase3Attempts.map(attempt => `
-                        <div class="p-4 bg-gray-900 border border-purple-500/20 rounded-xl flex flex-wrap md:flex-nowrap justify-between items-center gap-4">
-                            <div>
-                                <p class="text-[9px] text-gray-500 font-bold uppercase">Reactants</p>
-                                <p class="text-sm font-bold text-blue-400">${attempt.combo}</p>
+                        <div class="p-5 bg-gray-900/80 border border-purple-500/20 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-6 shadow-2xl">
+                            <div class="w-full md:w-auto">
+                                <p class="text-[9px] text-gray-500 uppercase font-black">Combination</p>
+                                <p class="text-sm font-black text-blue-400">${attempt.combo}</p>
                             </div>
-                            <div>
-                                <p class="text-[9px] text-gray-500 font-bold uppercase">Measured Yield</p>
+                            <div class="w-full md:w-auto">
+                                <p class="text-[9px] text-gray-500 uppercase font-black">Measured Total</p>
                                 <p class="text-sm font-bold text-white">${attempt.rawTotal} g</p>
                             </div>
-                            <div class="max-w-xs">
-                                <p class="text-[9px] text-gray-500 font-bold uppercase">Appearance</p>
-                                <p class="text-[11px] text-gray-300 italic">"${attempt.appearance}"</p>
+                            <div class="flex-grow w-full md:w-auto">
+                                <p class="text-[9px] text-gray-500 uppercase font-black">Observations</p>
+                                <p class="text-[11px] text-gray-400 italic font-medium leading-relaxed">"${attempt.appearance}"</p>
                             </div>
-                            <div>
-                                <p class="text-[9px] text-gray-500 font-bold uppercase">Solubility</p>
-                                <p class="text-[11px] text-gray-300">${attempt.solubility}</p>
+                            <div class="w-full md:w-auto text-right">
+                                <p class="text-[9px] text-gray-500 uppercase font-black">Solubility</p>
+                                <p class="text-xs text-gray-300 font-bold">${attempt.solubility}</p>
                             </div>
                         </div>
                     `).join('')}
                 </div>
             </section>
 
-            <div class="mt-4 mb-20 p-8 bg-gray-900 border border-gray-800 rounded-3xl text-center shadow-xl">
-                <h3 class="text-xl font-bold text-white mb-2">Final Review</h3>
-                <p class="text-gray-500 text-xs mb-6">All data has been successfully recorded. Submit to finalize your lab records.</p>
-                <button onclick="finalizeLab()" class="px-12 py-4 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl transition-all uppercase tracking-widest text-sm shadow-lg">
-                    Submit Laboratory Records
+            <div class="p-12 bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-[3rem] text-center shadow-inner mb-20">
+                <h3 class="text-2xl font-black text-white uppercase tracking-tighter mb-4 italic">Laboratory Data Logged</h3>
+                <p class="text-gray-500 max-w-md mx-auto text-sm mb-10 leading-relaxed">
+                    All findings for M, X, and the MX synthesis have been finalized. Review your notebook entries before officially submitting the record.
+                </p>
+                <button onclick="finalizeLab()" class="px-20 py-5 bg-sky-600 hover:bg-sky-500 text-white font-black rounded-2xl transition-all uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(2,132,199,0.3)] hover:scale-105 active:scale-95">
+                    Submit Final Lab Report
                 </button>
             </div>
         </div>`;
