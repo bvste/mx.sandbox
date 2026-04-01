@@ -841,7 +841,7 @@ function showCER() {
                                 <p class="text-[9px] text-gray-500 uppercase font-black">Observations</p>
                                 <p class="text-[11px] text-gray-400 italic font-medium leading-relaxed">"${attempt.appearance}"</p>
                             </div>
-                            <div class="w-full md:w-auto text-right">
+                            <div class="w-full md:w-auto">
                                 <p class="text-[9px] text-gray-500 uppercase font-black">Solubility</p>
                                 <p class="text-xs text-gray-300 font-bold">${attempt.solubility}</p>
                             </div>
