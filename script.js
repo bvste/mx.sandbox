@@ -731,38 +731,65 @@ function synthesizeCompound() {
 }
 
 function showCER() {
-    const phaseTitle = document.getElementById('phase-title');
-    if (phaseTitle) {
-        phaseTitle.innerText = "Phase 4: Final Lab Summary";
-        phaseTitle.className = "text-2xl font-bold text-sky-400 mb-2"; 
+    // 1. CLEAN UP: Remove the Phase 1/2/3 Header and Sidebar
+    // This is the most important part to fix the "massive gap"
+    
+    // Target the main header (Title + Counter)
+    const mainHeader = document.querySelector('div.max-w-6xl.mx-auto.flex.justify-between.items-center.mb-8');
+    if (mainHeader) {
+        mainHeader.style.display = 'none';
     }
 
-    // 1. Completely hide the count and the lab workspace
-    const counter = document.getElementById('exp-count');
-    if (counter?.parentElement) {
-        counter.parentElement.style.display = 'none';
+    // Target the sidebar menu (if it's still taking up space)
+    const sidebar = document.querySelector('aside') || document.querySelector('.w-1\\/3');
+    if (sidebar) {
+        sidebar.style.display = 'none';
     }
-    
+
+    // Target the lab workspace (Identification Phases)
     const labWorkspace = document.getElementById('lab-workspace');
     if (labWorkspace) {
+        labWorkspace.style.display = 'none';
         labWorkspace.classList.add('hidden');
-        labWorkspace.style.display = 'none'; 
     }
 
-    // 2. Reset the CER Screen and its Parent
+    // Target the Synthesis Phase workspace
+    const phase3 = document.getElementById('phase-3-workspace');
+    if (phase3) {
+        phase3.style.display = 'none';
+        phase3.classList.add('hidden');
+    }
+
+    // 2. RESET PAGE ALIGNMENT
+    // We remove centering so the summary starts at the absolute top of the page
+    document.body.classList.remove('flex', 'items-center', 'justify-center', 'min-h-screen');
+    document.body.classList.add('block', 'pt-4'); 
+    
+    // Force scroll to top in case they were scrolled down in Phase 3
+    window.scrollTo(0, 0);
+
+    // 3. SETUP CER CONTAINER
     const cerScreen = document.getElementById('cer-screen');
     if (cerScreen) {
         cerScreen.classList.remove('hidden');
-        cerScreen.style.marginTop = "0";
-        cerScreen.className = "max-w-6xl mx-auto block pt-0"; 
+        cerScreen.style.display = 'block';
+        cerScreen.className = "max-w-6xl mx-auto block mt-0 pt-0";
     }
 
     const log = document.getElementById('summary-log');
-    log.className = "w-full space-y-10"; 
+    if (!log) return;
     
+    log.className = "w-full space-y-10 mt-0"; 
+    
+    // 4. RENDER HTML (Maintaining your exact style)
     log.innerHTML = `
         <div class="w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
             
+            <div class="bg-gray-800 p-8 rounded-3xl border border-gray-700 shadow-2xl mb-12 text-center">
+                <h2 class="text-3xl font-black text-sky-400 uppercase tracking-tighter">Laboratory Summary Report</h2>
+                <p class="text-gray-500 text-xs mt-2 uppercase tracking-[0.3em] font-bold">Phase 4: Final Evidence Log</p>
+            </div>
+
             <section class="mb-12">
                 <div class="flex items-center gap-4 mb-6">
                     <h4 class="text-blue-400 font-bold uppercase text-[10px] tracking-[0.3em] px-3 border-l-4 border-blue-600">Metal M: Identification Data</h4>
@@ -773,7 +800,7 @@ function showCER() {
                         <div class="p-6 bg-gray-900/50 border border-gray-800 rounded-3xl shadow-xl hover:border-blue-500/30 transition-colors">
                             <b class="text-blue-400 block mb-3 uppercase text-[10px] tracking-widest">${e.name}</b>
                             <div class="bg-black/60 p-3 rounded-xl border border-blue-500/20 mb-4">
-                                <p class="text-[9px] text-gray-500 uppercase font-black mb-1">Unknown Result</p>
+                                <p class="text-[9px] text-gray-500 uppercase font-black mb-1">Result</p>
                                 <p class="text-sm font-bold text-white tracking-tight">${e.result}</p>
                             </div>
                             <div class="space-y-1.5">
@@ -800,7 +827,7 @@ function showCER() {
                         <div class="p-6 bg-gray-900/50 border border-gray-800 rounded-3xl shadow-xl hover:border-emerald-500/30 transition-colors">
                             <b class="text-emerald-400 block mb-3 uppercase text-[10px] tracking-widest">${e.name}</b>
                             <div class="bg-black/60 p-3 rounded-xl border border-emerald-500/20 mb-4">
-                                <p class="text-[9px] text-gray-500 uppercase font-black mb-1">Unknown Result</p>
+                                <p class="text-[9px] text-gray-500 uppercase font-black mb-1">Result</p>
                                 <p class="text-sm font-bold text-white tracking-tight">${e.result}</p>
                             </div>
                             <div class="space-y-1.5">
@@ -819,29 +846,29 @@ function showCER() {
 
             <section class="mb-16">
                 <div class="flex items-center gap-4 mb-6">
-                    <h4 class="text-purple-400 font-bold uppercase text-[10px] tracking-[0.3em] px-3 border-l-4 border-purple-600">MX Synthesis Records</h4>
+                    <h4 class="text-purple-400 font-bold uppercase text-[10px] tracking-[0.3em] px-3 border-l-4 border-purple-600">MX Synthesis Results</h4>
                     <div class="h-[1px] flex-grow bg-gradient-to-r from-purple-600/50 to-transparent"></div>
                 </div>
                 <div class="space-y-4">
                     ${phase3Attempts.map(attempt => `
                         <div class="p-5 bg-gray-900/80 border border-purple-500/20 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-6 shadow-2xl">
-                            <div class="w-full md:w-auto">
+                            <div>
                                 <p class="text-[9px] text-gray-500 uppercase font-black">Combination</p>
                                 <p class="text-sm font-black text-blue-400">${attempt.combo}</p>
                             </div>
-                            <div class="w-full md:w-auto">
-                                <p class="text-[9px] text-gray-500 uppercase font-black">Measured Total</p>
+                            <div>
+                                <p class="text-[9px] text-gray-500 uppercase font-black">Mass Yield</p>
                                 <p class="text-sm font-bold text-white">${attempt.rawTotal} g</p>
                             </div>
-                            <div class="w-full md:w-auto">
+                            <div>
                                 <p class="text-[9px] text-gray-500 uppercase font-black">Excess</p>
-                                <p class="text-sm font-bold text-green">${attempt.excess} g</p>
+                                <p class="text-sm font-bold text-emerald-400">${attempt.excess} g</p>
                             </div>
-                            <div class="flex-grow w-full md:w-auto">
+                            <div class="flex-grow">
                                 <p class="text-[9px] text-gray-500 uppercase font-black">Observations</p>
-                                <p class="text-[11px] text-gray-400 italic font-medium leading-relaxed">"${attempt.appearance}"</p>
+                                <p class="text-[11px] text-gray-400 italic">"${attempt.appearance}"</p>
                             </div>
-                            <div class="w-full md:w-auto">
+                            <div class="text-right">
                                 <p class="text-[9px] text-gray-500 uppercase font-black">Solubility</p>
                                 <p class="text-xs text-gray-300 font-bold">${attempt.solubility}</p>
                             </div>
@@ -856,7 +883,7 @@ function showCER() {
                     You finished all experiments! Make sure to take a screenshot before submitting and move onto the CER on Schoology.
                 </p>
                 <button onclick="finalizeLab()" class="px-20 py-5 bg-sky-600 hover:bg-sky-500 text-white font-black rounded-2xl transition-all uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(2,132,199,0.3)] hover:scale-105 active:scale-95">
-                    Submit All Experiments
+                    Submit Final Lab Report
                 </button>
             </div>
         </div>`;
