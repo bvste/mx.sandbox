@@ -746,21 +746,18 @@ function showCER() {
     const labWorkspace = document.getElementById('lab-workspace');
     if (labWorkspace) {
         labWorkspace.classList.add('hidden');
-        labWorkspace.style.display = 'none'; // Extra insurance to remove from flow
+        labWorkspace.style.display = 'none'; 
     }
 
     // 2. Reset the CER Screen and its Parent
     const cerScreen = document.getElementById('cer-screen');
     if (cerScreen) {
         cerScreen.classList.remove('hidden');
-        // We override any centering from the body/parent to force it to the top
         cerScreen.style.marginTop = "0";
         cerScreen.className = "max-w-6xl mx-auto block pt-0"; 
     }
 
     const log = document.getElementById('summary-log');
-    // Remove 'grid' or 'flex' from the log container itself to stop it from 
-    // trying to center its children vertically.
     log.className = "w-full space-y-10"; 
     
     log.innerHTML = `
@@ -835,6 +832,10 @@ function showCER() {
                             <div class="w-full md:w-auto">
                                 <p class="text-[9px] text-gray-500 uppercase font-black">Measured Total</p>
                                 <p class="text-sm font-bold text-white">${attempt.rawTotal} g</p>
+                            </div>
+                            <div class="w-full md:w-auto">
+                                <p class="text-[9px] text-gray-500 uppercase font-black">Excess</p>
+                                <p class="text-sm font-bold text-green">${attempt.excess} g</p>
                             </div>
                             <div class="flex-grow w-full md:w-auto">
                                 <p class="text-[9px] text-gray-500 uppercase font-black">Observations</p>
