@@ -786,8 +786,7 @@ function showCER() {
         <div class="w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
             
             <div class="bg-gray-800 p-8 rounded-3xl border border-gray-700 shadow-2xl mb-12 text-center">
-                <h2 class="text-3xl font-black text-sky-400 uppercase tracking-tighter">Laboratory Summary Report</h2>
-                <p class="text-gray-500 text-xs mt-2 uppercase tracking-[0.3em] font-bold">Phase 4: Final Evidence Log</p>
+                <h2 class="text-3xl font-black text-sky-400 uppercase tracking-tighter">Phase 4: Final Evidence Log</h2>
             </div>
 
             <section class="mb-12">
@@ -878,12 +877,12 @@ function showCER() {
             </section>
 
             <div class="p-12 bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-[3rem] text-center shadow-inner mb-20">
-                <h3 class="text-2xl font-black text-white uppercase tracking-tighter mb-4 italic">Laboratory Data Logged</h3>
+                <h3 class="text-2xl font-black text-white uppercase tracking-tighter mb-4 italic">All Experiments Finished!</h3>
                 <p class="text-gray-500 max-w-md mx-auto text-sm mb-10 leading-relaxed">
-                    You finished all experiments! Make sure to take a screenshot before submitting and move onto the CER on Schoology.
+                    You finished all experiments! Make sure to take a screenshot before submitting and move onto the CER on Schoology. Remember that all of your data disappears if you submit!
                 </p>
                 <button onclick="finalizeLab()" class="px-20 py-5 bg-sky-600 hover:bg-sky-500 text-white font-black rounded-2xl transition-all uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(2,132,199,0.3)] hover:scale-105 active:scale-95">
-                    Submit Final Lab Report
+                    Submit Lab Data
                 </button>
             </div>
         </div>`;
