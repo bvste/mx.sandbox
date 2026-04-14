@@ -348,7 +348,6 @@ function startTest(testId) {
     const completed = (currentPhase === 'M') ? completedM : completedX;
     
     if (completed.length >= 3 && !completed.find(c => c.id === testId)) {
-        // Optional: you can add a toast notification or alert here
         console.log("Test limit reached for this phase.");
         return; 
     }
