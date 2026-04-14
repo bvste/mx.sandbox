@@ -604,83 +604,49 @@ function synthesizeCompound() {
 }
 
 function showCER() {
-    // 1. CLEAN UP: Remove the Phase 1/2/3 Header and Sidebar
-    // This is the most important part to fix the "massive gap"
-    
-    // Target the main header (Title + Counter)
-    const mainHeader = document.querySelector('div.max-w-6xl.mx-auto.flex.justify-between.items-center.mb-8');
-    if (mainHeader) {
-        mainHeader.style.display = 'none';
-    }
+    // 1. Force the layout to the top and hide Phase 1-3 components
+    const topHeader = document.querySelector('div.max-w-6xl.mx-auto.flex.justify-between');
+    if (topHeader) topHeader.style.display = 'none';
 
-    // Target the sidebar menu (if it's still taking up space)
     const sidebar = document.querySelector('aside') || document.querySelector('.w-1\\/3');
-    if (sidebar) {
-        sidebar.style.display = 'none';
-    }
+    if (sidebar) sidebar.style.display = 'none';
 
-    // Target the lab workspace (Identification Phases)
     const labWorkspace = document.getElementById('lab-workspace');
-    if (labWorkspace) {
-        labWorkspace.style.display = 'none';
-        labWorkspace.classList.add('hidden');
-    }
+    if (labWorkspace) labWorkspace.style.display = 'none';
 
-    // Target the Synthesis Phase workspace
-    const phase3 = document.getElementById('phase-3-workspace');
-    if (phase3) {
-        phase3.style.display = 'none';
-        phase3.classList.add('hidden');
-    }
-
-    // 2. RESET PAGE ALIGNMENT
-    // We remove centering so the summary starts at the absolute top of the page
-    document.body.classList.remove('flex', 'items-center', 'justify-center', 'min-h-screen');
-    document.body.classList.add('block', 'pt-4'); 
-    
-    // Force scroll to top in case they were scrolled down in Phase 3
+    // 2. Reset alignment
+    document.body.classList.remove('flex', 'items-center', 'justify-center');
+    document.body.classList.add('block', 'pt-8');
     window.scrollTo(0, 0);
 
-    // 3. SETUP CER CONTAINER
     const cerScreen = document.getElementById('cer-screen');
-    if (cerScreen) {
-        cerScreen.classList.remove('hidden');
-        cerScreen.style.display = 'block';
-        cerScreen.className = "max-w-6xl mx-auto block mt-0 pt-0";
-    }
+    cerScreen.classList.remove('hidden');
+    cerScreen.className = "max-w-6xl mx-auto block";
 
     const log = document.getElementById('summary-log');
-    if (!log) return;
+    log.className = "w-full space-y-12 pb-24";
     
-    log.className = "w-full space-y-10 mt-0"; 
-    
-    // 4. RENDER HTML (Maintaining your exact style)
     log.innerHTML = `
-        <div class="w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
-            
-            <div class="bg-gray-800 p-8 rounded-3xl border border-gray-700 shadow-2xl mb-12 text-center">
-                <h2 class="text-3xl font-black text-sky-400 uppercase tracking-tighter">Phase 4: Final Evidence Log</h2>
-            </div>
+        <div class="animate-in fade-in duration-1000">
+            <h2 class="text-3xl font-black text-sky-400 mb-2 uppercase tracking-tighter">Final Laboratory Record</h2>
+            <p class="text-gray-500 text-xs font-bold uppercase tracking-[0.3em] mb-10">Verification of M and X Identities</p>
 
             <section class="mb-12">
-                <div class="flex items-center gap-4 mb-6">
-                    <h4 class="text-blue-400 font-bold uppercase text-[10px] tracking-[0.3em] px-3 border-l-4 border-blue-600">Metal M: Identification Data</h4>
-                    <div class="h-[1px] flex-grow bg-gradient-to-r from-blue-600/50 to-transparent"></div>
-                </div>
+                <h4 class="text-blue-400 font-bold uppercase text-[10px] tracking-widest mb-6 px-3 border-l-4 border-blue-600">Metal M Evidence</h4>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     ${completedM.map(e => `
-                        <div class="p-6 bg-gray-900/50 border border-gray-800 rounded-3xl shadow-xl hover:border-blue-500/30 transition-colors">
-                            <b class="text-blue-400 block mb-3 uppercase text-[10px] tracking-widest">${e.name}</b>
-                            <div class="bg-black/60 p-3 rounded-xl border border-blue-500/20 mb-4">
-                                <p class="text-[9px] text-gray-500 uppercase font-black mb-1">Result</p>
-                                <p class="text-sm font-bold text-white tracking-tight">${e.result}</p>
+                        <div class="p-6 bg-gray-900/50 border border-gray-800 rounded-3xl shadow-xl">
+                            <b class="text-blue-400 block mb-2 uppercase text-[10px] tracking-widest">${e.name}</b>
+                            <p class="text-[9px] text-gray-600 uppercase font-black mb-1 italic">Initial Observation: "${e.initialDesc || 'No data recorded'}"</p>
+                            <div class="bg-black/60 p-3 rounded-xl border border-blue-500/20 my-4">
+                                <p class="text-[8px] text-gray-500 uppercase font-black mb-1">Test Result</p>
+                                <p class="text-sm font-bold text-white">${e.result}</p>
                             </div>
-                            <div class="space-y-1.5">
-                                <p class="text-[9px] text-gray-600 uppercase font-bold mb-2">Reference Comparisons</p>
+                            <div class="space-y-1">
                                 ${e.comparisons ? e.comparisons.map(c => `
-                                    <div class="flex justify-between text-[11px] py-1.5 border-b border-gray-800/50">
+                                    <div class="flex justify-between text-[11px] py-1 border-b border-gray-800/30">
                                         <span class="text-gray-500">${c.label}:</span>
-                                        <span class="text-gray-300 font-semibold">${c.value}</span>
+                                        <span class="text-gray-300 font-medium">${c.value}</span>
                                     </div>
                                 `).join('') : ''}
                             </div>
@@ -690,24 +656,21 @@ function showCER() {
             </section>
 
             <section class="mb-12">
-                <div class="flex items-center gap-4 mb-6">
-                    <h4 class="text-emerald-400 font-bold uppercase text-[10px] tracking-[0.3em] px-3 border-l-4 border-emerald-600">Non-Metal X: Identification Data</h4>
-                    <div class="h-[1px] flex-grow bg-gradient-to-r from-emerald-600/50 to-transparent"></div>
-                </div>
+                <h4 class="text-emerald-400 font-bold uppercase text-[10px] tracking-widest mb-6 px-3 border-l-4 border-emerald-600">Non-Metal X Evidence</h4>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     ${completedX.map(e => `
-                        <div class="p-6 bg-gray-900/50 border border-gray-800 rounded-3xl shadow-xl hover:border-emerald-500/30 transition-colors">
-                            <b class="text-emerald-400 block mb-3 uppercase text-[10px] tracking-widest">${e.name}</b>
-                            <div class="bg-black/60 p-3 rounded-xl border border-emerald-500/20 mb-4">
-                                <p class="text-[9px] text-gray-500 uppercase font-black mb-1">Result</p>
-                                <p class="text-sm font-bold text-white tracking-tight">${e.result}</p>
+                        <div class="p-6 bg-gray-900/50 border border-gray-800 rounded-3xl shadow-xl">
+                            <b class="text-emerald-400 block mb-2 uppercase text-[10px] tracking-widest">${e.name}</b>
+                            <p class="text-[9px] text-gray-600 uppercase font-black mb-1 italic">Initial Observation: "${e.initialDesc || 'No data recorded'}"</p>
+                            <div class="bg-black/60 p-3 rounded-xl border border-emerald-500/20 my-4">
+                                <p class="text-[8px] text-gray-500 uppercase font-black mb-1">Test Result</p>
+                                <p class="text-sm font-bold text-white">${e.result}</p>
                             </div>
-                            <div class="space-y-1.5">
-                                <p class="text-[9px] text-gray-600 uppercase font-bold mb-2">Reference Comparisons</p>
+                            <div class="space-y-1">
                                 ${e.comparisons ? e.comparisons.map(c => `
-                                    <div class="flex justify-between text-[11px] py-1.5 border-b border-gray-800/50">
+                                    <div class="flex justify-between text-[11px] py-1 border-b border-gray-800/30">
                                         <span class="text-gray-500">${c.label}:</span>
-                                        <span class="text-gray-300 font-semibold">${c.value}</span>
+                                        <span class="text-gray-300 font-medium">${c.value}</span>
                                     </div>
                                 `).join('') : ''}
                             </div>
@@ -716,46 +679,37 @@ function showCER() {
                 </div>
             </section>
 
-            <section class="mb-16">
-                <div class="flex items-center gap-4 mb-6">
-                    <h4 class="text-purple-400 font-bold uppercase text-[10px] tracking-[0.3em] px-3 border-l-4 border-purple-600">MX Synthesis Results</h4>
-                    <div class="h-[1px] flex-grow bg-gradient-to-r from-purple-600/50 to-transparent"></div>
-                </div>
+            <section class="mb-12">
+                <h4 class="text-purple-400 font-bold uppercase text-[10px] tracking-widest mb-6 px-3 border-l-4 border-purple-600">Stoichiometry Records</h4>
                 <div class="space-y-4">
                     ${phase3Attempts.map(attempt => `
-                        <div class="p-5 bg-gray-900/80 border border-purple-500/20 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-6 shadow-2xl">
-                            <div>
-                                <p class="text-[9px] text-gray-500 uppercase font-black">Combination</p>
-                                <p class="text-sm font-black text-blue-400">${attempt.combo}</p>
-                            </div>
-                            <div>
-                                <p class="text-[9px] text-gray-500 uppercase font-black">Mass Yield</p>
-                                <p class="text-sm font-bold text-white">${attempt.rawTotal} g</p>
-                            </div>
-                            <div>
-                                <p class="text-[9px] text-gray-500 uppercase font-black">Excess</p>
-                                <p class="text-sm font-bold text-emerald-400">${attempt.excess} g</p>
-                            </div>
-                            <div class="flex-grow">
-                                <p class="text-[9px] text-gray-500 uppercase font-black">Observations</p>
-                                <p class="text-[11px] text-gray-400 italic">"${attempt.appearance}"</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-[9px] text-gray-500 uppercase font-black">Solubility</p>
-                                <p class="text-xs text-gray-300 font-bold">${attempt.solubility}</p>
+                        <div class="p-5 bg-gray-900/80 border border-purple-500/20 rounded-2xl flex justify-between items-center shadow-2xl">
+                            <div class="grid grid-cols-4 w-full gap-8">
+                                <div>
+                                    <p class="text-[8px] text-gray-500 uppercase font-black">Reactants</p>
+                                    <p class="text-sm font-black text-blue-400">${attempt.combo}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[8px] text-gray-500 uppercase font-black">Final Yield</p>
+                                    <p class="text-sm font-bold text-white">${attempt.rawTotal} g</p>
+                                </div>
+                                <div>
+                                    <p class="text-[8px] text-gray-500 uppercase font-black">Observations</p>
+                                    <p class="text-[10px] text-gray-400 italic">"${attempt.appearance}"</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-[8px] text-gray-500 uppercase font-black">Solubility</p>
+                                    <p class="text-xs text-gray-300 font-bold">${attempt.solubility}</p>
+                                </div>
                             </div>
                         </div>
                     `).join('')}
                 </div>
             </section>
 
-            <div class="p-12 bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-[3rem] text-center shadow-inner mb-20">
-                <h3 class="text-2xl font-black text-white uppercase tracking-tighter mb-4 italic">All Experiments Finished!</h3>
-                <p class="text-gray-500 max-w-md mx-auto text-sm mb-10 leading-relaxed">
-                    You finished all experiments! Make sure to take a screenshot before submitting and move onto the CER on Schoology. Remember that all of your data disappears if you submit!
-                </p>
-                <button onclick="finalizeLab()" class="px-20 py-5 bg-sky-600 hover:bg-sky-500 text-white font-black rounded-2xl transition-all uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(2,132,199,0.3)] hover:scale-105 active:scale-95">
-                    Submit Lab Data
+            <div class="p-12 bg-gray-900 border border-gray-800 rounded-[3rem] text-center shadow-inner">
+                <button onclick="finalizeLab()" class="px-20 py-5 bg-sky-600 hover:bg-sky-500 text-white font-black rounded-2xl transition-all uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95">
+                    Submit Final Report
                 </button>
             </div>
         </div>`;
