@@ -218,62 +218,22 @@ window.onload = () => {
 };
 
 function loadMenu() {
-    // 1. Exit if in Synthesis
-    if (currentPhase === 'Synthesis' || currentPhase === 'P') {
-        const workspace = document.getElementById('lab-workspace');
-        if (workspace) workspace.classList.add('hidden');
-        return;
-    }
-
-    const menu = document.getElementById('exp-list') || document.getElementById('experiment-menu');
-    if (!menu) return; 
-
-    const experiments = (currentPhase === 'M') ? experimentsM : experimentsX;
+    const menu = document.getElementById('experiment-menu');
+    if(!menu) return;
+    menu.innerHTML = '';
+    const list = (currentPhase === 'M') ? experimentsM : experimentsX;
     const completed = (currentPhase === 'M') ? completedM : completedX;
-    
-    document.getElementById('phase-title').innerText = `Phase: Identify Unknown ${currentPhase}`;
-    document.getElementById('exp-count').innerText = `${completed.length} / 3`;
 
-    let menuHTML = experiments.map(exp => {
+    list.forEach(exp => {
         const isDone = completed.find(c => c.id === exp.id);
-        const limitReached = completed.length >= 3;
-        const isDisabled = limitReached && !isDone;
-
-        return `
-            <button 
-                onclick="${isDisabled ? '' : `startTest('${exp.id}')`}" 
-                ${isDisabled ? 'disabled' : ''} 
-                class="w-full text-left p-4 rounded-xl border transition-all flex justify-between items-center mb-2
-                ${isDone 
-                    ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400' 
-                    : isDisabled 
-                        ? 'opacity-30 bg-gray-900 border-gray-800 cursor-not-allowed text-gray-600' 
-                        : 'hover:bg-gray-700 bg-gray-800 border-gray-700 text-white shadow-sm'}">
-                <span class="font-medium text-[11px] tracking-widest">${exp.name}</span>
-                <div class="flex items-center gap-2">
-                    ${isDone ? '<span>✅</span>' : ''}
-                    ${isDisabled ? '<span class="text-[8px] bg-black/40 px-2 py-1 rounded">LOCKED</span>' : '<span class="text-blue-500">→</span>'}
-                </div>
+        menu.innerHTML += `
+            <button onclick="startTest('${exp.id}')" ${isDone ? 'disabled' : ''} 
+                class="w-full text-left p-4 rounded-xl border transition-all flex justify-between items-center
+                ${isDone ? 'opacity-40 bg-gray-900 border-gray-800 cursor-not-allowed' : 'hover:bg-gray-700 bg-gray-800 border-gray-700 shadow-sm'}">
+                <span class="font-medium text-white">${exp.name}</span>
+                ${isDone ? '<span>✅</span>' : '<span class="text-blue-500">→</span>'}
             </button>`;
-    }).join('');
-
-    if (completed.length >= 3) {
-        const nextLabel = (currentPhase === 'M') ? "Proceed to Non-Metal X" : "Begin Synthesis Phase";
-        
-        menuHTML += `
-            <div class="mt-8 pt-6 border-t border-gray-800">
-                <button onclick="checkPhaseTransition()" 
-                    class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl shadow-lg transition-all uppercase tracking-widest text-xs">
-                    ${nextLabel}
-                </button>
-                <p class="text-[9px] text-center text-gray-500 mt-3 uppercase font-bold tracking-widest">
-                    Phase ${currentPhase} Complete
-                </p>
-            </div>
-        `;
-    }
-
-    menu.innerHTML = menuHTML;
+    });
 }
 
 function startTest(testId) {
