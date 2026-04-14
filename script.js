@@ -431,15 +431,390 @@ function runMolarMassPhase() {
     if (workspace) workspace.className = "max-w-4xl mx-auto block";
 
     const zone = document.getElementById('comparison-zone');
-    if(!zone) return;
     zone.className = "w-full space-y-8";
 
+    // 4-column layout for M, X, Yield, and Excess
     zone.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="p-4 bg-gray-800 border border-blue-500/30 rounded-2xl">
                 <label class="text-blue-400 text-[10px] font-bold uppercase tracking-widest">Grams of Metal (M)</label>
-                <input type="number" id="input-m" placeholder="0.00" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-xl text-white mt-2 text-xl outline-none">
+                <input type="number" id="input-m" placeholder="0.00" oninput="updateYieldInline()" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-xl text-white mt-2 text-xl outline-none">
             </div>
             <div class="p-4 bg-gray-800 border border-emerald-500/30 rounded-2xl">
                 <label class="text-emerald-400 text-[10px] font-bold uppercase tracking-widest">Grams of Non-Metal (X)</label>
-                <input type="number" id="input-x" placeholder="0.00" class="w-full bg
+                <input type="number" id="input-x" placeholder="0.00" oninput="updateYieldInline()" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-xl text-white mt-2 text-xl outline-none">
+            </div>
+            <div class="p-4 bg-gray-800 border border-purple-500/30 rounded-2xl flex flex-col justify-center text-center">
+                <label class="text-purple-400 text-[10px] font-bold uppercase tracking-widest">Yield of MX</label>
+                <p id="inline-yield-display" class="text-2xl font-black text-white mt-2">0.00</p>
+            </div>
+            <div class="p-4 bg-gray-800 border border-red-500/30 rounded-2xl flex flex-col justify-center text-center">
+                <label class="text-red-400 text-[10px] font-bold uppercase tracking-widest">Excess Leftover</label>
+                <p id="inline-excess-display" class="text-xl font-bold text-gray-500 mt-2">0.00g</p>
+            </div>
+        </div>
+
+        <div class="flex justify-center mt-4">
+            <button onclick="synthesizeCompound()" class="px-12 py-4 bg-purple-600 rounded-xl font-black text-white hover:bg-purple-500 transition-all shadow-lg uppercase tracking-widest">
+                Save Calculations
+            </button>
+        </div>
+
+        <div id="p3-data-table" class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-gray-800/30 text-[10px] text-gray-500 uppercase font-bold">
+                    <tr>
+                        <th class="p-4">Trial</th>
+                        <th class="p-4 text-blue-300">Reactants Used</th>
+                        <th class="p-4">Yield</th>
+                        <th class="p-4">Excess Leftover</th>
+                        <th class="p-4">Appearance</th>
+                        <th class="p-4">Solubility</th>
+                    </tr>
+                </thead>
+                <tbody id="p3-log-body" class="text-gray-300 divide-y divide-gray-800">
+                    <tr><td colspan="6" class="p-8 text-center text-gray-600 italic">No calculations logged yet...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="p3-nav-container" class="mt-8 flex justify-center">
+            <button id="p3-proceed-btn" disabled 
+                class="px-12 py-4 rounded-xl font-black uppercase tracking-widest transition-all opacity-30 cursor-not-allowed bg-gray-700 text-gray-400">
+                Proceed to CER
+            </button>
+        </div>
+    `;
+}
+
+function updateYieldInline() {
+    const mVal = parseFloat(document.getElementById('input-m').value) || 0;
+    const xVal = parseFloat(document.getElementById('input-x').value) || 0;
+    const display = document.getElementById('inline-yield-display');
+    const excessDisplay = document.getElementById('inline-excess-display');
+
+    if (mVal <= 0 || xVal <= 0) {
+        if(display) display.innerText = "0.00";
+        if(excessDisplay) excessDisplay.innerHTML = "<span class='text-gray-500'>0.00g</span>";
+        return;
+    }
+
+    // 1. Oxidation states to determine empirical formula
+    const metalCharges = {
+        "Nickel": 2, "CopperOne": 1, "CopperTwo": 2, "Silver": 1, 
+        "Aluminum": 3, "IronTwo": 2, "IronThree": 3, "Magnesium": 2
+    };
+    const nonmetalCharges = {
+        "Chlorine": 1, "Bromine": 1, "Sulfur": 2, "Phosphorus": 3
+    };
+
+    const mCharge = metalCharges[activeM.name];
+    const xCharge = nonmetalCharges[activeX.name];
+
+    const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+    const divisor = gcd(mCharge, xCharge);
+    
+    const mCount = xCharge / divisor; 
+    const xCount = mCharge / divisor; 
+
+    // 2. Calculate true mass fractions dynamically
+    const trueMassM = mCount * activeM.mass;
+    const trueMassX = xCount * activeX.mass;
+    const trueMolarMass = trueMassM + trueMassX;
+
+    const fractionM = trueMassM / trueMolarMass;
+    const fractionX = trueMassX / trueMolarMass;
+
+    // 3. Limiting Reactant Logic
+    const yieldFromM = mVal / fractionM;
+    const yieldFromX = xVal / fractionX;
+    const actualYield = Math.min(yieldFromM, yieldFromX);
+
+    if(display) display.innerText = actualYield.toFixed(2);
+
+    // 4. Excess Reactant Logic
+    if(excessDisplay) {
+        const massMUsed = actualYield * fractionM;
+        const massXUsed = actualYield * fractionX;
+
+        const excessM = mVal - massMUsed;
+        const excessX = xVal - massXUsed;
+
+        if (excessM > 0.01) {
+            excessDisplay.innerHTML = `<span class="text-blue-400">${excessM.toFixed(2)}g M</span>`;
+        } else if (excessX > 0.01) {
+            excessDisplay.innerHTML = `<span class="text-emerald-400">${excessX.toFixed(2)}g X</span>`;
+        } else {
+            excessDisplay.innerHTML = `<span class="text-gray-500">None</span>`;
+        }
+    }
+}
+
+function synthesizeCompound() {
+    const mInput = document.getElementById('input-m');
+    const xInput = document.getElementById('input-x');
+    const yieldDisplay = document.getElementById('inline-yield-display');
+    const excessDisplay = document.getElementById('inline-excess-display');
+    
+    const mVal = parseFloat(mInput.value) || 0;
+    const xVal = parseFloat(xInput.value) || 0;
+    const totalProduced = yieldDisplay ? yieldDisplay.innerText : "0.00";
+    const excessLeftover = excessDisplay ? excessDisplay.innerText : "0.00g";
+
+    if (mVal <= 0 || xVal <= 0) return alert("Please enter masses for both elements.");
+
+    const lookupKey = activeM.name + activeX.name; 
+    const info = compoundDatabase[lookupKey];
+
+    if (!info) return alert("Error: Compound data not found in database.");
+
+    phase3Attempts.push({
+        combo: `${mVal}g M + ${xVal}g X`,
+        rawTotal: totalProduced,
+        excess: excessLeftover,
+        appearance: info.appearance, 
+        solubility: info.solubility   
+    });
+
+    const logBody = document.getElementById('p3-log-body');
+    if (logBody) {
+        logBody.innerHTML = phase3Attempts.map((att, index) => `
+            <tr class="border-b border-gray-800 hover:bg-gray-800/50 transition-colors">
+                <td class="p-4 font-bold text-purple-400">#${index + 1}</td>
+                <td class="p-4 text-blue-300 font-mono text-sm">${att.combo}</td>
+                <td class="p-4 text-white font-mono">${att.rawTotal} g</td>
+                <td class="p-4 text-red-400 font-mono">${att.excess}</td>
+                <td class="p-4 text-gray-400 text-xs">${att.appearance}</td>
+                <td class="p-4 text-gray-400 text-xs">${att.solubility}</td>
+            </tr>
+        `).join('');
+    }
+
+    const proceedBtn = document.getElementById('p3-proceed-btn');
+    if (proceedBtn) {
+        proceedBtn.disabled = false;
+        proceedBtn.classList.remove('opacity-30', 'cursor-not-allowed', 'bg-gray-700', 'text-gray-400');
+        proceedBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500', 'text-white', 'opacity-100');
+        proceedBtn.onclick = showCER; 
+    }
+
+    mInput.value = ""; xInput.value = ""; 
+    if(yieldDisplay) yieldDisplay.innerText = "0.00";
+    if(excessDisplay) excessDisplay.innerHTML = "<span class='text-gray-500'>0.00g</span>";
+}
+
+function showCER() {
+    // 1. CLEAN UP: Remove the Phase 1/2/3 Header and Sidebar
+    // This is the most important part to fix the "massive gap"
+    
+    // Target the main header (Title + Counter)
+    const mainHeader = document.querySelector('div.max-w-6xl.mx-auto.flex.justify-between.items-center.mb-8');
+    if (mainHeader) {
+        mainHeader.style.display = 'none';
+    }
+
+    // Target the sidebar menu (if it's still taking up space)
+    const sidebar = document.querySelector('aside') || document.querySelector('.w-1\\/3');
+    if (sidebar) {
+        sidebar.style.display = 'none';
+    }
+
+    // Target the lab workspace (Identification Phases)
+    const labWorkspace = document.getElementById('lab-workspace');
+    if (labWorkspace) {
+        labWorkspace.style.display = 'none';
+        labWorkspace.classList.add('hidden');
+    }
+
+    // Target the Synthesis Phase workspace
+    const phase3 = document.getElementById('phase-3-workspace');
+    if (phase3) {
+        phase3.style.display = 'none';
+        phase3.classList.add('hidden');
+    }
+
+    // 2. RESET PAGE ALIGNMENT
+    // We remove centering so the summary starts at the absolute top of the page
+    document.body.classList.remove('flex', 'items-center', 'justify-center', 'min-h-screen');
+    document.body.classList.add('block', 'pt-4'); 
+    
+    // Force scroll to top in case they were scrolled down in Phase 3
+    window.scrollTo(0, 0);
+
+    // 3. SETUP CER CONTAINER
+    const cerScreen = document.getElementById('cer-screen');
+    if (cerScreen) {
+        cerScreen.classList.remove('hidden');
+        cerScreen.style.display = 'block';
+        cerScreen.className = "max-w-6xl mx-auto block mt-0 pt-0";
+    }
+
+    const log = document.getElementById('summary-log');
+    if (!log) return;
+    
+    log.className = "w-full space-y-10 mt-0"; 
+    
+    // 4. RENDER HTML (Maintaining your exact style)
+    log.innerHTML = `
+        <div class="w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
+            
+            <div class="bg-gray-800 p-8 rounded-3xl border border-gray-700 shadow-2xl mb-12 text-center">
+                <h2 class="text-3xl font-black text-sky-400 uppercase tracking-tighter">Phase 4: Final Evidence Log</h2>
+            </div>
+
+            <section class="mb-12">
+                <div class="flex items-center gap-4 mb-6">
+                    <h4 class="text-blue-400 font-bold uppercase text-[10px] tracking-[0.3em] px-3 border-l-4 border-blue-600">Metal M: Identification Data</h4>
+                    <div class="h-[1px] flex-grow bg-gradient-to-r from-blue-600/50 to-transparent"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    ${completedM.map(e => `
+                        <div class="p-6 bg-gray-900/50 border border-gray-800 rounded-3xl shadow-xl hover:border-blue-500/30 transition-colors">
+                            <b class="text-blue-400 block mb-3 uppercase text-[10px] tracking-widest">${e.name}</b>
+                            <div class="bg-black/60 p-3 rounded-xl border border-blue-500/20 mb-4">
+                                <p class="text-[9px] text-gray-500 uppercase font-black mb-1">Result</p>
+                                <p class="text-sm font-bold text-white tracking-tight">${e.result}</p>
+                            </div>
+                            <div class="space-y-1.5">
+                                <p class="text-[9px] text-gray-600 uppercase font-bold mb-2">Reference Comparisons</p>
+                                ${e.comparisons ? e.comparisons.map(c => `
+                                    <div class="flex justify-between text-[11px] py-1.5 border-b border-gray-800/50">
+                                        <span class="text-gray-500">${c.label}:</span>
+                                        <span class="text-gray-300 font-semibold">${c.value}</span>
+                                    </div>
+                                `).join('') : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </section>
+
+            <section class="mb-12">
+                <div class="flex items-center gap-4 mb-6">
+                    <h4 class="text-emerald-400 font-bold uppercase text-[10px] tracking-[0.3em] px-3 border-l-4 border-emerald-600">Non-Metal X: Identification Data</h4>
+                    <div class="h-[1px] flex-grow bg-gradient-to-r from-emerald-600/50 to-transparent"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    ${completedX.map(e => `
+                        <div class="p-6 bg-gray-900/50 border border-gray-800 rounded-3xl shadow-xl hover:border-emerald-500/30 transition-colors">
+                            <b class="text-emerald-400 block mb-3 uppercase text-[10px] tracking-widest">${e.name}</b>
+                            <div class="bg-black/60 p-3 rounded-xl border border-emerald-500/20 mb-4">
+                                <p class="text-[9px] text-gray-500 uppercase font-black mb-1">Result</p>
+                                <p class="text-sm font-bold text-white tracking-tight">${e.result}</p>
+                            </div>
+                            <div class="space-y-1.5">
+                                <p class="text-[9px] text-gray-600 uppercase font-bold mb-2">Reference Comparisons</p>
+                                ${e.comparisons ? e.comparisons.map(c => `
+                                    <div class="flex justify-between text-[11px] py-1.5 border-b border-gray-800/50">
+                                        <span class="text-gray-500">${c.label}:</span>
+                                        <span class="text-gray-300 font-semibold">${c.value}</span>
+                                    </div>
+                                `).join('') : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </section>
+
+            <section class="mb-16">
+                <div class="flex items-center gap-4 mb-6">
+                    <h4 class="text-purple-400 font-bold uppercase text-[10px] tracking-[0.3em] px-3 border-l-4 border-purple-600">MX Synthesis Results</h4>
+                    <div class="h-[1px] flex-grow bg-gradient-to-r from-purple-600/50 to-transparent"></div>
+                </div>
+                <div class="space-y-4">
+                    ${phase3Attempts.map(attempt => `
+                        <div class="p-5 bg-gray-900/80 border border-purple-500/20 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-6 shadow-2xl">
+                            <div>
+                                <p class="text-[9px] text-gray-500 uppercase font-black">Combination</p>
+                                <p class="text-sm font-black text-blue-400">${attempt.combo}</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-gray-500 uppercase font-black">Mass Yield</p>
+                                <p class="text-sm font-bold text-white">${attempt.rawTotal} g</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-gray-500 uppercase font-black">Excess</p>
+                                <p class="text-sm font-bold text-emerald-400">${attempt.excess} g</p>
+                            </div>
+                            <div class="flex-grow">
+                                <p class="text-[9px] text-gray-500 uppercase font-black">Observations</p>
+                                <p class="text-[11px] text-gray-400 italic">"${attempt.appearance}"</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[9px] text-gray-500 uppercase font-black">Solubility</p>
+                                <p class="text-xs text-gray-300 font-bold">${attempt.solubility}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </section>
+
+            <div class="p-12 bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-[3rem] text-center shadow-inner mb-20">
+                <h3 class="text-2xl font-black text-white uppercase tracking-tighter mb-4 italic">All Experiments Finished!</h3>
+                <p class="text-gray-500 max-w-md mx-auto text-sm mb-10 leading-relaxed">
+                    You finished all experiments! Make sure to take a screenshot before submitting and move onto the CER on Schoology. Remember that all of your data disappears if you submit!
+                </p>
+                <button onclick="finalizeLab()" class="px-20 py-5 bg-sky-600 hover:bg-sky-500 text-white font-black rounded-2xl transition-all uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(2,132,199,0.3)] hover:scale-105 active:scale-95">
+                    Submit Lab Data
+                </button>
+            </div>
+        </div>`;
+}
+
+// --- SYSTEM UTILITIES ---
+
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function closeWarning() {
+    const modal = document.getElementById('warning-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    }
+}
+
+async function finalizeLab() {
+    const student = JSON.parse(sessionStorage.getItem('activeStudent'));
+    // Removed the check for "assumption" textbox since we removed it from HTML
+    
+    const entry = {
+        fName: student?.fName || "Unknown", 
+        lName: student?.lName || "Student", 
+        period: student?.period || "N/A",
+        actualIdentityM: activeM.name, 
+        actualIdentityX: activeX.name, 
+        mExps: completedM.map(e => e.id), 
+        xExps: completedX.map(e => e.id),
+        assumption: "See Physical Lab Notebook" // Default text
+    };
+    
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKHQd1vrdU7taJzdUtm2AwQB4fGVqg8DY9TPjPCf_h40gtvgukOuKj0xoIlfDweLaNPQ/exec';
+
+    try {
+        const btn = document.querySelector('button[onclick="finalizeLab()"]');
+        if (btn) {
+            btn.innerText = "Submitting...";
+            btn.disabled = true;
+        }
+
+        await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(entry)
+        });
+
+        alert("Lab Submitted Successfully!");
+        window.location.href = 'index.html';
+    } catch (error) {
+        console.error(error);
+        alert("Submission failed.");
+        const btn = document.querySelector('button[onclick="finalizeLab()"]');
+        if (btn) {
+            btn.innerText = "Submit Experiment Results";
+            btn.disabled = false;
+        }
+    }
+}
