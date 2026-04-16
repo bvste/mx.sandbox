@@ -560,16 +560,18 @@ function runMolarMassPhase() {
     const zone = document.getElementById('comparison-zone');
     zone.className = "w-full space-y-8";
 
-    // 4-column layout for M, X, Yield, and Excess
     zone.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="p-4 bg-gray-800 border border-blue-500/30 rounded-2xl">
                 <label class="text-blue-400 text-[10px] font-bold uppercase tracking-widest">Grams of Metal (M)</label>
-                <input type="number" id="input-m" placeholder="0.00" oninput="updateYieldInline()" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-xl text-white mt-2 text-xl outline-none">
+                <input type="number" id="input-m" placeholder="0.00" oninput="syncMasses()" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-xl text-white mt-2 text-xl outline-none focus:border-blue-500 transition-colors">
             </div>
-            <div class="p-4 bg-gray-800 border border-emerald-500/30 rounded-2xl">
-                <label class="text-emerald-400 text-[10px] font-bold uppercase tracking-widest">Grams of Non-Metal (X)</label>
-                <input type="number" id="input-x" placeholder="0.00" oninput="updateYieldInline()" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-xl text-white mt-2 text-xl outline-none">
+            <div class="p-4 bg-gray-900/50 border border-gray-800 rounded-2xl opacity-80">
+                <div class="flex justify-between items-center">
+                    <label class="text-emerald-400 text-[10px] font-bold uppercase tracking-widest">Grams of Non-Metal (X)</label>
+                    <span class="text-[10px] text-gray-600 uppercase font-black">Locked 1:1</span>
+                </div>
+                <input type="number" id="input-x" placeholder="0.00" readonly class="w-full bg-transparent p-3 rounded-xl text-emerald-500/70 mt-2 text-xl outline-none cursor-not-allowed">
             </div>
             <div class="p-4 bg-gray-800 border border-purple-500/30 rounded-2xl flex flex-col justify-center text-center">
                 <label class="text-purple-400 text-[10px] font-bold uppercase tracking-widest">Yield of MX</label>
@@ -731,9 +733,6 @@ function synthesizeCompound() {
 }
 
 function showCER() {
-    // 1. CLEAN UP: Remove the Phase 1/2/3 Header and Sidebar
-    // This is the most important part to fix the "massive gap"
-    
     // Target the main header (Title + Counter)
     const mainHeader = document.querySelector('div.max-w-6xl.mx-auto.flex.justify-between.items-center.mb-8');
     if (mainHeader) {
