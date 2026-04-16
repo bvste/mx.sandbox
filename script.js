@@ -637,7 +637,7 @@ function updateYieldInline() {
         return;
     }
 
-    // 1. Oxidation states to determine empirical formula
+    // 1. Get Oxidation States
     const metalCharges = {
         "Nickel": 2, "CopperOne": 1, "CopperTwo": 2, "Silver": 1, 
         "Aluminum": 3, "IronTwo": 2, "IronThree": 3, "Magnesium": 2
@@ -649,39 +649,41 @@ function updateYieldInline() {
     const mCharge = metalCharges[activeM.name];
     const xCharge = nonmetalCharges[activeX.name];
 
+    // 2. Determine Empirical Formula (Subscripts)
     const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
     const divisor = gcd(mCharge, xCharge);
     
-    const mCount = xCharge / divisor; 
-    const xCount = mCharge / divisor; 
+    const mSubscript = xCharge / divisor; 
+    const xSubscript = mCharge / divisor; 
 
-    // 2. Calculate true mass fractions dynamically
-    const trueMassM = mCount * activeM.mass;
-    const trueMassX = xCount * activeX.mass;
-    const trueMolarMass = trueMassM + trueMassX;
+    // 3. Calculate Mass Ratio Requirement
+    // This is the "Perfect" mass of X needed for every 1g of M
+    const ratioXtoM = (xSubscript * activeX.mass) / (mSubscript * activeM.mass);
 
-    const fractionM = trueMassM / trueMolarMass;
-    const fractionX = trueMassX / trueMolarMass;
+    // 4. Limiting Reactant Logic
+    let actualYield = 0;
+    let excessMass = 0;
+    let excessType = "";
 
-    // 3. Limiting Reactant Logic
-    const yieldFromM = mVal / fractionM;
-    const yieldFromX = xVal / fractionX;
-    const actualYield = Math.min(yieldFromM, yieldFromX);
+    const requiredX = mVal * ratioXtoM;
+
+    if (xVal >= requiredX) {
+        actualYield = mVal + requiredX; 
+        excessMass = xVal - requiredX;
+        excessType = "X";
+    } else {
+        const requiredM = xVal / ratioXtoM;
+        actualYield = xVal + requiredM;
+        excessMass = mVal - requiredM;
+        excessType = "M";
+    }
 
     if(display) display.innerText = actualYield.toFixed(2);
 
-    // 4. Excess Reactant Logic
     if(excessDisplay) {
-        const massMUsed = actualYield * fractionM;
-        const massXUsed = actualYield * fractionX;
-
-        const excessM = mVal - massMUsed;
-        const excessX = xVal - massXUsed;
-
-        if (excessM > 0.01) {
-            excessDisplay.innerHTML = `<span class="text-blue-400">${excessM.toFixed(2)}g M</span>`;
-        } else if (excessX > 0.01) {
-            excessDisplay.innerHTML = `<span class="text-emerald-400">${excessX.toFixed(2)}g X</span>`;
+        if (excessMass > 0.01) {
+            const colorClass = excessType === "M" ? "text-blue-400" : "text-emerald-400";
+            excessDisplay.innerHTML = `<span class="${colorClass}">${excessMass.toFixed(2)}g ${excessType}</span>`;
         } else {
             excessDisplay.innerHTML = `<span class="text-gray-500">None</span>`;
         }
