@@ -627,16 +627,17 @@ function syncMasses() {
 
 function updateYieldInline() {
     const mVal = parseFloat(document.getElementById('input-m').value) || 0;
+    const xVal = parseFloat(document.getElementById('input-x').value) || 0;
     const display = document.getElementById('inline-yield-display');
     const excessDisplay = document.getElementById('inline-excess-display');
 
-    if (mVal <= 0) {
+    if (mVal <= 0 || xVal <= 0) {
         if(display) display.innerText = "0.00";
         if(excessDisplay) excessDisplay.innerHTML = "0.00g";
         return;
     }
 
-    // 1. Map Charges (Taking into account multiple charges for Fe and Cu)
+    // 1. Map Charges for subscripts
     const metalCharges = {
         "Nickel": 2, "CopperOne": 1, "CopperTwo": 2, "Silver": 1, 
         "Aluminum": 3, "IronTwo": 2, "IronThree": 3, "Magnesium": 2
@@ -648,33 +649,57 @@ function updateYieldInline() {
     const mCharge = metalCharges[activeM.name] || 2;
     const xCharge = nonmetalCharges[activeX.name] || 1;
 
-    // 2. Determine Subscripts (e.g., Fe=3, O=2 -> Fe2O3)
+    // 2. Cross charges for subscripts (Formula: MaXb)
     const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
     const div = gcd(mCharge, xCharge);
     const mSub = xCharge / div; 
     const xSub = mCharge / div; 
 
-    // 3. Calculate Molar Ratio and Mass Conversion
-    // Since we want 100% yield, we calculate the mass of X 
-    // that SHOULD have reacted with the given M.
-    const molarMassM = activeM.mass;
-    const molarMassX = activeX.mass;
-    
-    // Theoretical ratio: (grams of X) / (grams of M)
-    const stoichiometricRatio = (xSub * molarMassX) / (mSub * molarMassM);
-    
-    // 4. Calculate Perfect Yield (Mass M + Theoretical Mass X)
-    const theoreticalX = mVal * stoichiometricRatio;
-    const totalYield = mVal + theoreticalX;
+    // 3. Calculate how many grams of X are needed for 1 gram of M
+    // Ratio = (Mass of X in formula) / (Mass of M in formula)
+    const ratioXtoM = (xSub * activeX.mass) / (mSub * activeM.mass);
+
+    // 4. Determine Limiting Reactant
+    let reactedM, reactedX, excessMass, excessType;
+
+    if (xVal >= mVal * ratioXtoM) {
+        // Metal (M) is limiting
+        reactedM = mVal;
+        reactedX = mVal * ratioXtoM;
+        excessMass = xVal - reactedX;
+        excessType = "X";
+    } else {
+        // Non-Metal (X) is limiting
+        reactedX = xVal;
+        reactedM = xVal / ratioXtoM;
+        excessMass = mVal - reactedM;
+        excessType = "M";
+    }
+
+    const totalYield = reactedM + reactedX;
 
     // 5. Update UI
+    // The Yield + Excess will now always equal the total mass added
     if(display) display.innerText = totalYield.toFixed(2);
     
-    // Because we are forcing 100% yield and stoichiometric balance, 
-    // excess is always 0.00.
     if(excessDisplay) {
-        excessDisplay.innerHTML = `<span class="text-gray-500">0.00g</span>`;
+        if (excessMass > 0.01) {
+            const color = excessType === "M" ? "text-blue-400" : "text-emerald-400";
+            excessDisplay.innerHTML = `<span class="${color}">${excessMass.toFixed(2)}g ${excessType}</span>`;
+        } else {
+            excessDisplay.innerHTML = `<span class="text-gray-500">None</span>`;
+        }
     }
+}
+
+// Keep this to ensure the 1:1 input as requested
+function syncMasses() {
+    const mInput = document.getElementById('input-m');
+    const xInput = document.getElementById('input-x');
+    if (mInput && xInput) {
+        xInput.value = mInput.value;
+    }
+    updateYieldInline();
 }
 
 function synthesizeCompound() {
