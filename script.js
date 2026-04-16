@@ -627,17 +627,16 @@ function syncMasses() {
 
 function updateYieldInline() {
     const mVal = parseFloat(document.getElementById('input-m').value) || 0;
-    const xVal = parseFloat(document.getElementById('input-x').value) || 0;
     const display = document.getElementById('inline-yield-display');
     const excessDisplay = document.getElementById('inline-excess-display');
 
-    if (mVal <= 0 || xVal <= 0) {
+    if (mVal <= 0) {
         if(display) display.innerText = "0.00";
-        if(excessDisplay) excessDisplay.innerHTML = "<span class='text-gray-500'>0.00g</span>";
+        if(excessDisplay) excessDisplay.innerHTML = "0.00g";
         return;
     }
 
-    // 1. Get Oxidation States
+    // 1. Map Charges (Taking into account multiple charges for Fe and Cu)
     const metalCharges = {
         "Nickel": 2, "CopperOne": 1, "CopperTwo": 2, "Silver": 1, 
         "Aluminum": 3, "IronTwo": 2, "IronThree": 3, "Magnesium": 2
@@ -646,47 +645,35 @@ function updateYieldInline() {
         "Chlorine": 1, "Bromine": 1, "Sulfur": 2, "Phosphorus": 3
     };
 
-    const mCharge = metalCharges[activeM.name];
-    const xCharge = nonmetalCharges[activeX.name];
+    const mCharge = metalCharges[activeM.name] || 2;
+    const xCharge = nonmetalCharges[activeX.name] || 1;
 
-    // 2. Determine Empirical Formula (Subscripts)
+    // 2. Determine Subscripts (e.g., Fe=3, O=2 -> Fe2O3)
     const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
-    const divisor = gcd(mCharge, xCharge);
+    const div = gcd(mCharge, xCharge);
+    const mSub = xCharge / div; 
+    const xSub = mCharge / div; 
+
+    // 3. Calculate Molar Ratio and Mass Conversion
+    // Since we want 100% yield, we calculate the mass of X 
+    // that SHOULD have reacted with the given M.
+    const molarMassM = activeM.mass;
+    const molarMassX = activeX.mass;
     
-    const mSubscript = xCharge / divisor; 
-    const xSubscript = mCharge / divisor; 
+    // Theoretical ratio: (grams of X) / (grams of M)
+    const stoichiometricRatio = (xSub * molarMassX) / (mSub * molarMassM);
+    
+    // 4. Calculate Perfect Yield (Mass M + Theoretical Mass X)
+    const theoreticalX = mVal * stoichiometricRatio;
+    const totalYield = mVal + theoreticalX;
 
-    // 3. Calculate Mass Ratio Requirement
-    // This is the "Perfect" mass of X needed for every 1g of M
-    const ratioXtoM = (xSubscript * activeX.mass) / (mSubscript * activeM.mass);
-
-    // 4. Limiting Reactant Logic
-    let actualYield = 0;
-    let excessMass = 0;
-    let excessType = "";
-
-    const requiredX = mVal * ratioXtoM;
-
-    if (xVal >= requiredX) {
-        actualYield = mVal + requiredX; 
-        excessMass = xVal - requiredX;
-        excessType = "X";
-    } else {
-        const requiredM = xVal / ratioXtoM;
-        actualYield = xVal + requiredM;
-        excessMass = mVal - requiredM;
-        excessType = "M";
-    }
-
-    if(display) display.innerText = actualYield.toFixed(2);
-
+    // 5. Update UI
+    if(display) display.innerText = totalYield.toFixed(2);
+    
+    // Because we are forcing 100% yield and stoichiometric balance, 
+    // excess is always 0.00.
     if(excessDisplay) {
-        if (excessMass > 0.01) {
-            const colorClass = excessType === "M" ? "text-blue-400" : "text-emerald-400";
-            excessDisplay.innerHTML = `<span class="${colorClass}">${excessMass.toFixed(2)}g ${excessType}</span>`;
-        } else {
-            excessDisplay.innerHTML = `<span class="text-gray-500">None</span>`;
-        }
+        excessDisplay.innerHTML = `<span class="text-gray-500">0.00g</span>`;
     }
 }
 
