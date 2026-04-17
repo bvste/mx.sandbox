@@ -398,10 +398,10 @@ function convertMetalName(name) {
         "Aluminum": "Al",
         "IronTwo": "Fe (II)",
         "IronThree": "Fe (III)",
-        "CopperOne": "Cu (I)",
         "CopperTwo": "Cu (II)",
-        "Iron": "Fe (II)",
-        "Copper": "Cu (II)"
+        "CopperThree": "Cu (I)", // Assuming this is Copper (I)
+        "Iron": "Fe (II)",      // Added for reference list compatibility
+        "Copper": "Cu (II)"     // Added for reference list compatibility
     };
     return map[name] || name;
 }
@@ -560,18 +560,17 @@ function runMolarMassPhase() {
     const zone = document.getElementById('comparison-zone');
     zone.className = "w-full space-y-8";
 
+    // 4-column layout for M, X, Yield, and Excess
     zone.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="p-4 bg-gray-800 border border-blue-500/30 rounded-2xl">
-            <label class="text-blue-400 text-[10px] font-bold uppercase tracking-widest">Grams of Metal (M)</label>
-            <input type="number" id="input-m" placeholder="0.00" oninput="syncMasses()" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-xl text-white mt-2 text-xl outline-none focus:border-blue-500 transition-colors">
+                <label class="text-blue-400 text-[10px] font-bold uppercase tracking-widest">Grams of Metal (M)</label>
+                <input type="number" id="input-m" placeholder="0.00" oninput="updateYieldInline()" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-xl text-white mt-2 text-xl outline-none">
             </div>
-
-            <div class="p-4 bg-gray-900/50 border border-gray-800 rounded-2xl opacity-80">
-            <label class="text-emerald-400 text-[10px] font-bold uppercase tracking-widest">Grams of Non-Metal (X)</label>
-            <input type="number" id="input-x" placeholder="0.00" readonly class="w-full bg-transparent p-3 rounded-xl text-emerald-500/70 mt-2 text-xl outline-none cursor-not-allowed">
+            <div class="p-4 bg-gray-800 border border-emerald-500/30 rounded-2xl">
+                <label class="text-emerald-400 text-[10px] font-bold uppercase tracking-widest">Grams of Non-Metal (X)</label>
+                <input type="number" id="input-x" placeholder="0.00" oninput="updateYieldInline()" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-xl text-white mt-2 text-xl outline-none">
             </div>
-            
             <div class="p-4 bg-gray-800 border border-purple-500/30 rounded-2xl flex flex-col justify-center text-center">
                 <label class="text-purple-400 text-[10px] font-bold uppercase tracking-widest">Yield of MX</label>
                 <p id="inline-yield-display" class="text-2xl font-black text-white mt-2">0.00</p>
@@ -615,29 +614,6 @@ function runMolarMassPhase() {
     `;
 }
 
-function syncMasses() {
-    const mInput = document.getElementById('input-m');
-    const xInput = document.getElementById('input-x');
-    if (!mInput || !xInput) return;
-
-    const mVal = parseFloat(mInput.value) || 0;
-
-    const metalCharges = { "Nickel":2,"CopperOne":1,"CopperTwo":2,"Silver":1,"Aluminum":3,"IronTwo":2,"IronThree":3,"Magnesium":2 };
-    const nonmetalCharges = { "Chlorine":1,"Bromine":1,"Sulfur":2,"Phosphorus":3 };
-    const mCharge = metalCharges[activeM.name] || 2;
-    const xCharge = nonmetalCharges[activeX.name] || 1;
-    const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
-    const div = gcd(mCharge, xCharge);
-    const mSub = xCharge / div;
-    const xSub = mCharge / div;
-    const ratioXtoM = (xSub * activeX.mass) / (mSub * activeM.mass);
-
-    xInput.value = mVal > 0 ? (mVal * ratioXtoM).toFixed(2) : "";
-    xInput.readOnly = false;
-
-    updateYieldInline();
-}
-
 function updateYieldInline() {
     const mVal = parseFloat(document.getElementById('input-m').value) || 0;
     const xVal = parseFloat(document.getElementById('input-x').value) || 0;
@@ -646,11 +622,11 @@ function updateYieldInline() {
 
     if (mVal <= 0 || xVal <= 0) {
         if(display) display.innerText = "0.00";
-        if(excessDisplay) excessDisplay.innerHTML = "0.00g";
+        if(excessDisplay) excessDisplay.innerHTML = "<span class='text-gray-500'>0.00g</span>";
         return;
     }
 
-    // 1. Map Charges for subscripts
+    // 1. Oxidation states to determine empirical formula
     const metalCharges = {
         "Nickel": 2, "CopperOne": 1, "CopperTwo": 2, "Silver": 1, 
         "Aluminum": 3, "IronTwo": 2, "IronThree": 3, "Magnesium": 2
@@ -659,46 +635,42 @@ function updateYieldInline() {
         "Chlorine": 1, "Bromine": 1, "Sulfur": 2, "Phosphorus": 3
     };
 
-    const mCharge = metalCharges[activeM.name] || 2;
-    const xCharge = nonmetalCharges[activeX.name] || 1;
+    const mCharge = metalCharges[activeM.name];
+    const xCharge = nonmetalCharges[activeX.name];
 
-    // 2. Cross charges for subscripts (Formula: MaXb)
     const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
-    const div = gcd(mCharge, xCharge);
-    const mSub = xCharge / div; 
-    const xSub = mCharge / div; 
-
-    // 3. Calculate how many grams of X are needed for 1 gram of M
-    // Ratio = (Mass of X in formula) / (Mass of M in formula)
-    const ratioXtoM = (xSub * activeX.mass) / (mSub * activeM.mass);
-
-    // 4. Determine Limiting Reactant
-    let reactedM, reactedX, excessMass, excessType;
-
-    if (xVal >= mVal * ratioXtoM) {
-        // Metal (M) is limiting
-        reactedM = mVal;
-        reactedX = mVal * ratioXtoM;
-        excessMass = xVal - reactedX;
-        excessType = "X";
-    } else {
-        // Non-Metal (X) is limiting
-        reactedX = xVal;
-        reactedM = xVal / ratioXtoM;
-        excessMass = mVal - reactedM;
-        excessType = "M";
-    }
-
-    const totalYield = reactedM + reactedX;
-
-    // 5. Update UI
-    // The Yield + Excess will now always equal the total mass added
-    if(display) display.innerText = totalYield.toFixed(2);
+    const divisor = gcd(mCharge, xCharge);
     
+    const mCount = xCharge / divisor; 
+    const xCount = mCharge / divisor; 
+
+    // 2. Calculate true mass fractions dynamically
+    const trueMassM = mCount * activeM.mass;
+    const trueMassX = xCount * activeX.mass;
+    const trueMolarMass = trueMassM + trueMassX;
+
+    const fractionM = trueMassM / trueMolarMass;
+    const fractionX = trueMassX / trueMolarMass;
+
+    // 3. Limiting Reactant Logic
+    const yieldFromM = mVal / fractionM;
+    const yieldFromX = xVal / fractionX;
+    const actualYield = Math.min(yieldFromM, yieldFromX);
+
+    if(display) display.innerText = actualYield.toFixed(2);
+
+    // 4. Excess Reactant Logic
     if(excessDisplay) {
-        if (excessMass > 0.01) {
-            const color = excessType === "M" ? "text-blue-400" : "text-emerald-400";
-            excessDisplay.innerHTML = `<span class="${color}">${excessMass.toFixed(2)}g ${excessType}</span>`;
+        const massMUsed = actualYield * fractionM;
+        const massXUsed = actualYield * fractionX;
+
+        const excessM = mVal - massMUsed;
+        const excessX = xVal - massXUsed;
+
+        if (excessM > 0.01) {
+            excessDisplay.innerHTML = `<span class="text-blue-400">${excessM.toFixed(2)}g M</span>`;
+        } else if (excessX > 0.01) {
+            excessDisplay.innerHTML = `<span class="text-emerald-400">${excessX.toFixed(2)}g X</span>`;
         } else {
             excessDisplay.innerHTML = `<span class="text-gray-500">None</span>`;
         }
@@ -759,6 +731,9 @@ function synthesizeCompound() {
 }
 
 function showCER() {
+    // 1. CLEAN UP: Remove the Phase 1/2/3 Header and Sidebar
+    // This is the most important part to fix the "massive gap"
+    
     // Target the main header (Title + Counter)
     const mainHeader = document.querySelector('div.max-w-6xl.mx-auto.flex.justify-between.items-center.mb-8');
     if (mainHeader) {
