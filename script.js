@@ -692,16 +692,6 @@ function updateYieldInline() {
     }
 }
 
-// Keep this to ensure the 1:1 input as requested
-function syncMasses() {
-    const mInput = document.getElementById('input-m');
-    const xInput = document.getElementById('input-x');
-    if (mInput && xInput) {
-        xInput.value = mInput.value;
-    }
-    updateYieldInline();
-}
-
 function synthesizeCompound() {
     const mInput = document.getElementById('input-m');
     const xInput = document.getElementById('input-x');
