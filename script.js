@@ -398,10 +398,10 @@ function convertMetalName(name) {
         "Aluminum": "Al",
         "IronTwo": "Fe (II)",
         "IronThree": "Fe (III)",
+        "CopperOne": "Cu (I)",
         "CopperTwo": "Cu (II)",
-        "CopperThree": "Cu (I)", // Assuming this is Copper (I)
-        "Iron": "Fe (II)",      // Added for reference list compatibility
-        "Copper": "Cu (II)"     // Added for reference list compatibility
+        "Iron": "Fe (II)",
+        "Copper": "Cu (II)"
     };
     return map[name] || name;
 }
@@ -618,11 +618,24 @@ function runMolarMassPhase() {
 function syncMasses() {
     const mInput = document.getElementById('input-m');
     const xInput = document.getElementById('input-x');
-    
-    if (mInput && xInput) {
-        xInput.value = mInput.value;
-    }
-        updateYieldInline();
+    if (!mInput || !xInput) return;
+
+    const mVal = parseFloat(mInput.value) || 0;
+
+    const metalCharges = { "Nickel":2,"CopperOne":1,"CopperTwo":2,"Silver":1,"Aluminum":3,"IronTwo":2,"IronThree":3,"Magnesium":2 };
+    const nonmetalCharges = { "Chlorine":1,"Bromine":1,"Sulfur":2,"Phosphorus":3 };
+    const mCharge = metalCharges[activeM.name] || 2;
+    const xCharge = nonmetalCharges[activeX.name] || 1;
+    const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+    const div = gcd(mCharge, xCharge);
+    const mSub = xCharge / div;
+    const xSub = mCharge / div;
+    const ratioXtoM = (xSub * activeX.mass) / (mSub * activeM.mass);
+
+    xInput.value = mVal > 0 ? (mVal * ratioXtoM).toFixed(2) : "";
+    xInput.readOnly = false;
+
+    updateYieldInline();
 }
 
 function updateYieldInline() {
