@@ -286,7 +286,6 @@ window.onload = () => {
 // --- CORE LAB LOGIC ---
 
 function loadMenu() {
-    // 1. Exit if in Synthesis
     if (currentPhase === 'Synthesis' || currentPhase === 'P') {
         const workspace = document.getElementById('lab-workspace');
         if (workspace) workspace.classList.add('hidden');
@@ -621,14 +620,14 @@ function updateYieldInline() {
     const excessDisplay = document.getElementById('inline-excess-display');
 
     if (mVal <= 0 || xVal <= 0) {
-        if(display) display.innerText = "0.00";
-        if(excessDisplay) excessDisplay.innerHTML = "<span class='text-gray-500'>0.00g</span>";
+        if (display) display.innerText = "0.00";
+        if (excessDisplay) excessDisplay.innerHTML = "<span class='text-gray-500'>0.00g</span>";
         return;
     }
 
-    // 1. Oxidation states to determine empirical formula
+    // 1. Determine subscripts from oxidation states (cross-multiply & simplify)
     const metalCharges = {
-        "Nickel": 2, "CopperOne": 1, "CopperTwo": 2, "Silver": 1, 
+        "Nickel": 2, "CopperOne": 1, "CopperTwo": 2, "Silver": 1,
         "Aluminum": 3, "IronTwo": 2, "IronThree": 3, "Magnesium": 2
     };
     const nonmetalCharges = {
@@ -640,32 +639,38 @@ function updateYieldInline() {
 
     const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
     const divisor = gcd(mCharge, xCharge);
-    
-    const mCount = xCharge / divisor; 
-    const xCount = mCharge / divisor; 
 
-    // 2. Calculate true mass fractions dynamically
-    const trueMassM = mCount * activeM.mass;
-    const trueMassX = xCount * activeX.mass;
-    const trueMolarMass = trueMassM + trueMassX;
+    // mCount = subscript on M in formula, xCount = subscript on X
+    // Cross-multiply: M_xCharge  X_mCharge  →  simplify
+    const mCount = xCharge / divisor;
+    const xCount = mCharge / divisor;
 
-    const fractionM = trueMassM / trueMolarMass;
-    const fractionX = trueMassX / trueMolarMass;
+    // 2. Molar mass of the product
+    const productMolarMass = (mCount * activeM.mass) + (xCount * activeX.mass);
 
-    // 3. Limiting Reactant Logic
-    const yieldFromM = mVal / fractionM;
-    const yieldFromX = xVal / fractionX;
-    const actualYield = Math.min(yieldFromM, yieldFromX);
+    // 3. Convert input masses → moles of each reactant
+    const molesM = mVal / activeM.mass;
+    const molesX = xVal / activeX.mass;
 
-    if(display) display.innerText = actualYield.toFixed(2);
+    // 4. Determine limiting reactant using mole ratio
+    //    Reaction requires mCount mol M per xCount mol X
+    //    Divide available moles by their stoichiometric coefficient to compare
+    const ratioM = molesM / mCount;   // how many "rxn equivalents" M can supply
+    const ratioX = molesX / xCount;   // how many "rxn equivalents" X can supply
 
-    // 4. Excess Reactant Logic
-    if(excessDisplay) {
-        const massMUsed = actualYield * fractionM;
-        const massXUsed = actualYield * fractionX;
+    const limitingRatio = Math.min(ratioM, ratioX); // moles of reaction that actually proceed
 
-        const excessM = mVal - massMUsed;
-        const excessX = xVal - massXUsed;
+    // 5. Theoretical yield in grams
+    const actualYield = limitingRatio * productMolarMass;
+    if (display) display.innerText = actualYield.toFixed(2);
+
+    // 6. Excess reactant — convert consumed moles back to grams
+    if (excessDisplay) {
+        const molesM_used = limitingRatio * mCount;
+        const molesX_used = limitingRatio * xCount;
+
+        const excessM = (molesM - molesM_used) * activeM.mass;
+        const excessX = (molesX - molesX_used) * activeX.mass;
 
         if (excessM > 0.01) {
             excessDisplay.innerHTML = `<span class="text-blue-400">${excessM.toFixed(2)}g M</span>`;
