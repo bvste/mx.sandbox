@@ -564,11 +564,11 @@ function runMolarMassPhase() {
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="p-4 bg-gray-800 border border-blue-500/30 rounded-2xl">
                 <label class="text-blue-400 text-[10px] font-bold uppercase tracking-widest">Grams of Metal (M)</label>
-                <input type="number" id="input-m" placeholder="0.00" oninput="updateYieldInline()" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-xl text-white mt-2 text-xl outline-none">
+                <input type="number" id="input-m" placeholder="0.00" oninput="syncXToM(); updateYieldInline();" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-xl text-white mt-2 text-xl outline-none">
             </div>
             <div class="p-4 bg-gray-800 border border-emerald-500/30 rounded-2xl">
                 <label class="text-emerald-400 text-[10px] font-bold uppercase tracking-widest">Grams of Non-Metal (X)</label>
-                <input type="number" id="input-x" placeholder="0.00" oninput="updateYieldInline()" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-xl text-white mt-2 text-xl outline-none">
+                <input type="number" id="input-x" placeholder="0.00" readonly oninput="updateYieldInline()" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-xl text-white mt-2 text-xl outline-none opacity-60 cursor-not-allowed">
             </div>
             <div class="p-4 bg-gray-800 border border-purple-500/30 rounded-2xl flex flex-col justify-center text-center">
                 <label class="text-purple-400 text-[10px] font-bold uppercase tracking-widest">Yield of MX</label>
@@ -611,6 +611,14 @@ function runMolarMassPhase() {
             </button>
         </div>
     `;
+}
+
+function syncXToM() {
+    const mInput = document.getElementById('input-m');
+    const xInput = document.getElementById('input-x');
+    if (mInput && xInput) {
+        xInput.value = mInput.value;
+    }
 }
 
 function updateYieldInline() {
