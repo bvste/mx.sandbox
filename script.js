@@ -625,7 +625,7 @@ function updateYieldInline() {
         return;
     }
 
-    // 1. Determine subscripts from oxidation states (cross-multiply & simplify)
+    // 1. Determine subscripts from oxidation states
     const metalCharges = {
         "Nickel": 2, "CopperOne": 1, "CopperTwo": 2, "Silver": 1,
         "Aluminum": 3, "IronTwo": 2, "IronThree": 3, "Magnesium": 2
@@ -640,37 +640,41 @@ function updateYieldInline() {
     const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
     const divisor = gcd(mCharge, xCharge);
 
-    // mCount = subscript on M in formula, xCount = subscript on X
-    // Cross-multiply: M_xCharge  X_mCharge  →  simplify
-    const mCount = xCharge / divisor;
-    const xCount = mCharge / divisor;
+    const mCount = xCharge / divisor;  // subscript on M
+    const xCount = mCharge / divisor;  // subscript on X (atoms)
 
-    // 2. Molar mass of the product
+    // 2. Diatomic check — Br2 and Cl2 are supplied as molecules
+    //    1g of X means 1g of Br2/Cl2, so molar mass is 2× atomic mass
+    //    Each molecule provides 2 atoms, so effective atom moles = 2 × molecule moles
+    const isDiatomic = activeX.name === "Bromine" || activeX.name === "Chlorine";
+    const xMolarMass = isDiatomic ? activeX.mass * 2 : activeX.mass;
+    // xCount is in atoms; stoichiometric molecule coefficient = xCount / 2 (for diatomics)
+    const xMoleculeCount = isDiatomic ? xCount / 2 : xCount;
+
+    // 3. Molar mass of product (still uses atomic masses)
     const productMolarMass = (mCount * activeM.mass) + (xCount * activeX.mass);
 
-    // 3. Convert input masses → moles of each reactant
+    // 4. Convert input masses → moles
     const molesM = mVal / activeM.mass;
-    const molesX = xVal / activeX.mass;
+    const molesX = xVal / xMolarMass;  // moles of Br2/Cl2 (or atomic X)
 
-    // 4. Determine limiting reactant using mole ratio
-    //    Reaction requires mCount mol M per xCount mol X
-    //    Divide available moles by their stoichiometric coefficient to compare
-    const ratioM = molesM / mCount;   // how many "rxn equivalents" M can supply
-    const ratioX = molesX / xCount;   // how many "rxn equivalents" X can supply
+    // 5. Limiting reactant via mole ratio
+    const ratioM = molesM / mCount;
+    const ratioX = molesX / xMoleculeCount;  // compare molecule moles to molecule coefficient
 
-    const limitingRatio = Math.min(ratioM, ratioX); // moles of reaction that actually proceed
+    const limitingRatio = Math.min(ratioM, ratioX);
 
-    // 5. Theoretical yield in grams
+    // 6. Theoretical yield
     const actualYield = limitingRatio * productMolarMass;
     if (display) display.innerText = actualYield.toFixed(2);
 
-    // 6. Excess reactant — convert consumed moles back to grams
+    // 7. Excess reactant
     if (excessDisplay) {
         const molesM_used = limitingRatio * mCount;
-        const molesX_used = limitingRatio * xCount;
+        const molesX_used = limitingRatio * xMoleculeCount;  // molecules used
 
         const excessM = (molesM - molesM_used) * activeM.mass;
-        const excessX = (molesX - molesX_used) * activeX.mass;
+        const excessX = (molesX - molesX_used) * xMolarMass;  // back to grams of Br2/Cl2
 
         if (excessM > 0.01) {
             excessDisplay.innerHTML = `<span class="text-blue-400">${excessM.toFixed(2)}g M</span>`;
@@ -681,7 +685,6 @@ function updateYieldInline() {
         }
     }
 }
-
 function synthesizeCompound() {
     const mInput = document.getElementById('input-m');
     const xInput = document.getElementById('input-x');
