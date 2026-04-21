@@ -1,18 +1,18 @@
 // Database of possible identities
 // I also added the descriptions of each M and X which is shown on the very first page
 const metalIdentities = [
-    { name: "ManganeseTwo", reactivity: 1, description: "Hard, brittle, silvery-gray metal that tarnishes to a dull gray upon exposure to air.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 2 minutes", flame: "Pale yellowish-green flame", mass: 54.94 },
-    { name: "ManganeseThree", reactivity: 1, description: "Hard, brittle, silvery-gray metal that tarnishes to a dull gray upon exposure to air.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 2 minutes", flame: "Pale yellowish-green flame", mass: 54.94 },
-    { name: "ChromiumTwo", reactivity: 2, description: "Lustrous, hard, steel-gray metal with a bluish tinge; resists tarnishing.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 9 minutes", flame: "No distinct color / faint silver-white", mass: 52.00 },
-    { name: "ChromiumThree", reactivity: 2, description: "Lustrous, hard, steel-gray metal with a bluish tinge; resists tarnishing.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 9 minutes", flame: "No distinct color / faint silver-white", mass: 52.00 },
-    { name: "CobaltTwo", reactivity: 4, description: "Lustrous, hard, silvery-gray metal with a slight bluish tinge; somewhat brittle.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 7 minutes", flame: "No distinct color / faint pink", mass: 58.93 },
-    { name: "CobaltThree", reactivity: 4, description: "Lustrous, hard, silvery-gray metal with a slight bluish tinge; somewhat brittle.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 7 minutes", flame: "No distinct color / faint pink", mass: 58.93 },
-    { name: "CopperOne", reactivity: 6, description: "Lustrous, reddish-orange metal with a distinctive warm hue; develops a green patina over time.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 4 minutes", flame: "Bluish-green flame", mass: 63.55 },
-    { name: "CopperTwo", reactivity: 6, description: "Lustrous, reddish-orange metal with a distinctive warm hue; develops a green patina over time.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 4 minutes", flame: "Bluish-green flame", mass: 63.55 },
-    { name: "NickelTwo", reactivity: 5, description: "Lustrous, silvery-white metal with a slight golden tinge; hard and ductile.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 6 minutes", flame: "No distinct color / faint green", mass: 58.69 },
-    { name: "NickelThree", reactivity: 5, description: "Lustrous, silvery-white metal with a slight golden tinge; hard and ductile.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 6 minutes", flame: "No distinct color / faint green", mass: 58.69 },
-    { name: "IronTwo", reactivity: 3, description: "Silvery-gray metal with a metallic luster; prone to rusting (forming reddish-brown iron oxide) when exposed to moisture and air.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Golden-orange sparks", mass: 55.85 },
-    { name: "IronThree", reactivity: 3, description: "Silvery-gray metal with a metallic luster; prone to rusting (forming reddish-brown iron oxide) when exposed to moisture and air.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Golden-orange sparks", mass: 55.85 }
+    { name: "ManganeseTwo", reactivity: 1, description: "shiny silvery-gray metal.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 2 minutes", flame: "Pale yellowish-green flame", mass: 54.94 },
+    { name: "ManganeseThree", reactivity: 1, description: "shiny silvery-gray metal.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 2 minutes", flame: "Pale yellowish-green flame", mass: 54.94 },
+    { name: "ChromiumTwo", reactivity: 2, description: "shiny steel-gray metal with a bluish tinge.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 9 minutes", flame: "No distinct color / faint silver-white", mass: 52.00 },
+    { name: "ChromiumThree", reactivity: 2, description: "shiny steel-gray metal with a bluish tinge.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 9 minutes", flame: "No distinct color / faint silver-white", mass: 52.00 },
+    { name: "CobaltTwo", reactivity: 4, description: "shiny silvery-gray metal with a slight bluish tinge.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 7 minutes", flame: "No distinct color / faint pink", mass: 58.93 },
+    { name: "CobaltThree", reactivity: 4, description: "shiny silvery-gray metal with a slight bluish tinge.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 7 minutes", flame: "No distinct color / faint pink", mass: 58.93 },
+    { name: "CopperOne", reactivity: 6, description: "shiny eddish-orange metal with a distinctive warm hue.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 4 minutes", flame: "Bluish-green flame", mass: 63.55 },
+    { name: "CopperTwo", reactivity: 6, description: "shiny reddish-orange metal with a distinctive warm hue.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 4 minutes", flame: "Bluish-green flame", mass: 63.55 },
+    { name: "NickelTwo", reactivity: 5, description: "shiny silvery-white metal with a slight golden tinge.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 6 minutes", flame: "No distinct color / faint green", mass: 58.69 },
+    { name: "NickelThree", reactivity: 5, description: "shiny silvery-white metal with a slight golden tinge.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 6 minutes", flame: "No distinct color / faint green", mass: 58.69 },
+    { name: "IronTwo", reactivity: 3, description: "Silvery-gray metal with a metallic luster.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Golden-orange sparks", mass: 55.85 },
+    { name: "IronThree", reactivity: 3, description: "Silvery-gray metal with a metallic luster.", hammer: "Sample flattens, bends slightly", activity: "Activity Series", melting: "Sample melts in 5 minutes", flame: "Golden-orange sparks", mass: 55.85 }
 ];
 
 const nonMetalIdentities = [
@@ -24,24 +24,50 @@ const nonMetalIdentities = [
 
 const compoundDatabase = {
     // ── CHLORIDES ──────────────────────────────────────────────────────────────
-    "ManganeseTwoChlorine":   { formula: "MnCl2", appearance: "Pink crystalline solid.", solubility: "soluble", molarMass: 125.84 },
-    "ChromiumTwoChlorine":    { formula: "CrCl2", appearance: "White solid (pure); commercial samples often gray or green.", solubility: "soluble", molarMass: 122.90 },
-    "ChromiumThreeChlorine":  { formula: "CrCl3", appearance: "Violet anhydrous crystals; dark green as hexahydrate.", solubility: "soluble", molarMass: 158.35 },
-    "IronTwoChlorine":        { formula: "FeCl2", appearance: "Tan or pale yellow solid.", solubility: "soluble", molarMass: 126.75 },
-    "IronThreeChlorine":      { formula: "FeCl3", appearance: "Green-black by reflected light; purple-red by transmitted light; yellow as hexahydrate; brown in solution.", solubility: "soluble", molarMass: 162.20 },
-    "CobaltTwoChlorine":      { formula: "CoCl2", appearance: "Blue anhydrous solid; pink-red as hexahydrate.", solubility: "soluble", molarMass: 129.84 },
-    "NickelTwoChlorine":      { formula: "NiCl2", appearance: "Yellow anhydrous solid; green as hexahydrate.", solubility: "soluble", molarMass: 129.60 },
-    "CopperTwoChlorine":      { formula: "CuCl2", appearance: "Dark brown solid; blue-green as dihydrate.", solubility: "soluble", molarMass: 134.45 },
+    "ManganeseTwoChlorine":     { formula: "MnCl2",  appearance: "Pink crystalline solid.", solubility: "soluble", molarMass: 125.84 },
+    "ChromiumTwoChlorine":      { formula: "CrCl2",  appearance: "White solid (pure); commercial samples often gray or green.", solubility: "soluble", molarMass: 122.90 },
+    "ChromiumThreeChlorine":    { formula: "CrCl3",  appearance: "Violet anhydrous crystals; dark green as hexahydrate.", solubility: "soluble", molarMass: 158.35 },
+    "IronTwoChlorine":          { formula: "FeCl2",  appearance: "Tan or pale yellow solid.", solubility: "soluble",   molarMass: 126.75 },
+    "IronThreeChlorine":        { formula: "FeCl3",  appearance: "Green-black by reflected light, brown in solution.", solubility: "soluble", molarMass: 162.20 },
+    "CobaltTwoChlorine":        { formula: "CoCl2",  appearance: "Blue anhydrous solid; pink-red as hexahydrate.", solubility: "soluble",   molarMass: 129.84 },
+    "NickelTwoChlorine":        { formula: "NiCl2",  appearance: "Yellow anhydrous solid; green as hexahydrate.", solubility: "soluble",   molarMass: 129.60 },
+    "CopperOneChlorine":        { formula: "CuCl",   appearance: "White powder; slightly green from oxidized impurities.", solubility: "insoluble", molarMass: 99.00  },
+    "CopperTwoChlorine":        { formula: "CuCl2",  appearance: "Dark brown solid; blue-green as dihydrate.", solubility: "soluble",   molarMass: 134.45 },
 
     // ── BROMIDES ───────────────────────────────────────────────────────────────
-    "ManganeseTwoBromine":    { formula: "MnBr2", appearance: "Pink or rose-colored crystalline solid.", solubility: "soluble", molarMass: 214.75 },
-    "ChromiumTwoBromine":     { formula: "CrBr2", appearance: "White solid; dissolves in water to give blue solutions.", solubility: "soluble", molarMass: 211.80 },
-    "ChromiumThreeBromine":   { formula: "CrBr3", appearance: "Dark solid; green in transmitted light, red in reflected light.", solubility: "soluble", molarMass: 291.70 },
-    "IronTwoBromine":         { formula: "FeBr2", appearance: "Yellow-brown solid.", solubility: "soluble", molarMass: 215.65 },
-    "IronThreeBromine":       { formula: "FeBr3", appearance: "Dark red-brown solid.", solubility: "soluble", molarMass: 295.56 },
-    "CobaltTwoBromine":       { formula: "CoBr2", appearance: "Green crystalline solid; blue-violet as hexahydrate.", solubility: "soluble", molarMass: 218.74 },
-    "NickelTwoBromine":       { formula: "NiBr2", appearance: "Yellow-brown anhydrous solid; blue-green as hexahydrate.", solubility: "soluble", molarMass: 218.50 },
-    "CopperTwoBromine":       { formula: "CuBr2", appearance: "Grayish-black crystals.", solubility: "soluble", molarMass: 223.37 },
+    "ManganeseTwoBromine":      { formula: "MnBr2",  appearance: "Pink or rose-colored crystalline solid.", solubility: "soluble",   molarMass: 214.75 },
+    "ChromiumTwoBromine":       { formula: "CrBr2",  appearance: "White solid; dissolves in water to give blue solutions.", solubility: "soluble",   molarMass: 211.80 },
+    "ChromiumThreeBromine":     { formula: "CrBr3",  appearance: "Dark solid; green in transmitted light, red in reflected light.", solubility: "soluble",   molarMass: 291.70 },
+    "IronTwoBromine":           { formula: "FeBr2",  appearance: "Yellow-brown solid.", solubility: "soluble",   molarMass: 215.65 },
+    "IronThreeBromine":         { formula: "FeBr3",  appearance: "Dark red-brown solid.", solubility: "soluble",   molarMass: 295.56 },
+    "CobaltTwoBromine":         { formula: "CoBr2",  appearance: "Green crystalline solid; blue-violet as hexahydrate.", solubility: "soluble",   molarMass: 218.74 },
+    "NickelTwoBromine":         { formula: "NiBr2",  appearance: "Yellow-brown anhydrous solid; blue-green as hexahydrate.", solubility: "soluble",   molarMass: 218.50 },
+    "CopperOneBromine":         { formula: "CuBr",   appearance: "White powder.", solubility: "insoluble", molarMass: 143.45 },
+    "CopperTwoBromine":         { formula: "CuBr2",  appearance: "Grayish-black crystals.", solubility: "soluble",   molarMass: 223.37 },
+
+    // ── SULFIDES ───────────────────────────────────────────────────────────────
+    "ManganeseTwoSulfur":       { formula: "MnS",    appearance: "Salmon-pink powder; green polymorph also known.", solubility: "insoluble", molarMass: 87.00  },
+    "ManganeseThreeSulfur":     { formula: "Mn2S3",  appearance: "Gray-black powder.", solubility: "insoluble", molarMass: 205.94 },
+    "ChromiumTwoSulfur":        { formula: "CrS",    appearance: "Black solid.", solubility: "insoluble", molarMass: 84.06  },
+    "ChromiumThreeSulfur":      { formula: "Cr2S3",  appearance: "Brown-black hexagonal crystals.", solubility: "insoluble", molarMass: 200.18 },
+    "IronTwoSulfur":            { formula: "FeS",    appearance: "Gray to black solid, sometimes in lumps or powder.", solubility: "insoluble", molarMass: 87.92  },
+    "IronThreeSulfur":          { formula: "Fe2S3",  appearance: "Black powder; unstable, readily decomposes to FeS and S.", solubility: "insoluble", molarMass: 207.87 },
+    "CobaltTwoSulfur":          { formula: "CoS",    appearance: "Black powder.", solubility: "insoluble", molarMass: 91.00  },
+    "NickelTwoSulfur":          { formula: "NiS",    appearance: "Black powder.", solubility: "insoluble", molarMass: 90.76  },
+    "NickelThreeSulfur":        { formula: "Ni2S3",  appearance: "Black solid.",  solubility: "insoluble", molarMass: 214.45 },
+    "CopperOneSulfur":          { formula: "Cu2S",   appearance: "Black crystals.", solubility: "insoluble", molarMass: 159.16 },
+    "CopperTwoSulfur":          { formula: "CuS",    appearance: "Black powder.", solubility: "insoluble", molarMass: 95.62  },
+
+    // ── PHOSPHIDES ─────────────────────────────────────────────────────────────
+    "ManganeseTwoPhosphorus":   { formula: "Mn3P2",  appearance: "Gray metallic solid.", solubility: "insoluble", molarMass: 226.80 },
+    "ManganeseThreePhosphorus": { formula: "MnP",    appearance: "Gray metallic solid.", solubility: "insoluble", molarMass: 85.91  },
+    "ChromiumTwoPhosphorus":    { formula: "Cr3P2",  appearance: "Gray metallic solid.", solubility: "insoluble", molarMass: 217.97 },
+    "ChromiumThreePhosphorus":  { formula: "CrP",    appearance: "Gray metallic crystals.",solubility: "insoluble", molarMass: 82.97  },
+    "IronTwoPhosphorus":        { formula: "Fe3P2",  appearance: "Gray metallic solid.", solubility: "insoluble", molarMass: 229.42 },
+    "IronThreePhosphorus":      { formula: "FeP",    appearance: "Gray needles.", solubility: "insoluble", molarMass: 86.82  },
+    "CobaltTwoPhosphorus":      { formula: "Co3P2",  appearance: "Gray metallic solid.", solubility: "insoluble", molarMass: 238.72 },
+    "NickelTwoPhosphorus":      { formula: "Ni3P2",  appearance: "Gray metallic solid.", solubility: "insoluble", molarMass: 238.01 },
+    "CopperOnePhosphorus":      { formula: "Cu3P",   appearance: "Yellowish-gray crystals.", solubility: "insoluble", molarMass: 221.61 },
 };
 
 
