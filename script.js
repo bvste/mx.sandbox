@@ -961,3 +961,14 @@ async function finalizeLab() {
         }
     }
 }
+
+// make sure people dont accidentally close/refresh
+let isLabSubmitted = false; 
+
+window.addEventListener('beforeunload', function (e) {
+    // If the lab hasn't been submitted yet, trigger the browser's warning popup
+    if (!isLabSubmitted) {
+        e.preventDefault(); 
+        e.returnValue = ''; // This is required by most modern browsers to show the default "Leave Site?" warning
+    }
+});
