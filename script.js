@@ -288,7 +288,32 @@ const solutionDatabase = [
     {name: "Mg(NO3)2", type: "ionic", metal: "Mg", charge: 2, anion: "NO3", display: "Magnesium Nitrate", color: "colorless"}
 ];
 
-window.onload = () => {
+window.onload = async () => {
+    // master control check
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKHQd1vrdU7taJzdUtm2AwQB4fGVqg8DY9TPjPCf_h40gtvgukOuKj0xoIlfDweLaNPQ/exec';
+    
+    try {
+        const response = await fetch(GOOGLE_SCRIPT_URL);
+        const data = await response.json();
+        
+        // If Cell Z1 says "CLOSED", wipe the screen and show a lock message!
+        if (data.labStatus === "CLOSED") {
+            document.body.innerHTML = `
+                <div class="flex items-center justify-center min-h-screen bg-gray-900">
+                    <div class="text-center p-12 bg-black border border-red-500 rounded-3xl shadow-2xl">
+                        <div class="text-6xl mb-4">🔒</div>
+                        <h1 class="text-4xl font-black text-red-500 uppercase tracking-widest mb-4">Lab Closed</h1>
+                        <p class="text-gray-400">The instructor has currently locked access to this lab.</p>
+                    </div>
+                </div>
+            `;
+            return; // Stops all other code from running
+        }
+    } catch (error) {
+        console.log("Could not reach master control. Defaulting to open.");
+    }
+
+    // normal startup
     if(!sessionStorage.getItem('activeStudent')) window.location.href = 'index.html';
     
     // Set initial modal text
@@ -297,7 +322,7 @@ window.onload = () => {
         modalText.innerHTML = `<strong>Element M</strong> is ${activeM.description} <br><br> <strong>Element X</strong> is ${activeX.description}`;
     }
     
-    openModal('mx-modal');
+    if (typeof openModal === "function") openModal('mx-modal');
     loadMenu(); 
 };
 
