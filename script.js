@@ -23,38 +23,56 @@ const nonMetalIdentities = [
 ];
 
 const compoundDatabase = {
-    "CopperOneChlorine": { appearance: "White powder, slightly green from oxidized impurities.", solubility: "insoluble", molarMass: 98.999 },
-    "CopperTwoChlorine": { appearance: "Dark brown solid.", solubility: "soluble", molarMass: 134.45 },
-    "NickelChlorine": { appearance: "Yellow-brown crystals", solubility: "soluble", molarMass: 129.5994 },
-    "IronTwoChlorine": { appearance: "Tan Solid", solubility: "soluble", molarMass: 126.751 },
-    "IronThreeChlorine": { appearance: "Green-black by reflected light; purple-red by transmitted light; yellow solid as hexahydrate; brown as aqueous solution.", solubility: "soluble", molarMass: 162.204 },
+    // Chlorine Groups
+    "ManganeseTwo_Chlorine": { appearance: "Pink crystalline solid.", solubility: "soluble", molarMass: 125.84 },
+    "ChromiumTwo_Chlorine": { appearance: "White solid (pure); commercial samples often gray or green.", solubility: "soluble", molarMass: 122.90 },
+    "ChromiumThree_Chlorine": { appearance: "Violet crystals (anhydrous); dark green crystals as hexahydrate.", solubility: "soluble", molarMass: 158.35 },
+    "CobaltTwo_Chlorine": { appearance: "Blue anhydrous solid; pink-red as hexahydrate.", solubility: "soluble", molarMass: 129.84 },
+    "CopperOne_Chlorine": { appearance: "White powder, slightly green from oxidized impurities.", solubility: "insoluble", molarMass: 99.00 },
+    "CopperTwo_Chlorine": { appearance: "Dark brown solid.", solubility: "soluble", molarMass: 134.45 },
+    "NickelTwo_Chlorine": { appearance: "Yellow anhydrous solid; green as hexahydrate.", solubility: "soluble", molarMass: 129.60 },
+    "IronTwo_Chlorine": { appearance: "Tan solid.", solubility: "soluble", molarMass: 126.75 },
+    "IronThree_Chlorine": { appearance: "Green-black by reflected light; purple-red by transmitted light; yellow solid as hexahydrate; brown as aqueous solution.", solubility: "soluble", molarMass: 162.20 },
     "SilverChlorine": { appearance: "White solid.", solubility: "insoluble", molarMass: 143.32 },
-    "AluminumChlorine": { appearance: "White to gray powder.", solubility: "soluble", molarMass: 133.341 },
-    "MagnesiumChlorine": { appearance: "White or colorless crystals", solubility: "soluble", molarMass: 95.211 },
-
+    "AluminumChlorine": { appearance: "White to gray powder.", solubility: "soluble", molarMass: 133.34 },
+    "MagnesiumChlorine": { appearance: "White or colorless crystals.", solubility: "soluble", molarMass: 95.21 },
+    
     // Bromine Groups
-    "CopperOneBromine": { appearance: "White powder.", solubility: "insoluble", molarMass: 143.45 },
-    "CopperTwoBromine": { appearance: "Grayish black crystals.", solubility: "soluble", molarMass: 223.37 },
-    "NickelBromine": { appearance: "Yellow-brown crystals.", solubility: "soluble", molarMass: 218.53 },
-    "IronTwoBromine": { appearance: "yellow-brown solid.", solubility: "soluble", molarMass: 215.65 },
-    "IronThreeBromine": { appearance: "Brown solid.", solubility: "soluble", molarMass: 295.56 },
+    "ManganeseTwo_Bromine": { appearance: "Pink crystalline solid.", solubility: "soluble", molarMass: 214.75 },
+    "ChromiumTwo_Bromine": { appearance: "White solid.", solubility: "soluble", molarMass: 211.80 },
+    "ChromiumThree_Bromine": { appearance: "Dark solid; green in transmitted light, red in reflected light.", solubility: "soluble", molarMass: 291.70 },
+    "CobaltTwo_Bromine": { appearance: "Green crystalline solid.", solubility: "soluble", molarMass: 218.74 },
+    "CopperOne_Bromine": { appearance: "White powder.", solubility: "insoluble", molarMass: 143.45 },
+    "CopperTwo_Bromine": { appearance: "Grayish-black crystals.", solubility: "soluble", molarMass: 223.37 },
+    "NickelTwo_Bromine": { appearance: "Yellow-brown anhydrous solid; blue-green as hexahydrate.", solubility: "soluble", molarMass: 218.50 },
+    "IronTwo_Bromine": { appearance: "Yellow-brown solid.", solubility: "soluble", molarMass: 215.65 },
+    "IronThree_Bromine": { appearance: "Brown solid.", solubility: "soluble", molarMass: 295.56 },
     "SilverBromine": { appearance: "Pale yellow solid.", solubility: "insoluble", molarMass: 187.77 },
-    "AluminumBromine": { appearance: "White to yellowish-red, lumpy solid", solubility: "soluble", molarMass: 266.694 },
-    "MagnesiumBromine": { appearance: "White crystals.", solubility: "soluble", molarMass: 184.113 },
-
-    //Sulfur Groups
-    "CopperOneSulfur": { appearance: "Black crystals.", solubility: "insoluble", molarMass: 159.16 },
-    "IronTwoSulfur": { appearance: "Gray, sometimes in lumps or powder.", solubility: "insoluble", molarMass: 87.91 },
-    "SilverSulfur": { appearance: "Gray-blackish crystals.", solubility: "insoluble", molarMass: 247.8 },
-    "AluminumSulfur": { appearance: "Gray solid.", solubility: "soluble", molarMass: 150.162 },
-    "MagnesiumSulfur": { appearance: "White to reddish brown powder.", solubility: "soluble", molarMass: 56.371 },
-
-    // Phosphorus Groups
-    "CopperOnePhosphorus": { appearance: "Yellowish gray crystals.", solubility: "insoluble", molarMass: 221.6127 },
-    "IronThreePhosphorus": { appearance: "Gray needles.", solubility: "insoluble", molarMass: 86.819 },
-    "AluminumPhosphorus": { appearance: "Yellow or gray crystals.", solubility: "insoluble", molarMass: 57.955 },
-    "MagnesiumPhosphorus": { appearance: "White crystalline solid", solubility: "insoluble", molarMass: 134.861 },    
-    };
+    "AluminumBromine": { appearance: "White to yellowish-red lumpy solid.", solubility: "soluble", molarMass: 266.69 },
+    "MagnesiumBromine": { appearance: "White crystals.", solubility: "soluble", molarMass: 184.11 },
+    
+    // Sulfide Groups
+    "ManganeseTwo_Sulfur": { appearance: "Salmon-pink or pale green powder.", solubility: "insoluble", molarMass: 87.00 },
+    "ChromiumTwo_Sulfur": { appearance: "Black solid.", solubility: "insoluble", molarMass: 84.06 },
+    "ChromiumThree_Sulfur": { appearance: "Brown-black hexagonal crystals.", solubility: "insoluble", molarMass: 200.18 },
+    "CobaltTwo_Sulfur": { appearance: "Black powder.", solubility: "insoluble", molarMass: 91.00 },
+    "CopperOne_Sulfur": { appearance: "Black crystals.", solubility: "insoluble", molarMass: 159.16 },
+    "NickelTwo_Sulfur": { appearance: "Black powder.", solubility: "insoluble", molarMass: 90.77 },
+    "IronTwo_Sulfur": { appearance: "Gray, sometimes in lumps or powder.", solubility: "insoluble", molarMass: 87.91 },
+    "SilverSulfur": { appearance: "Gray-blackish crystals.", solubility: "insoluble", molarMass: 247.80 },
+    "AluminumSulfur": { appearance: "Gray solid.", solubility: "soluble", molarMass: 150.16 },
+    "MagnesiumSulfur": { appearance: "White to reddish-brown powder.", solubility: "soluble", molarMass: 56.37 },
+    
+    // Phosphide Groups
+    "ManganeseTwo_Phosphorus": { appearance: "Gray metallic solid.", solubility: "insoluble", molarMass: 141.89 },
+    "ChromiumThree_Phosphorus": { appearance: "Gray metallic crystals.", solubility: "insoluble", molarMass: 82.97 },
+    "CobaltTwo_Phosphorus": { appearance: "Gray metallic solid.", solubility: "insoluble", molarMass: 148.84 },
+    "CopperOne_Phosphorus": { appearance: "Yellowish-gray crystals.", solubility: "insoluble", molarMass: 221.61 },
+    "NickelTwo_Phosphorus": { appearance: "Gray metallic solid.", solubility: "insoluble", molarMass: 148.36 },
+    "IronThree_Phosphorus": { appearance: "Gray needles.", solubility: "insoluble", molarMass: 86.82 },
+    "AluminumPhosphorus": { appearance: "Yellow or gray crystals.", solubility: "insoluble", molarMass: 57.96 },
+    "MagnesiumPhosphorus": { appearance: "White crystalline solid.", solubility: "insoluble", molarMass: 134.86 },
+};
 
 
 function initializeIdentities() {
