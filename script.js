@@ -769,29 +769,18 @@ function synthesizeCompound() {
 }
 
 function showCER() {
-    // 1. CLEAN UP: Remove the Phase 1/2/3 Header and Sidebar
-    // This is the most important part to fix the "massive gap"
-    
-    // Target the main header (Title + Counter)
     const mainHeader = document.querySelector('div.max-w-6xl.mx-auto.flex.justify-between.items-center.mb-8');
-    if (mainHeader) {
-        mainHeader.style.display = 'none';
-    }
+    if (mainHeader) mainHeader.style.display = 'none';
 
-    // Target the sidebar menu (if it's still taking up space)
     const sidebar = document.querySelector('aside') || document.querySelector('.w-1\\/3');
-    if (sidebar) {
-        sidebar.style.display = 'none';
-    }
+    if (sidebar) sidebar.style.display = 'none';
 
-    // Target the lab workspace (Identification Phases)
     const labWorkspace = document.getElementById('lab-workspace');
     if (labWorkspace) {
         labWorkspace.style.display = 'none';
         labWorkspace.classList.add('hidden');
     }
 
-    // Target the Synthesis Phase workspace
     const phase3 = document.getElementById('phase-3-workspace');
     if (phase3) {
         phase3.style.display = 'none';
@@ -799,11 +788,8 @@ function showCER() {
     }
 
     // 2. RESET PAGE ALIGNMENT
-    // We remove centering so the summary starts at the absolute top of the page
     document.body.classList.remove('flex', 'items-center', 'justify-center', 'min-h-screen');
     document.body.classList.add('block', 'pt-4'); 
-    
-    // Force scroll to top in case they were scrolled down in Phase 3
     window.scrollTo(0, 0);
 
     // 3. SETUP CER CONTAINER
@@ -819,13 +805,30 @@ function showCER() {
     
     log.className = "w-full space-y-10 mt-0"; 
     
-    // 4. RENDER HTML (Maintaining your exact style)
+    // 4. RENDER HTML 
     log.innerHTML = `
         <div class="w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
             
             <div class="bg-gray-800 p-8 rounded-3xl border border-gray-700 shadow-2xl mb-12 text-center">
                 <h2 class="text-3xl font-black text-sky-400 uppercase tracking-tighter">Phase 4: Final Evidence Log</h2>
             </div>
+
+            <section class="mb-12">
+                <div class="flex items-center gap-4 mb-6">
+                    <h4 class="text-gray-400 font-bold uppercase text-[10px] tracking-[0.3em] px-3 border-l-4 border-gray-600">Initial Observations</h4>
+                    <div class="h-[1px] flex-grow bg-gradient-to-r from-gray-600/50 to-transparent"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-6 bg-gray-900/50 border border-gray-800 rounded-3xl shadow-xl hover:border-blue-500/30 transition-colors">
+                        <b class="text-blue-400 block mb-3 uppercase text-[10px] tracking-widest">Element M</b>
+                        <p class="text-sm text-gray-300 leading-relaxed">${activeM.description}</p>
+                    </div>
+                    <div class="p-6 bg-gray-900/50 border border-gray-800 rounded-3xl shadow-xl hover:border-emerald-500/30 transition-colors">
+                        <b class="text-emerald-400 block mb-3 uppercase text-[10px] tracking-widest">Element X</b>
+                        <p class="text-sm text-gray-300 leading-relaxed">${activeX.description}</p>
+                    </div>
+                </div>
+            </section>
 
             <section class="mb-12">
                 <div class="flex items-center gap-4 mb-6">
