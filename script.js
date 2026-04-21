@@ -111,25 +111,6 @@ const experimentsX = [
     { id: 'conductX', name: "Conductivity Test", static: "Red and Green lights remain off." }
 ];
 
-//Reactivity series data
-
-const reactivitySeries = [
-    "Calcium",
-    "Magnesium",
-    "Aluminum",
-    "Manganese",
-    "Zinc",
-    "Chromium",
-    "Iron (II)",
-    "Iron (III)",
-    "Cobalt",
-    "Nickel",
-    "Tin",
-    "Copper (I)",
-    "Copper (II)",
-    "Silver"
-];
-
 const reactionMatrix = {
 
     "Zn": {
