@@ -112,20 +112,18 @@ const experimentsX = [
 ];
 
 const reactivitySeries = [
-    "Calcium",
-    "Magnesium",
-    "Aluminum",
-    "Manganese",
-    "Zinc",
-    "Chromium",
-    "Iron (II)",
-    "Iron (III)",
-    "Cobalt",
-    "Nickel",
-    "Tin",
-    "Copper (I)",
-    "Copper (II)",
-    "Silver"
+    "ManganeseTwo",
+    "ManganeseThree",
+    "ChromiumTwo",
+    "ChromiumThree",
+    "IronTwo",
+    "IronThree",
+    "CobaltTwo",
+    "CobaltThree",
+    "NickelTwo",
+    "NickelThree",
+    "CopperOne",
+    "CopperTwo"
 ];
 
 const reactionMatrix = {
