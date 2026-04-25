@@ -127,122 +127,61 @@ const reactivitySeries = [
 ];
 
 const reactionMatrix = {
-
-    "Zn": {
-        "HCl": "Bubbles, metal dissolves",
-        "Ca(NO3)2": "Reddish-brown metal coat",
-        "ZnCl2": "yellowish-white metal coat",
-        "Cu(NO3)2": "metal coat",
-        "NiSO4": "Gray solid forms",
-        "AgNO3": "Silver crystals form; solution clears"
+    "Mg": {
+        "HCl": "Vigorous bubbling",
+        "ZnCl2": "Yellowish-white metal coat",
+        "Cu(NO3)2": "Reddish-brown metal coat",
+        "NiSO4": "Silver metal coat",
+        "CoSO4": "Silver metal coat",
+        "FeSO4": "Color change",
+        "FeCl3": "Color change",
+        "AgNO3": "Silver metal coat",
+        "CrCl3": "Silver metal coat",
+        "MnCO3": "Silver metal coat"
     },
-
-    "Cu (I)": {
+    "Mn": {
+        "HCl": "Bubbles",
+        "ZnCl2": "Yellowish-white metal coat",
+        "Cu(NO3)2": "Reddish-brown metal coat",
+        "NiSO4": "Silver metal coat",
+        "CoSO4": "Silver metal coat",
+        "FeSO4": "Color change",
+        "FeCl3": "Color change",
+        "AgNO3": "Silver metal coat",
+        "CrCl3": "Silver metal coat"
+    },
+    "Cr": {
+        "HCl": "Slow bubbles",
+        "ZnCl2": "Yellowish-white metal coat",
+        "Cu(NO3)2": "Reddish-brown metal coat",
+        "NiSO4": "Silver metal coat",
+        "FeSO4": "Metal coat",
+        "FeCl3": "Metal coat",
+        "AgNO3": "Silver metal coat"
+    },
+    "Cu": {
+        "FeCl3": "Metal dissolves; solution color change",
         "AgNO3": "Silver crystals form"
     },
-
-    "Cu (II)": {
-        "AgNO3": "Silver crystals form"
+    "Co": {
+        "HCl": "Slow bubbles",
+        "ZnCl2": "Yellowish-white metal coat",
+        "Cu(NO3)2": "Reddish-brown metal coat",
+        "NiSO4": "Metal coat",
+        "AgNO3": "Silver metal coat"
     },
-
+    "Fe": {
+        "HCl": "Bubbles; solution turns pale green",
+        "ZnCl2": "Yellowish-white metal coat",
+        "Cu(NO3)2": "Reddish-brown metal coat",
+        "NiSO4": "Silver metal coat",
+        "AgNO3": "Silver metal coat"
+    },
     "Ni": {
         "HCl": "Slow bubbles",
         "Cu(NO3)2": "Reddish-brown metal coat",
-        "AgNO3": "silver metal coat"
-    },
-
-    "Co": {
-        "HCl": "Slow bubbles",
-        "Cu(NO3)2": "Reddish-brown metal coat",
-        "ZnCl2": "yellowish-white metal coat",
-        "AgNO3": "silver metal coat"
-    },
-
-    "Fe (II)": {
-        "HCl": "Bubbles; solution turns pale green",
-        "Cu(NO3)2": "Reddish-brown metal coat",
-        "ZnCl2": "yellowish-white metal coat",
-        "NiSO4": "silver metal coat",
-        "AgNO3": "silver metal coat"
-    },
-
-    "Fe (III)": {
-        "Cu(NO3)2": "Reddish-brown metal coat",
-        "ZnCl2": "yellowish-white metal coat",
-        "NiSO4": "silver metal coat",
-        "AgNO3": "silver metal coat"
-    },
-
-    "Ag": {
-        // no reactions listed
-    },
-
-    "Cr": {
-        "HCl": "Slow bubbles",
-        "Cu(NO3)2": "Reddish-brown metal coat",
-        "ZnCl2": "yellowish-white metal coat",
-        "NiSO4": "silver metal coat",
-        "AgNO3": "silver metal coat",
-        "FeSO4": "metal coat"
-    },
-
-    "Mn": {
-        "HCl": "Bubbles",
-        "Ca(NO3)2": "Metal coat",
-        "Cu(NO3)2": "Reddish-brown metal coat",
-        "ZnCl2": "yellowish-white metal coat",
-        "NiSO4": "silver metal coat",
-        "CoSO4": "silver metal coat",
-        "FeSO4": "color change",
-        "AgNO3": "silver metal coat",
-        "CrCl3": "silver metal coat"
-    },
-
-    "Mg": {
-        "HCl": "Vigorous bubbling",
-        "Ca(NO3)2": "silver metal coat",
-        "Cu(NO3)2": "Reddish-brown metal coat",
-        "ZnCl2": "yellowish-white metal coat",
-        "NiSO4": "silver metal coat",
-        "CoSO4": "silver metal coat",
-        "FeSO4": "color change",
-        "AgNO3": "silver metal coat",
-        "CrCl3": "silver metal coat",
-        "MnCO3": "silver metal coat"
-    },
-
-    "Ca": {
-        "HCl": "Very vigorous bubbling",
-        "Ca(NO3)2": "vigrous bubbling",
-        "ZnCl2": "silver metal coat",
-        "Cu(NO3)2": "Reddish-brown metal coat",
-        "NiSO4": "yellowish-white metal coat",
-        "CoSO4": "silver metal coat",
-        "FeSO4": "silver metal coat",
-        "AgNO3": "color change",
-        "CrCl3": "silver metal coat",
-        "MnCO3": "silver metal coat",
-        "Mg(NO3)2": "metal coat"
-    },
-
-    "Sn": {
-        "HCl": "Slow bubbles",
-        "Cu(NO3)2": "Reddish-brown metal coat"
-    },
-
-    "Al": {
-        "HCl": "Bubbles after oxide layer removed",
-        "Ca(NO3)2": "silver metal coat",
-        "Cu(NO3)2": "Reddish-brown metal coat",
-        "ZnCl2": "yellowish-white metal coat",
-        "NiSO4": "silver metal coat",
-        "CoSO4": "silver metal coat",
-        "FeSO4": "color change",
-        "AgNO3": "silver metal coat",
-        "CrCl3": "silver metal coat",
-        "MnCO3": "silver metal coat"
+        "AgNO3": "Silver metal coat"
     }
-
 };
 
 // --- STATE MANAGEMENT ---
