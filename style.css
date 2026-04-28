@@ -1,86 +1,53 @@
-:root { --lab-bg: #1f2937; }
-body { background-color: var(--lab-bg); font-family: 'Inter', sans-serif; color: #e5e7eb; }
-
+:root { --lab-bg: #f5f0e8; }
+body { background-color: var(--lab-bg); font-family: 'Inter', sans-serif; color: #1a1a2e; }
 .hidden { display: none; }
 .modal { 
     display: none; position: fixed; inset: 0; 
-    background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); 
+    background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); 
     z-index: 100; align-items: center; justify-content: center; 
 }
 .modal.active { display: flex; }
-
 .experiment-card { 
     cursor: pointer; padding: 1rem; border-radius: 0.75rem; 
-    background: #374151; border: 2px solid transparent; transition: all 0.2s; 
+    background: #e8e0d0; border: 2px solid transparent; transition: all 0.2s; 
 }
-.selected-m { border-color: #3b82f6; background: rgba(59, 130, 246, 0.2); }
-.selected-x { border-color: #10b981; background: rgba(16, 185, 129, 0.2); }
-
-.teacher-btn {
-    position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    display: flex;
-    items-center: center;
-    gap: 0.5rem;
-    background-color: #374151; /* Gray-700 */
-    color: #9ca3af; /* Gray-400 */
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.5rem 1rem;
-    border-radius: 9999px;
-    border: 1px solid #4b5563;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s ease;
-    cursor: pointer;
-    z-index: 1000;
-}
-
-.teacher-btn:hover {
-    background-color: #4b5563;
-    color: #f3f4f6;
-    border-color: #6b7280;
-}
-
+.selected-m { border-color: #2563eb; background: rgba(37, 99, 235, 0.15); }
+.selected-x { border-color: #059669; background: rgba(5, 150, 105, 0.15); }
 /* Base Card Style */
 .experiment-card {
     cursor: pointer;
     padding: 1.25rem;
     border-radius: 0.75rem;
-    background: #374151;
-    border: 2px solid transparent;
+    background: #e8e0d0;
+    border: 2px solid #d4c9b5;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
 }
-
 /* Hover Effect - Subtle glow and lift */
 .experiment-card:hover {
     transform: translateY(-2px);
-    background: #4b5563;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-    border-color: #4b5563;
+    background: #ddd5c4;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
+    border-color: #b8a99a;
 }
-
 /* Selected States */
 .selected-m { 
-    border-color: #3b82f6 !important; 
-    background: rgba(59, 130, 246, 0.2) !important;
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+    border-color: #2563eb !important; 
+    background: rgba(37, 99, 235, 0.12) !important;
+    box-shadow: 0 0 15px rgba(37, 99, 235, 0.2);
 }
-
 .selected-x { 
-    border-color: #10b981 !important; 
-    background: rgba(16, 185, 129, 0.2) !important;
-    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+    border-color: #059669 !important; 
+    background: rgba(5, 150, 105, 0.12) !important;
+    box-shadow: 0 0 15px rgba(5, 150, 105, 0.2);
 }
-
 .cer-result-card {
-    border: 2px solid #1e293b; /* Darker Slate/Navy border */
-    background-color: #0f172a; /* Deeper background */
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    border: 2px solid #c4b8a8;
+    background-color: #ede6d8;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    color: #1a1a2e;
 }
-
 .cer-result-card:hover {
-    border-color: #334155; /* Subtle highlight on hover */
+    border-color: #a89880;
 }
