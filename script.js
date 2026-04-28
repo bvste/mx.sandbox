@@ -223,42 +223,39 @@ const solutionDatabase = [
     {name: "Mg(NO3)2", type: "ionic", metal: "Mg", charge: 2, anion: "NO3", display: "Magnesium Nitrate", color: "colorless"}
 ];
 
-window.onload = async () => {
-    // master control check
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKHQd1vrdU7taJzdUtm2AwQB4fGVqg8DY9TPjPCf_h40gtvgukOuKj0xoIlfDweLaNPQ/exec';
-    
-    try {
-        const response = await fetch(GOOGLE_SCRIPT_URL);
-        const data = await response.json();
-        
-        // If Cell Z1 says "CLOSED", wipe the screen and show a lock message!
-        if (data.labStatus === "CLOSED") {
-            document.body.innerHTML = `
-                <div class="flex items-center justify-center min-h-screen bg-gray-900">
-                    <div class="text-center p-12 bg-black border border-red-500 rounded-3xl shadow-2xl">
-                        <div class="text-6xl mb-4">🔒</div>
-                        <h1 class="text-4xl font-black text-red-500 uppercase tracking-widest mb-4">Lab Closed</h1>
-                        <p class="text-gray-400">The instructor has currently locked access to this lab.</p>
-                    </div>
-                </div>
-            `;
-            return; // Stops all other code from running
-        }
-    } catch (error) {
-        console.log("Could not reach master control. Defaulting to open.");
+window.onload = () => {
+    // Redirect if no student session
+    if (!sessionStorage.getItem('activeStudent')) {
+        window.location.href = 'index.html';
+        return;
     }
 
-    // normal startup
-    if(!sessionStorage.getItem('activeStudent')) window.location.href = 'index.html';
-    
-    // Set initial modal text
+    // Set initial modal text and load UI immediately — no waiting
     const modalText = document.querySelector('#mx-modal p');
     if (modalText) {
         modalText.innerHTML = `<strong>Element M</strong> is ${activeM.description} <br><br> <strong>Element X</strong> is ${activeX.description}`;
     }
-    
     if (typeof openModal === "function") openModal('mx-modal');
-    loadMenu(); 
+    loadMenu();
+
+    // Check lab status in background — closes lab if instructor locked it
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKHQd1vrdU7taJzdUtm2AwQB4fGVqg8DY9TPjPCf_h40gtvgukOuKj0xoIlfDweLaNPQ/exec';
+    fetch(GOOGLE_SCRIPT_URL)
+        .then(r => r.json())
+        .then(data => {
+            if (data.labStatus === "CLOSED") {
+                document.body.innerHTML = `
+                    <div class="flex items-center justify-center min-h-screen" style="background:#f5f0e8;">
+                        <div class="text-center p-12 bg-white border-2 border-red-400 rounded-3xl shadow-2xl">
+                            <div class="text-6xl mb-4">🔒</div>
+                            <h1 class="text-4xl font-black text-red-600 uppercase tracking-widest mb-4">Lab Closed</h1>
+                            <p class="text-stone-600">The instructor has currently locked access to this lab.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        })
+        .catch(() => console.log("Could not reach master control. Defaulting to open."));
 };
 
 // --- CORE LAB LOGIC ---
@@ -290,14 +287,14 @@ function loadMenu() {
                 ${isDisabled ? 'disabled' : ''} 
                 class="w-full text-left p-4 rounded-xl border transition-all flex justify-between items-center mb-2
                 ${isDone 
-                    ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400' 
+                    ? 'bg-emerald-100 border-emerald-400 text-emerald-800' 
                     : isDisabled 
-                        ? 'opacity-30 bg-gray-900 border-gray-800 cursor-not-allowed text-gray-600' 
-                        : 'hover:bg-gray-700 bg-gray-800 border-gray-700 text-white shadow-sm'}">
-                <span class="font-medium text-[11px] tracking-widest">${exp.name}</span>
+                        ? 'opacity-40 bg-stone-100 border-stone-300 cursor-not-allowed text-stone-400' 
+                        : 'hover:bg-amber-50 hover:border-amber-400 bg-white border-stone-300 text-stone-800 shadow-sm'}">
+                <span class="font-semibold text-sm tracking-wide">${exp.name}</span>
                 <div class="flex items-center gap-2">
                     ${isDone ? '<span>✅</span>' : ''}
-                    ${isDisabled ? '<span class="text-[8px] bg-black/40 px-2 py-1 rounded">LOCKED</span>' : '<span class="text-blue-500">→</span>'}
+                    ${isDisabled ? '<span class="text-[9px] bg-stone-200 text-stone-500 px-2 py-1 rounded font-bold">LOCKED</span>' : '<span class="text-amber-600 font-bold">→</span>'}
                 </div>
             </button>`;
     }).join('');
@@ -306,12 +303,12 @@ function loadMenu() {
         const nextLabel = (currentPhase === 'M') ? "Proceed to Non-Metal X" : "Begin Synthesis Phase";
         
         menuHTML += `
-            <div class="mt-8 pt-6 border-t border-gray-800">
+            <div class="mt-8 pt-6 border-t border-stone-300">
                 <button onclick="checkPhaseTransition()" 
-                    class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl shadow-lg transition-all uppercase tracking-widest text-xs">
+                    class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl shadow-lg transition-all uppercase tracking-widest text-sm">
                     ${nextLabel}
                 </button>
-                <p class="text-[9px] text-center text-gray-500 mt-3 uppercase font-bold tracking-widest">
+                <p class="text-[10px] text-center text-stone-500 mt-3 uppercase font-bold tracking-widest">
                     Phase ${currentPhase} Complete
                 </p>
             </div>
@@ -369,16 +366,30 @@ function getSolutionData(solutionName) {
 
 function convertMetalName(name) {
     const map = {
+        // metalIdentities names → reactionMatrix keys
+        "ManganeseTwo":   "Mn",
+        "ManganeseThree": "Mn",
+        "ChromiumTwo":    "Cr",
+        "ChromiumThree":  "Cr",
+        "CobaltTwo":      "Co",
+        "CobaltThree":    "Co",
+        "CopperOne":      "Cu",
+        "CopperTwo":      "Cu",
+        "NickelTwo":      "Ni",
+        "NickelThree":    "Ni",
+        "IronTwo":        "Fe",
+        "IronThree":      "Fe",
+        // referenceMetals names → reactionMatrix keys
+        "Manganese": "Mn",
+        "Chromium":  "Cr",
+        "Cobalt":    "Co",
+        "Copper":    "Cu",
+        "Nickel":    "Ni",
+        "Iron":      "Fe",
+        // legacy / other
         "Magnesium": "Mg",
-        "Nickel": "Ni",
-        "Silver": "Ag",
-        "Aluminum": "Al",
-        "IronTwo": "Fe (II)",
-        "IronThree": "Fe (III)",
-        "CopperTwo": "Cu (II)",
-        "CopperThree": "Cu (I)", // Assuming this is Copper (I)
-        "Iron": "Fe (II)",      // Added for reference list compatibility
-        "Copper": "Cu (II)"     // Added for reference list compatibility
+        "Silver":    "Ag",
+        "Aluminum":  "Al"
     };
     return map[name] || name;
 }
@@ -467,8 +478,8 @@ function showPhaseCompleteButton() {
     const zone = document.getElementById('comparison-zone');
     // Add a big "Proceed" button at the bottom of the results
     zone.innerHTML += `
-        <div class="mt-8 flex justify-center w-full md:col-span-2 border-t border-gray-800 pt-6">
-            <button onclick="checkPhaseTransition()" class="px-12 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-full shadow-2xl transition-all animate-bounce uppercase tracking-widest">
+        <div class="mt-8 flex justify-center w-full md:col-span-2 border-t border-stone-300 pt-6">
+            <button onclick="checkPhaseTransition()" class="px-12 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-full shadow-2xl transition-all animate-bounce uppercase tracking-widest text-sm">
                 All Tests Complete - Proceed
             </button>
         </div>
@@ -613,8 +624,29 @@ function updateYieldInline() {
 
     // 1. Determine subscripts from oxidation states
     const metalCharges = {
-        "Nickel": 2, "CopperOne": 1, "CopperTwo": 2, "Silver": 1,
-        "Aluminum": 3, "IronTwo": 2, "IronThree": 3, "Magnesium": 2
+        // metalIdentities names
+        "ManganeseTwo":   2,
+        "ManganeseThree": 3,
+        "ChromiumTwo":    2,
+        "ChromiumThree":  3,
+        "CobaltTwo":      2,
+        "CobaltThree":    3,
+        "CopperOne":      1,
+        "CopperTwo":      2,
+        "NickelTwo":      2,
+        "NickelThree":    3,
+        "IronTwo":        2,
+        "IronThree":      3,
+        // legacy names
+        "Nickel":         2,
+        "Silver":         1,
+        "Aluminum":       3,
+        "Magnesium":      2,
+        "Iron":           2,
+        "Cobalt":         2,
+        "Copper":         2,
+        "Manganese":      2,
+        "Chromium":       3
     };
     const nonmetalCharges = {
         "Chlorine": 1, "Bromine": 1, "Sulfur": 2, "Phosphorus": 3
@@ -950,6 +982,6 @@ window.addEventListener('beforeunload', function (e) {
     // If the lab hasn't been submitted yet, trigger the browser's warning popup
     if (!isLabSubmitted) {
         e.preventDefault(); 
-        e.returnValue = ''; // This is required by most modern browsers to show the default "Leave Site?" warning
+        e.returnValue = ''; 
     }
 });
