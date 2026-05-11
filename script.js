@@ -369,16 +369,30 @@ function getSolutionData(solutionName) {
 
 function convertMetalName(name) {
     const map = {
+        // metalIdentities names → reactionMatrix keys
+        "ManganeseTwo":   "Mn",
+        "ManganeseThree": "Mn",
+        "ChromiumTwo":    "Cr",
+        "ChromiumThree":  "Cr",
+        "CobaltTwo":      "Co",
+        "CobaltThree":    "Co",
+        "CopperOne":      "Cu",
+        "CopperTwo":      "Cu",
+        "NickelTwo":      "Ni",
+        "NickelThree":    "Ni",
+        "IronTwo":        "Fe",
+        "IronThree":      "Fe",
+        // referenceMetals names → reactionMatrix keys
+        "Manganese": "Mn",
+        "Chromium":  "Cr",
+        "Cobalt":    "Co",
+        "Copper":    "Cu",
+        "Nickel":    "Ni",
+        "Iron":      "Fe",
+        // others
         "Magnesium": "Mg",
-        "Nickel": "Ni",
-        "Silver": "Ag",
-        "Aluminum": "Al",
-        "IronTwo": "Fe (II)",
-        "IronThree": "Fe (III)",
-        "CopperTwo": "Cu (II)",
-        "CopperThree": "Cu (I)", // Assuming this is Copper (I)
-        "Iron": "Fe (II)",      // Added for reference list compatibility
-        "Copper": "Cu (II)"     // Added for reference list compatibility
+        "Silver":    "Ag",
+        "Aluminum":  "Al"
     };
     return map[name] || name;
 }
@@ -396,17 +410,6 @@ function runComparisonTest() {
     
     const exp = (currentPhase === 'M') ? experimentsM.find(e => e.id === activeTest) : experimentsX.find(e => e.id === activeTest);
     const zone = document.getElementById('comparison-zone');
-    
-    // 2. Calculate Result
-    let userResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
-    if (activeTest === "activity") userResult = "Results of activity test";
-
-    // 3. Build the Results HTML
-    let html = `
-        <div class="p-4 bg-blue-100 border border-blue-400 rounded-xl md:col-span-2 text-center shadow-md mb-4">
-            <p class="text-[10px] text-blue-700 uppercase font-black tracking-widest">Unknown Sample ${currentPhase}</p>
-            <p class="text-xl text-blue-900 font-bold">${userResult || "Testing..."}</p>
-        </div>`;
 
     const selections = [
         document.getElementById('ref-1').value,
@@ -416,50 +419,96 @@ function runComparisonTest() {
 
     let currentRefList = (activeTest === "activity") ? solutionDatabase : ((currentPhase === 'M') ? referenceMetals : referenceNonMetals);
 
-    selections.forEach(name => {
-        const refObj = currentRefList.find(r => r.name === name);
-        if (!refObj) return;
+    // 2. Build the Results HTML
+    let html = '';
 
-        let refResult;
-        if (activeTest === "activity") {
-            refResult = getReaction(convertMetalName(activeM.name), name);
-        } else {
-            refResult = exp.static || refObj[activeTest] || "No comparative data";
-        }
-        
-        const displayLabel = activeTest === "activity" ? refObj.display : refObj.name;
+    if (activeTest === "activity") {
+        // For activity test: show one card per selected solution,
+        // each showing both the unknown M result AND reference label
+        const metalKey = convertMetalName(activeM.name);
+        selections.forEach(solutionName => {
+            const solObj = currentRefList.find(r => r.name === solutionName);
+            if (!solObj) return;
+            const reaction = reactionMatrix[metalKey]?.[solutionName] || "No reaction observed";
+            html += `
+                <div class="p-4 bg-amber-50 border border-amber-300 rounded-xl">
+                    <p class="text-[10px] text-stone-400 uppercase font-black tracking-widest mb-1">${solObj.display}</p>
+                    <p class="text-[10px] text-blue-600 uppercase font-bold mb-2">Unknown Sample M</p>
+                    <p class="text-stone-800 text-sm font-semibold">${reaction}</p>
+                </div>`;
+        });
+
+        // Summary header spanning full width
+        html = `
+            <div class="p-4 bg-blue-100 border border-blue-400 rounded-xl md:col-span-2 text-center shadow-md mb-4">
+                <p class="text-[10px] text-blue-700 uppercase font-black tracking-widest">Activity Series Test — Unknown Sample M</p>
+                <p class="text-sm text-blue-900 mt-1">Reactions shown below for each selected solution</p>
+            </div>` + html;
+
+    } else {
+        // Non-activity tests: original behaviour
+        let userResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
         html += `
-            <div class="p-4 bg-amber-50 border border-amber-300 rounded-xl">
-                <p class="text-[10px] text-stone-400 uppercase font-black tracking-widest">${displayLabel}</p>
-                <p class="text-stone-700 text-sm">${refResult}</p>
+            <div class="p-4 bg-blue-100 border border-blue-400 rounded-xl md:col-span-2 text-center shadow-md mb-4">
+                <p class="text-[10px] text-blue-700 uppercase font-black tracking-widest">Unknown Sample ${currentPhase}</p>
+                <p class="text-xl text-blue-900 font-bold">${userResult || "Testing..."}</p>
             </div>`;
-    });
+
+        selections.forEach(name => {
+            const refObj = currentRefList.find(r => r.name === name);
+            if (!refObj) return;
+            const refResult = exp.static || refObj[activeTest] || "No comparative data";
+            const displayLabel = refObj.name;
+            html += `
+                <div class="p-4 bg-amber-50 border border-amber-300 rounded-xl">
+                    <p class="text-[10px] text-stone-400 uppercase font-black tracking-widest">${displayLabel}</p>
+                    <p class="text-stone-700 text-sm">${refResult}</p>
+                </div>`;
+        });
+    }
 
     zone.innerHTML = html;
 
-    // 4. Log the data and refresh the menu
+    // 3. Log the data and refresh the menu
     const completed = (currentPhase === 'M') ? completedM : completedX;
-    
+
     if (!completed.find(c => c.id === activeTest)) {
         const referenceCards = Array.from(document.querySelectorAll('#comparison-zone div.p-4.bg-amber-50'));
-        const comparisonData = referenceCards.map(card => ({
-            label: card.querySelector('p.text-\\[10px\\]').innerText,
-            value: card.querySelector('p.text-stone-700').innerText
-        }));
+        const comparisonData = referenceCards.map(card => {
+            const labelEl = card.querySelector('p.text-\\[10px\\]');
+            const valueEl = card.querySelector('p.text-stone-800, p.text-stone-700');
+            return {
+                label: labelEl ? labelEl.innerText : '',
+                value: valueEl ? valueEl.innerText : ''
+            };
+        });
 
-        const logEntry = { 
-            name: exp.name, 
-            result: userResult, 
+        // Summary result text for the log entry
+        let logResult;
+        if (activeTest === "activity") {
+            const metalKey = convertMetalName(activeM.name);
+            logResult = selections.map(s => {
+                const sol = solutionDatabase.find(r => r.name === s);
+                const rxn = reactionMatrix[metalKey]?.[s] || "No reaction";
+                return `${sol ? sol.display : s}: ${rxn}`;
+            }).join(" | ");
+        } else {
+            logResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
+        }
+
+        const logEntry = {
+            name: exp.name,
+            result: logResult,
             id: exp.id,
-            comparisons: comparisonData 
+            comparisons: comparisonData
         };
-        
+
         if (currentPhase === 'M') {
             completedM.push(logEntry);
         } else {
             completedX.push(logEntry);
         }
-        loadMenu(); 
+        loadMenu();
     }
 }
 
