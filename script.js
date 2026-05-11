@@ -223,42 +223,39 @@ const solutionDatabase = [
     {name: "Mg(NO3)2", type: "ionic", metal: "Mg", charge: 2, anion: "NO3", display: "Magnesium Nitrate", color: "colorless"}
 ];
 
-window.onload = async () => {
-    // master control check
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKHQd1vrdU7taJzdUtm2AwQB4fGVqg8DY9TPjPCf_h40gtvgukOuKj0xoIlfDweLaNPQ/exec';
-    
-    try {
-        const response = await fetch(GOOGLE_SCRIPT_URL);
-        const data = await response.json();
-        
-        // If Cell Z1 says "CLOSED", wipe the screen and show a lock message!
-        if (data.labStatus === "CLOSED") {
-            document.body.innerHTML = `
-                <div class="flex items-center justify-center min-h-screen bg-gray-900">
-                    <div class="text-center p-12 bg-black border border-red-500 rounded-3xl shadow-2xl">
-                        <div class="text-6xl mb-4">🔒</div>
-                        <h1 class="text-4xl font-black text-red-500 uppercase tracking-widest mb-4">Lab Closed</h1>
-                        <p class="text-gray-400">The instructor has currently locked access to this lab.</p>
-                    </div>
-                </div>
-            `;
-            return; // Stops all other code from running
-        }
-    } catch (error) {
-        console.log("Could not reach master control. Defaulting to open.");
+window.onload = () => {
+    // Redirect immediately if no student session
+    if (!sessionStorage.getItem('activeStudent')) {
+        window.location.href = 'index.html';
+        return;
     }
 
-    // normal startup
-    if(!sessionStorage.getItem('activeStudent')) window.location.href = 'index.html';
-    
-    // Set initial modal text
+    // Render UI instantly — no waiting
     const modalText = document.querySelector('#mx-modal p');
     if (modalText) {
         modalText.innerHTML = `<strong>Element M</strong> is ${activeM.description} <br><br> <strong>Element X</strong> is ${activeX.description}`;
     }
-    
     if (typeof openModal === "function") openModal('mx-modal');
-    loadMenu(); 
+    loadMenu();
+
+    // Check lab status in background — closes lab if instructor locked it
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKHQd1vrdU7taJzdUtm2AwQB4fGVqg8DY9TPjPCf_h40gtvgukOuKj0xoIlfDweLaNPQ/exec';
+    fetch(GOOGLE_SCRIPT_URL)
+        .then(r => r.json())
+        .then(data => {
+            if (data.labStatus === "CLOSED") {
+                document.body.innerHTML = `
+                    <div class="flex items-center justify-center min-h-screen" style="background:#f5f0e8;">
+                        <div class="text-center p-12 bg-amber-50 border-2 border-red-400 rounded-3xl shadow-xl">
+                            <div class="text-6xl mb-4">🔒</div>
+                            <h1 class="text-4xl font-black text-red-600 uppercase tracking-widest mb-4">Lab Closed</h1>
+                            <p class="text-stone-500">The instructor has currently locked access to this lab.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        })
+        .catch(() => console.log("Could not reach master control. Defaulting to open."));
 };
 
 // --- CORE LAB LOGIC ---
@@ -290,14 +287,14 @@ function loadMenu() {
                 ${isDisabled ? 'disabled' : ''} 
                 class="w-full text-left p-4 rounded-xl border transition-all flex justify-between items-center mb-2
                 ${isDone 
-                    ? 'bg-emerald-100 border-emerald-400 text-emerald-800' 
+                    ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400' 
                     : isDisabled 
-                        ? 'opacity-40 bg-amber-100 border-amber-200 cursor-not-allowed text-stone-400' 
-                        : 'hover:bg-amber-100 hover:border-amber-400 bg-amber-50 border-amber-300 text-stone-800 shadow-sm'}">
-                <span class="font-semibold text-sm tracking-wide">${exp.name}</span>
+                        ? 'opacity-30 bg-gray-900 border-gray-800 cursor-not-allowed text-gray-600' 
+                        : 'hover:bg-gray-700 bg-gray-800 border-gray-700 text-white shadow-sm'}">
+                <span class="font-medium text-[11px] tracking-widest">${exp.name}</span>
                 <div class="flex items-center gap-2">
                     ${isDone ? '<span>✅</span>' : ''}
-                    ${isDisabled ? '<span class="text-[9px] bg-stone-200 text-stone-500 px-2 py-1 rounded font-bold">LOCKED</span>' : '<span class="text-amber-600 font-bold">→</span>'}
+                    ${isDisabled ? '<span class="text-[8px] bg-black/40 px-2 py-1 rounded">LOCKED</span>' : '<span class="text-blue-500">→</span>'}
                 </div>
             </button>`;
     }).join('');
@@ -306,12 +303,12 @@ function loadMenu() {
         const nextLabel = (currentPhase === 'M') ? "Proceed to Non-Metal X" : "Begin Synthesis Phase";
         
         menuHTML += `
-            <div class="mt-8 pt-6 border-t border-amber-300">
+            <div class="mt-8 pt-6 border-t border-gray-800">
                 <button onclick="checkPhaseTransition()" 
-                    class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl shadow-md transition-all uppercase tracking-widest text-sm">
+                    class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl shadow-lg transition-all uppercase tracking-widest text-xs">
                     ${nextLabel}
                 </button>
-                <p class="text-[10px] text-center text-stone-400 mt-3 uppercase font-bold tracking-widest">
+                <p class="text-[9px] text-center text-gray-500 mt-3 uppercase font-bold tracking-widest">
                     Phase ${currentPhase} Complete
                 </p>
             </div>
@@ -369,30 +366,16 @@ function getSolutionData(solutionName) {
 
 function convertMetalName(name) {
     const map = {
-        // metalIdentities names → reactionMatrix keys
-        "ManganeseTwo":   "Mn",
-        "ManganeseThree": "Mn",
-        "ChromiumTwo":    "Cr",
-        "ChromiumThree":  "Cr",
-        "CobaltTwo":      "Co",
-        "CobaltThree":    "Co",
-        "CopperOne":      "Cu",
-        "CopperTwo":      "Cu",
-        "NickelTwo":      "Ni",
-        "NickelThree":    "Ni",
-        "IronTwo":        "Fe",
-        "IronThree":      "Fe",
-        // referenceMetals names → reactionMatrix keys
-        "Manganese": "Mn",
-        "Chromium":  "Cr",
-        "Cobalt":    "Co",
-        "Copper":    "Cu",
-        "Nickel":    "Ni",
-        "Iron":      "Fe",
-        // others
         "Magnesium": "Mg",
-        "Silver":    "Ag",
-        "Aluminum":  "Al"
+        "Nickel": "Ni",
+        "Silver": "Ag",
+        "Aluminum": "Al",
+        "IronTwo": "Fe (II)",
+        "IronThree": "Fe (III)",
+        "CopperTwo": "Cu (II)",
+        "CopperThree": "Cu (I)", // Assuming this is Copper (I)
+        "Iron": "Fe (II)",      // Added for reference list compatibility
+        "Copper": "Cu (II)"     // Added for reference list compatibility
     };
     return map[name] || name;
 }
@@ -410,6 +393,17 @@ function runComparisonTest() {
     
     const exp = (currentPhase === 'M') ? experimentsM.find(e => e.id === activeTest) : experimentsX.find(e => e.id === activeTest);
     const zone = document.getElementById('comparison-zone');
+    
+    // 2. Calculate Result
+    let userResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
+    if (activeTest === "activity") userResult = "Results of activity test";
+
+    // 3. Build the Results HTML
+    let html = `
+        <div class="p-4 bg-blue-900/30 border border-blue-500 rounded-xl md:col-span-2 text-center shadow-lg mb-4">
+            <p class="text-[10px] text-blue-400 uppercase font-black tracking-widest">Unknown Sample ${currentPhase}</p>
+            <p class="text-xl text-white font-bold">${userResult || "Testing..."}</p>
+        </div>`;
 
     const selections = [
         document.getElementById('ref-1').value,
@@ -419,96 +413,50 @@ function runComparisonTest() {
 
     let currentRefList = (activeTest === "activity") ? solutionDatabase : ((currentPhase === 'M') ? referenceMetals : referenceNonMetals);
 
-    // 2. Build the Results HTML
-    let html = '';
+    selections.forEach(name => {
+        const refObj = currentRefList.find(r => r.name === name);
+        if (!refObj) return;
 
-    if (activeTest === "activity") {
-        // For activity test: show one card per selected solution,
-        // each showing both the unknown M result AND reference label
-        const metalKey = convertMetalName(activeM.name);
-        selections.forEach(solutionName => {
-            const solObj = currentRefList.find(r => r.name === solutionName);
-            if (!solObj) return;
-            const reaction = reactionMatrix[metalKey]?.[solutionName] || "No reaction observed";
-            html += `
-                <div class="p-4 bg-amber-50 border border-amber-300 rounded-xl">
-                    <p class="text-[10px] text-stone-400 uppercase font-black tracking-widest mb-1">${solObj.display}</p>
-                    <p class="text-[10px] text-blue-600 uppercase font-bold mb-2">Unknown Sample M</p>
-                    <p class="text-stone-800 text-sm font-semibold">${reaction}</p>
-                </div>`;
-        });
-
-        // Summary header spanning full width
-        html = `
-            <div class="p-4 bg-blue-100 border border-blue-400 rounded-xl md:col-span-2 text-center shadow-md mb-4">
-                <p class="text-[10px] text-blue-700 uppercase font-black tracking-widest">Activity Series Test — Unknown Sample M</p>
-                <p class="text-sm text-blue-900 mt-1">Reactions shown below for each selected solution</p>
-            </div>` + html;
-
-    } else {
-        // Non-activity tests: original behaviour
-        let userResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
+        let refResult;
+        if (activeTest === "activity") {
+            refResult = getReaction(convertMetalName(activeM.name), name);
+        } else {
+            refResult = exp.static || refObj[activeTest] || "No comparative data";
+        }
+        
+        const displayLabel = activeTest === "activity" ? refObj.display : refObj.name;
         html += `
-            <div class="p-4 bg-blue-100 border border-blue-400 rounded-xl md:col-span-2 text-center shadow-md mb-4">
-                <p class="text-[10px] text-blue-700 uppercase font-black tracking-widest">Unknown Sample ${currentPhase}</p>
-                <p class="text-xl text-blue-900 font-bold">${userResult || "Testing..."}</p>
+            <div class="p-4 bg-gray-800 border border-gray-700 rounded-xl">
+                <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest">${displayLabel}</p>
+                <p class="text-gray-300 text-sm">${refResult}</p>
             </div>`;
-
-        selections.forEach(name => {
-            const refObj = currentRefList.find(r => r.name === name);
-            if (!refObj) return;
-            const refResult = exp.static || refObj[activeTest] || "No comparative data";
-            const displayLabel = refObj.name;
-            html += `
-                <div class="p-4 bg-amber-50 border border-amber-300 rounded-xl">
-                    <p class="text-[10px] text-stone-400 uppercase font-black tracking-widest">${displayLabel}</p>
-                    <p class="text-stone-700 text-sm">${refResult}</p>
-                </div>`;
-        });
-    }
+    });
 
     zone.innerHTML = html;
 
-    // 3. Log the data and refresh the menu
+    // 4. Log the data and refresh the menu
     const completed = (currentPhase === 'M') ? completedM : completedX;
-
+    
     if (!completed.find(c => c.id === activeTest)) {
-        const referenceCards = Array.from(document.querySelectorAll('#comparison-zone div.p-4.bg-amber-50'));
-        const comparisonData = referenceCards.map(card => {
-            const labelEl = card.querySelector('p.text-\\[10px\\]');
-            const valueEl = card.querySelector('p.text-stone-800, p.text-stone-700');
-            return {
-                label: labelEl ? labelEl.innerText : '',
-                value: valueEl ? valueEl.innerText : ''
-            };
-        });
+        const referenceCards = Array.from(document.querySelectorAll('#comparison-zone div.p-4.bg-gray-800'));
+        const comparisonData = referenceCards.map(card => ({
+            label: card.querySelector('p.text-\\[10px\\]').innerText,
+            value: card.querySelector('p.text-gray-300').innerText
+        }));
 
-        // Summary result text for the log entry
-        let logResult;
-        if (activeTest === "activity") {
-            const metalKey = convertMetalName(activeM.name);
-            logResult = selections.map(s => {
-                const sol = solutionDatabase.find(r => r.name === s);
-                const rxn = reactionMatrix[metalKey]?.[s] || "No reaction";
-                return `${sol ? sol.display : s}: ${rxn}`;
-            }).join(" | ");
-        } else {
-            logResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
-        }
-
-        const logEntry = {
-            name: exp.name,
-            result: logResult,
+        const logEntry = { 
+            name: exp.name, 
+            result: userResult, 
             id: exp.id,
-            comparisons: comparisonData
+            comparisons: comparisonData 
         };
-
+        
         if (currentPhase === 'M') {
             completedM.push(logEntry);
         } else {
             completedX.push(logEntry);
         }
-        loadMenu();
+        loadMenu(); 
     }
 }
 
@@ -516,8 +464,8 @@ function showPhaseCompleteButton() {
     const zone = document.getElementById('comparison-zone');
     // Add a big "Proceed" button at the bottom of the results
     zone.innerHTML += `
-        <div class="mt-8 flex justify-center w-full md:col-span-2 border-t border-amber-300 pt-6">
-            <button onclick="checkPhaseTransition()" class="px-12 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-full shadow-xl transition-all animate-bounce uppercase tracking-widest text-sm">
+        <div class="mt-8 flex justify-center w-full md:col-span-2 border-t border-gray-800 pt-6">
+            <button onclick="checkPhaseTransition()" class="px-12 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-full shadow-2xl transition-all animate-bounce uppercase tracking-widest">
                 All Tests Complete - Proceed
             </button>
         </div>
@@ -589,51 +537,51 @@ function runMolarMassPhase() {
     // 4-column layout for M, X, Yield, and Excess
     zone.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="p-4 bg-amber-50 border border-blue-300 rounded-2xl">
-                <label class="text-blue-700 text-[10px] font-bold uppercase tracking-widest">Grams of Metal (M)</label>
-                <input type="number" id="input-m" placeholder="0.00" oninput="syncXToM(); updateYieldInline();" class="w-full bg-white border border-amber-300 p-3 rounded-xl text-stone-800 mt-2 text-xl outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100">
+            <div class="p-4 bg-gray-800 border border-blue-500/30 rounded-2xl">
+                <label class="text-blue-400 text-[10px] font-bold uppercase tracking-widest">Grams of Metal (M)</label>
+                <input type="number" id="input-m" placeholder="0.00" oninput="syncXToM(); updateYieldInline();" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-xl text-white mt-2 text-xl outline-none">
             </div>
-            <div class="p-4 bg-amber-50 border border-emerald-300 rounded-2xl">
-                <label class="text-emerald-700 text-[10px] font-bold uppercase tracking-widest">Grams of Non-Metal (X)</label>
-                <input type="number" id="input-x" placeholder="0.00" readonly oninput="updateYieldInline()" class="w-full bg-amber-100 border border-amber-300 p-3 rounded-xl text-stone-500 mt-2 text-xl outline-none opacity-60 cursor-not-allowed">
+            <div class="p-4 bg-gray-800 border border-emerald-500/30 rounded-2xl">
+                <label class="text-emerald-400 text-[10px] font-bold uppercase tracking-widest">Grams of Non-Metal (X)</label>
+                <input type="number" id="input-x" placeholder="0.00" readonly oninput="updateYieldInline()" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-xl text-white mt-2 text-xl outline-none opacity-60 cursor-not-allowed">
             </div>
-            <div class="p-4 bg-amber-50 border border-purple-300 rounded-2xl flex flex-col justify-center text-center">
-                <label class="text-purple-700 text-[10px] font-bold uppercase tracking-widest">Yield of MX</label>
-                <p id="inline-yield-display" class="text-2xl font-black text-stone-800 mt-2">0.00</p>
+            <div class="p-4 bg-gray-800 border border-purple-500/30 rounded-2xl flex flex-col justify-center text-center">
+                <label class="text-purple-400 text-[10px] font-bold uppercase tracking-widest">Yield of MX</label>
+                <p id="inline-yield-display" class="text-2xl font-black text-white mt-2">0.00</p>
             </div>
-            <div class="p-4 bg-amber-50 border border-red-300 rounded-2xl flex flex-col justify-center text-center">
-                <label class="text-red-600 text-[10px] font-bold uppercase tracking-widest">Excess Leftover</label>
-                <p id="inline-excess-display" class="text-xl font-bold text-stone-400 mt-2">0.00g</p>
+            <div class="p-4 bg-gray-800 border border-red-500/30 rounded-2xl flex flex-col justify-center text-center">
+                <label class="text-red-400 text-[10px] font-bold uppercase tracking-widest">Excess Leftover</label>
+                <p id="inline-excess-display" class="text-xl font-bold text-gray-500 mt-2">0.00g</p>
             </div>
         </div>
 
         <div class="flex justify-center mt-4">
-            <button onclick="synthesizeCompound()" class="px-12 py-4 bg-purple-600 hover:bg-purple-700 rounded-xl font-black text-white transition-all shadow-md uppercase tracking-widest text-sm">
+            <button onclick="synthesizeCompound()" class="px-12 py-4 bg-purple-600 rounded-xl font-black text-white hover:bg-purple-500 transition-all shadow-lg uppercase tracking-widest">
                 Save Calculations
             </button>
         </div>
 
-        <div id="p3-data-table" class="bg-white border border-amber-300 rounded-2xl overflow-hidden shadow-sm">
+        <div id="p3-data-table" class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
             <table class="w-full text-left border-collapse">
-                <thead class="bg-amber-100 text-[10px] text-stone-500 uppercase font-bold">
+                <thead class="bg-gray-800/30 text-[10px] text-gray-500 uppercase font-bold">
                     <tr>
                         <th class="p-4">Trial</th>
-                        <th class="p-4 text-blue-700">Reactants Used</th>
+                        <th class="p-4 text-blue-300">Reactants Used</th>
                         <th class="p-4">Yield</th>
                         <th class="p-4">Excess Leftover</th>
                         <th class="p-4">Appearance</th>
                         <th class="p-4">Solubility</th>
                     </tr>
                 </thead>
-                <tbody id="p3-log-body" class="text-stone-600 divide-y divide-amber-200">
-                    <tr><td colspan="6" class="p-8 text-center text-stone-400 italic">No calculations logged yet...</td></tr>
+                <tbody id="p3-log-body" class="text-gray-300 divide-y divide-gray-800">
+                    <tr><td colspan="6" class="p-8 text-center text-gray-600 italic">No calculations logged yet...</td></tr>
                 </tbody>
             </table>
         </div>
 
         <div id="p3-nav-container" class="mt-8 flex justify-center">
             <button id="p3-proceed-btn" disabled 
-                class="px-12 py-4 rounded-xl font-black uppercase tracking-widest transition-all opacity-30 cursor-not-allowed bg-stone-200 text-stone-400 text-sm">
+                class="px-12 py-4 rounded-xl font-black uppercase tracking-widest transition-all opacity-30 cursor-not-allowed bg-gray-700 text-gray-400">
                 Proceed to CER
             </button>
         </div>
@@ -656,15 +604,14 @@ function updateYieldInline() {
 
     if (mVal <= 0 || xVal <= 0) {
         if (display) display.innerText = "0.00";
-        if (excessDisplay) excessDisplay.innerHTML = "<span class='text-stone-400'>0.00g</span>";
+        if (excessDisplay) excessDisplay.innerHTML = "<span class='text-gray-500'>0.00g</span>";
         return;
     }
 
     // 1. Determine subscripts from oxidation states
     const metalCharges = {
-        "ManganeseTwo":   2, "ManganeseThree": 3, "ChromiumTwo":    2, "ChromiumThree":  3,
-        "CobaltTwo":      2, "CobaltThree":    3, "CopperOne":      1, "CopperTwo":      2,
-        "NickelTwo":      2, "NickelThree":    3, "IronTwo":        2, "IronThree":      3
+        "Nickel": 2, "CopperOne": 1, "CopperTwo": 2, "Silver": 1,
+        "Aluminum": 3, "IronTwo": 2, "IronThree": 3, "Magnesium": 2
     };
     const nonmetalCharges = {
         "Chlorine": 1, "Bromine": 1, "Sulfur": 2, "Phosphorus": 3
@@ -717,7 +664,7 @@ function updateYieldInline() {
         } else if (excessX > 0.01) {
             excessDisplay.innerHTML = `<span class="text-emerald-400">${excessX.toFixed(2)}g X</span>`;
         } else {
-            excessDisplay.innerHTML = `<span class="text-stone-400">None</span>`;
+            excessDisplay.innerHTML = `<span class="text-gray-500">None</span>`;
         }
     }
 }
@@ -750,13 +697,13 @@ function synthesizeCompound() {
     const logBody = document.getElementById('p3-log-body');
     if (logBody) {
         logBody.innerHTML = phase3Attempts.map((att, index) => `
-            <tr class="border-b border-amber-200 hover:bg-amber-50 transition-colors">
-                <td class="p-4 font-bold text-purple-700">#${index + 1}</td>
-                <td class="p-4 text-blue-700 font-mono text-sm">${att.combo}</td>
-                <td class="p-4 text-stone-800 font-mono">${att.rawTotal} g</td>
-                <td class="p-4 text-red-600 font-mono">${att.excess}</td>
-                <td class="p-4 text-stone-500 text-xs">${att.appearance}</td>
-                <td class="p-4 text-stone-500 text-xs">${att.solubility}</td>
+            <tr class="border-b border-gray-800 hover:bg-gray-800/50 transition-colors">
+                <td class="p-4 font-bold text-purple-400">#${index + 1}</td>
+                <td class="p-4 text-blue-300 font-mono text-sm">${att.combo}</td>
+                <td class="p-4 text-white font-mono">${att.rawTotal} g</td>
+                <td class="p-4 text-red-400 font-mono">${att.excess}</td>
+                <td class="p-4 text-gray-400 text-xs">${att.appearance}</td>
+                <td class="p-4 text-gray-400 text-xs">${att.solubility}</td>
             </tr>
         `).join('');
     }
@@ -764,14 +711,14 @@ function synthesizeCompound() {
     const proceedBtn = document.getElementById('p3-proceed-btn');
     if (proceedBtn) {
         proceedBtn.disabled = false;
-        proceedBtn.classList.remove('opacity-30', 'cursor-not-allowed', 'bg-stone-200', 'text-stone-400');
-        proceedBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-700', 'text-white', 'opacity-100');
+        proceedBtn.classList.remove('opacity-30', 'cursor-not-allowed', 'bg-gray-700', 'text-gray-400');
+        proceedBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500', 'text-white', 'opacity-100');
         proceedBtn.onclick = showCER; 
     }
 
     mInput.value = ""; xInput.value = ""; 
     if(yieldDisplay) yieldDisplay.innerText = "0.00";
-    if(excessDisplay) excessDisplay.innerHTML = "<span class='text-stone-400'>0.00g</span>";
+    if(excessDisplay) excessDisplay.innerHTML = "<span class='text-gray-500'>0.00g</span>";
 }
 
 function showCER() {
@@ -815,46 +762,46 @@ function showCER() {
     log.innerHTML = `
         <div class="w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
             
-            <div class="bg-amber-50 p-8 rounded-3xl border border-amber-300 shadow-md mb-12 text-center">
-                <h2 class="text-3xl font-black text-sky-700 uppercase tracking-tighter">Phase 4: Final Evidence Log</h2>
+            <div class="bg-gray-800 p-8 rounded-3xl border border-gray-700 shadow-2xl mb-12 text-center">
+                <h2 class="text-3xl font-black text-sky-400 uppercase tracking-tighter">Phase 4: Final Evidence Log</h2>
             </div>
 
             <section class="mb-12">
                 <div class="flex items-center gap-4 mb-6">
-                    <h4 class="text-stone-500 font-bold uppercase text-[10px] tracking-[0.3em] px-3 border-l-4 border-stone-400">Initial Observations</h4>
-                    <div class="h-[1px] flex-grow bg-gradient-to-r from-stone-400/50 to-transparent"></div>
+                    <h4 class="text-gray-400 font-bold uppercase text-[10px] tracking-[0.3em] px-3 border-l-4 border-gray-600">Initial Observations</h4>
+                    <div class="h-[1px] flex-grow bg-gradient-to-r from-gray-600/50 to-transparent"></div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="p-6 bg-amber-50 border border-amber-300 rounded-3xl shadow-sm hover:border-blue-400 transition-colors">
-                        <b class="text-blue-700 block mb-3 uppercase text-[10px] tracking-widest">Element M</b>
-                        <p class="text-sm text-stone-600 leading-relaxed">${activeM.description}</p>
+                    <div class="p-6 bg-gray-900/50 border border-gray-800 rounded-3xl shadow-xl hover:border-blue-500/30 transition-colors">
+                        <b class="text-blue-400 block mb-3 uppercase text-[10px] tracking-widest">Element M</b>
+                        <p class="text-sm text-gray-300 leading-relaxed">${activeM.description}</p>
                     </div>
-                    <div class="p-6 bg-amber-50 border border-amber-300 rounded-3xl shadow-sm hover:border-emerald-400 transition-colors">
-                        <b class="text-emerald-700 block mb-3 uppercase text-[10px] tracking-widest">Element X</b>
-                        <p class="text-sm text-stone-600 leading-relaxed">${activeX.description}</p>
+                    <div class="p-6 bg-gray-900/50 border border-gray-800 rounded-3xl shadow-xl hover:border-emerald-500/30 transition-colors">
+                        <b class="text-emerald-400 block mb-3 uppercase text-[10px] tracking-widest">Element X</b>
+                        <p class="text-sm text-gray-300 leading-relaxed">${activeX.description}</p>
                     </div>
                 </div>
             </section>
 
             <section class="mb-12">
                 <div class="flex items-center gap-4 mb-6">
-                    <h4 class="text-blue-700 font-bold uppercase text-[10px] tracking-[0.3em] px-3 border-l-4 border-blue-500">Metal M: Identification Data</h4>
-                    <div class="h-[1px] flex-grow bg-gradient-to-r from-blue-400/50 to-transparent"></div>
+                    <h4 class="text-blue-400 font-bold uppercase text-[10px] tracking-[0.3em] px-3 border-l-4 border-blue-600">Metal M: Identification Data</h4>
+                    <div class="h-[1px] flex-grow bg-gradient-to-r from-blue-600/50 to-transparent"></div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     ${completedM.map(e => `
-                        <div class="p-6 bg-amber-50 border border-amber-300 rounded-3xl shadow-sm hover:border-blue-400 transition-colors">
-                            <b class="text-blue-700 block mb-3 uppercase text-[10px] tracking-widest">${e.name}</b>
-                            <div class="bg-white p-3 rounded-xl border border-blue-200 mb-4">
-                                <p class="text-[9px] text-stone-400 uppercase font-black mb-1">Result</p>
-                                <p class="text-sm font-bold text-stone-800 tracking-tight">${e.result}</p>
+                        <div class="p-6 bg-gray-900/50 border border-gray-800 rounded-3xl shadow-xl hover:border-blue-500/30 transition-colors">
+                            <b class="text-blue-400 block mb-3 uppercase text-[10px] tracking-widest">${e.name}</b>
+                            <div class="bg-black/60 p-3 rounded-xl border border-blue-500/20 mb-4">
+                                <p class="text-[9px] text-gray-500 uppercase font-black mb-1">Result</p>
+                                <p class="text-sm font-bold text-white tracking-tight">${e.result}</p>
                             </div>
                             <div class="space-y-1.5">
-                                <p class="text-[9px] text-stone-400 uppercase font-bold mb-2">Reference Comparisons</p>
+                                <p class="text-[9px] text-gray-600 uppercase font-bold mb-2">Reference Comparisons</p>
                                 ${e.comparisons ? e.comparisons.map(c => `
-                                    <div class="flex justify-between text-[11px] py-1.5 border-b border-amber-200">
-                                        <span class="text-stone-400">${c.label}:</span>
-                                        <span class="text-stone-700 font-semibold">${c.value}</span>
+                                    <div class="flex justify-between text-[11px] py-1.5 border-b border-gray-800/50">
+                                        <span class="text-gray-500">${c.label}:</span>
+                                        <span class="text-gray-300 font-semibold">${c.value}</span>
                                     </div>
                                 `).join('') : ''}
                             </div>
@@ -865,23 +812,23 @@ function showCER() {
 
             <section class="mb-12">
                 <div class="flex items-center gap-4 mb-6">
-                    <h4 class="text-emerald-700 font-bold uppercase text-[10px] tracking-[0.3em] px-3 border-l-4 border-emerald-500">Non-Metal X: Identification Data</h4>
-                    <div class="h-[1px] flex-grow bg-gradient-to-r from-emerald-400/50 to-transparent"></div>
+                    <h4 class="text-emerald-400 font-bold uppercase text-[10px] tracking-[0.3em] px-3 border-l-4 border-emerald-600">Non-Metal X: Identification Data</h4>
+                    <div class="h-[1px] flex-grow bg-gradient-to-r from-emerald-600/50 to-transparent"></div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     ${completedX.map(e => `
-                        <div class="p-6 bg-amber-50 border border-amber-300 rounded-3xl shadow-sm hover:border-emerald-400 transition-colors">
-                            <b class="text-emerald-700 block mb-3 uppercase text-[10px] tracking-widest">${e.name}</b>
-                            <div class="bg-white p-3 rounded-xl border border-emerald-200 mb-4">
-                                <p class="text-[9px] text-stone-400 uppercase font-black mb-1">Result</p>
-                                <p class="text-sm font-bold text-stone-800 tracking-tight">${e.result}</p>
+                        <div class="p-6 bg-gray-900/50 border border-gray-800 rounded-3xl shadow-xl hover:border-emerald-500/30 transition-colors">
+                            <b class="text-emerald-400 block mb-3 uppercase text-[10px] tracking-widest">${e.name}</b>
+                            <div class="bg-black/60 p-3 rounded-xl border border-emerald-500/20 mb-4">
+                                <p class="text-[9px] text-gray-500 uppercase font-black mb-1">Result</p>
+                                <p class="text-sm font-bold text-white tracking-tight">${e.result}</p>
                             </div>
                             <div class="space-y-1.5">
-                                <p class="text-[9px] text-stone-400 uppercase font-bold mb-2">Reference Comparisons</p>
+                                <p class="text-[9px] text-gray-600 uppercase font-bold mb-2">Reference Comparisons</p>
                                 ${e.comparisons ? e.comparisons.map(c => `
-                                    <div class="flex justify-between text-[11px] py-1.5 border-b border-amber-200">
-                                        <span class="text-stone-400">${c.label}:</span>
-                                        <span class="text-stone-700 font-semibold">${c.value}</span>
+                                    <div class="flex justify-between text-[11px] py-1.5 border-b border-gray-800/50">
+                                        <span class="text-gray-500">${c.label}:</span>
+                                        <span class="text-gray-300 font-semibold">${c.value}</span>
                                     </div>
                                 `).join('') : ''}
                             </div>
@@ -897,26 +844,28 @@ function showCER() {
                 </div>
                 <div class="space-y-4">
                     ${phase3Attempts.map(attempt => `
-                        <div class="p-5 bg-amber-50 border border-purple-200 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-6 shadow-sm">
-                            <div>
-                                <p class="text-[9px] text-stone-400 uppercase font-black">Combination</p>
-                                <p class="text-sm font-black text-blue-700">${attempt.combo}</p>
-                            </div>
-                            <div>
-                                <p class="text-[9px] text-stone-400 uppercase font-black">Mass Yield</p>
-                                <p class="text-sm font-bold text-stone-800">${attempt.rawTotal} g</p>
-                            </div>
-                            <div>
-                                <p class="text-[9px] text-stone-400 uppercase font-black">Excess</p>
-                                <p class="text-sm font-bold text-emerald-700">${attempt.excess} g</p>
-                            </div>
-                            <div class="flex-grow">
-                                <p class="text-[9px] text-stone-400 uppercase font-black">Observations</p>
-                                <p class="text-[11px] text-stone-500 italic">"${attempt.appearance}"</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-[9px] text-stone-400 uppercase font-black">Solubility</p>
-                                <p class="text-xs text-stone-600 font-bold">${attempt.solubility}</p>
+                        <div class="p-5 bg-amber-50 border border-purple-200 rounded-2xl shadow-sm">
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                <div>
+                                    <p class="text-[9px] text-stone-400 uppercase font-black mb-1">Combination</p>
+                                    <p class="text-sm font-black text-blue-700">${attempt.combo}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] text-stone-400 uppercase font-black mb-1">Mass Yield</p>
+                                    <p class="text-sm font-bold text-stone-800">${attempt.rawTotal} g</p>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] text-stone-400 uppercase font-black mb-1">Excess Leftover</p>
+                                    <p class="text-sm font-bold text-red-600">${attempt.excess}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] text-stone-400 uppercase font-black mb-1">Appearance</p>
+                                    <p class="text-sm text-stone-500 italic">${attempt.appearance}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] text-stone-400 uppercase font-black mb-1">Solubility</p>
+                                    <p class="text-sm text-stone-700 font-bold">${attempt.solubility}</p>
+                                </div>
                             </div>
                         </div>
                     `).join('')}
