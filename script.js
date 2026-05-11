@@ -662,8 +662,9 @@ function updateYieldInline() {
 
     // 1. Determine subscripts from oxidation states
     const metalCharges = {
-        "Nickel": 2, "CopperOne": 1, "CopperTwo": 2, "Silver": 1,
-        "Aluminum": 3, "IronTwo": 2, "IronThree": 3, "Magnesium": 2
+        "ManganeseTwo":   2, "ManganeseThree": 3, "ChromiumTwo":    2, "ChromiumThree":  3,
+        "CobaltTwo":      2, "CobaltThree":    3, "CopperOne":      1, "CopperTwo":      2,
+        "NickelTwo":      2, "NickelThree":    3, "IronTwo":        2, "IronThree":      3
     };
     const nonmetalCharges = {
         "Chlorine": 1, "Bromine": 1, "Sulfur": 2, "Phosphorus": 3
