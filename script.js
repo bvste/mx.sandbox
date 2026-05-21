@@ -663,10 +663,15 @@ function updateYieldInline() {
     if (!compound) return;
 
     const { mCount, xCount } = parseFormulaCoefficients(compound.formula);
-    const productMolarMass = compound.molarMass;
 
     // 2. Per-atom mass of X (halves Cl/Br since DB stores diatomic mass)
     const xAtomicMass = getXAtomicMass();
+
+    // Compute product molar mass from atomic masses — NOT from compound.molarMass.
+    // Two DB entries (Ni2S3, Mn2S3) have rounding errors that break mass conservation
+    // when mixed with atomic-mass-based excess calculations. Computing it here ensures
+    // yield and excess always sum back to the total input mass.
+    const productMolarMass = (mCount * activeM.mass) + (xCount * xAtomicMass);
 
     // 3. Convert input grams → moles of atoms
     const molesM = mVal / activeM.mass;
@@ -677,7 +682,7 @@ function updateYieldInline() {
     const ratioX = molesX / xCount;
     const limitingRatio = Math.min(ratioM, ratioX);
 
-    // 5. Theoretical yield — uses DB molar mass directly, guaranteeing correct result
+    // 5. Theoretical yield
     const actualYield = limitingRatio * productMolarMass;
     if (display) display.innerText = actualYield.toFixed(2);
 
