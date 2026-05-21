@@ -62,7 +62,7 @@ const compoundDatabase = {
     "ManganeseTwoPhosphorus":   { formula: "Mn3P2",  appearance: "Gray metallic solid.", solubility: "insoluble", molarMass: 226.80 },
     "ManganeseThreePhosphorus": { formula: "MnP",    appearance: "Gray metallic solid.", solubility: "insoluble", molarMass: 85.91  },
     "ChromiumTwoPhosphorus":    { formula: "Cr3P2",  appearance: "Gray metallic solid.", solubility: "insoluble", molarMass: 217.97 },
-    "ChromiumThreePhosphorus":  { formula: "CrP",    appearance: "Gray metallic crystals.",solubility: "insoluble", molarMass: 82.97  },
+    "ChromiumThreePhosphorus":  { formula: "CrP",    appearance: "Gray metallic crystals.", solubility: "insoluble", molarMass: 82.97  },
     "IronTwoPhosphorus":        { formula: "Fe3P2",  appearance: "Gray metallic solid.", solubility: "insoluble", molarMass: 229.42 },
     "IronThreePhosphorus":      { formula: "FeP",    appearance: "Gray needles.", solubility: "insoluble", molarMass: 86.82  },
     "CobaltTwoPhosphorus":      { formula: "Co3P2",  appearance: "Gray metallic solid.", solubility: "insoluble", molarMass: 238.72 },
@@ -231,7 +231,6 @@ window.onload = async () => {
         const response = await fetch(GOOGLE_SCRIPT_URL);
         const data = await response.json();
         
-        // If Cell Z1 says "CLOSED", wipe the screen and show a lock message!
         if (data.labStatus === "CLOSED") {
             document.body.innerHTML = `
                 <div class="flex items-center justify-center min-h-screen bg-gray-900">
@@ -242,16 +241,14 @@ window.onload = async () => {
                     </div>
                 </div>
             `;
-            return; // Stops all other code from running
+            return;
         }
     } catch (error) {
         console.log("Could not reach master control. Defaulting to open.");
     }
 
-    // normal startup
     if(!sessionStorage.getItem('activeStudent')) window.location.href = 'index.html';
     
-    // Set initial modal text
     const modalText = document.querySelector('#mx-modal p');
     if (modalText) {
         modalText.innerHTML = `<strong>Element M</strong> is ${activeM.description} <br><br> <strong>Element X</strong> is ${activeX.description}`;
@@ -325,7 +322,6 @@ function startTest(testId) {
     const completed = (currentPhase === 'M') ? completedM : completedX;
     
     if (completed.length >= 3 && !completed.find(c => c.id === testId)) {
-        // Optional: you can add a toast notification or alert here
         console.log("Test limit reached for this phase.");
         return; 
     }
@@ -345,7 +341,7 @@ function startTest(testId) {
 
     let currentRefList;
     if (activeTest === "activity") {
-        currentRefList = solutionDatabase; // Use chemical solutions for activity series
+        currentRefList = solutionDatabase;
     } else {
         currentRefList = (currentPhase === 'M') ? referenceMetals : referenceNonMetals;
     }
@@ -355,7 +351,6 @@ function startTest(testId) {
         const select = document.getElementById(id);
         if (select) {
             select.innerHTML = currentRefList.map(item => {
-                // Use .display for solutions (HCl, etc), otherwise use .name (Nickel, etc)
                 const label = (activeTest === "activity") ? item.display : item.name;
                 return `<option value="${item.name}">${label}</option>`;
             }).join('');
@@ -369,7 +364,6 @@ function getSolutionData(solutionName) {
 
 function convertMetalName(name) {
     const map = {
-        // metalIdentities names → reactionMatrix keys
         "ManganeseTwo":   "Mn",
         "ManganeseThree": "Mn",
         "ChromiumTwo":    "Cr",
@@ -382,14 +376,12 @@ function convertMetalName(name) {
         "NickelThree":    "Ni",
         "IronTwo":        "Fe",
         "IronThree":      "Fe",
-        // referenceMetals names → reactionMatrix keys
         "Manganese": "Mn",
         "Chromium":  "Cr",
         "Cobalt":    "Co",
         "Copper":    "Cu",
         "Nickel":    "Ni",
         "Iron":      "Fe",
-        // others
         "Magnesium": "Mg",
         "Silver":    "Ag",
         "Aluminum":  "Al"
@@ -404,7 +396,6 @@ function getReaction(metal, solutionName) {
 }
 
 function runComparisonTest() {
-    // 1. Standard Setup
     document.getElementById('station-setup').classList.add('hidden');
     document.getElementById('station-active').classList.remove('hidden');
     
@@ -419,12 +410,9 @@ function runComparisonTest() {
 
     let currentRefList = (activeTest === "activity") ? solutionDatabase : ((currentPhase === 'M') ? referenceMetals : referenceNonMetals);
 
-    // 2. Build the Results HTML
     let html = '';
 
     if (activeTest === "activity") {
-        // For activity test: show one card per selected solution,
-        // each showing both the unknown M result AND reference label
         const metalKey = convertMetalName(activeM.name);
         selections.forEach(solutionName => {
             const solObj = currentRefList.find(r => r.name === solutionName);
@@ -438,7 +426,6 @@ function runComparisonTest() {
                 </div>`;
         });
 
-        // Summary header spanning full width
         html = `
             <div class="p-4 bg-blue-100 border border-blue-400 rounded-xl md:col-span-2 text-center shadow-md mb-4">
                 <p class="text-[10px] text-blue-700 uppercase font-black tracking-widest">Activity Series Test — Unknown Sample M</p>
@@ -446,7 +433,6 @@ function runComparisonTest() {
             </div>` + html;
 
     } else {
-        // Non-activity tests: original behaviour
         let userResult = exp.static || (currentPhase === 'M' ? activeM[activeTest] : activeX[activeTest]);
         html += `
             <div class="p-4 bg-blue-100 border border-blue-400 rounded-xl md:col-span-2 text-center shadow-md mb-4">
@@ -469,7 +455,6 @@ function runComparisonTest() {
 
     zone.innerHTML = html;
 
-    // 3. Log the data and refresh the menu
     const completed = (currentPhase === 'M') ? completedM : completedX;
 
     if (!completed.find(c => c.id === activeTest)) {
@@ -483,7 +468,6 @@ function runComparisonTest() {
             };
         });
 
-        // Summary result text for the log entry
         let logResult;
         if (activeTest === "activity") {
             const metalKey = convertMetalName(activeM.name);
@@ -514,7 +498,6 @@ function runComparisonTest() {
 
 function showPhaseCompleteButton() {
     const zone = document.getElementById('comparison-zone');
-    // Add a big "Proceed" button at the bottom of the results
     zone.innerHTML += `
         <div class="mt-8 flex justify-center w-full md:col-span-2 border-t border-amber-300 pt-6">
             <button onclick="checkPhaseTransition()" class="px-12 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-full shadow-xl transition-all animate-bounce uppercase tracking-widest text-sm">
@@ -529,7 +512,6 @@ function checkPhaseTransition() {
         currentPhase = 'X';
         activeTest = null;
         
-        // Reset UI for Phase X
         const setup = document.getElementById('station-setup');
         const active = document.getElementById('station-active');
         const empty = document.getElementById('station-empty');
@@ -540,22 +522,16 @@ function checkPhaseTransition() {
         
         loadMenu(); 
     } else if (currentPhase === 'X') {
-        // Transition to Synthesis
         currentPhase = 'Synthesis';
         
-        // 1. Hide the Phase 1/2 identification layout
         const labWorkspace = document.getElementById('lab-workspace');
         if (labWorkspace) labWorkspace.classList.add('hidden');
         
-        // 2. Prepare the Phase 3 workspace
         const phase3 = document.getElementById('phase-3-workspace');
         if (phase3) {
             phase3.classList.remove('hidden');
-            // Call the function that builds the Molar Mass UI
             runMolarMassPhase();
         } else {
-            // Fallback: If you haven't added the phase-3-workspace div yet, 
-            // we jump straight to the Summary
             showCER();
         }
     }
@@ -586,7 +562,6 @@ function runMolarMassPhase() {
     const zone = document.getElementById('comparison-zone');
     zone.className = "w-full space-y-8";
 
-    // 4-column layout for M, X, Yield, and Excess
     zone.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="p-4 bg-amber-50 border border-blue-300 rounded-2xl">
@@ -640,12 +615,34 @@ function runMolarMassPhase() {
     `;
 }
 
+// --- STOICHIOMETRY HELPERS ---
+
+// Reads mCount and xCount directly from the compound formula string in the DB.
+// e.g. "FeCl2" → { mCount: 1, xCount: 2 }
+//      "Cr2S3" → { mCount: 2, xCount: 3 }
+//      "Cu3P"  → { mCount: 3, xCount: 1 }
+function parseFormulaCoefficients(formulaStr) {
+    const match = formulaStr.match(/^([A-Z][a-z]?)(\d*)([A-Z][a-z]?)(\d*)$/);
+    if (!match) return { mCount: 1, xCount: 1 };
+    return {
+        mCount: parseInt(match[2]) || 1,
+        xCount: parseInt(match[4]) || 1
+    };
+}
+
+// Returns the per-atom molar mass of X.
+// Cl and Br are stored as diatomic masses in nonMetalIdentities (Cl2=70.91, Br2=159.81),
+// so divide by 2 to get the atomic mass needed for mole calculations.
+// S and P are already atomic masses — pass through unchanged.
+function getXAtomicMass() {
+    const isDiatomic = activeX.name === "Chlorine" || activeX.name === "Bromine";
+    return isDiatomic ? activeX.mass / 2 : activeX.mass;
+}
+
 function syncXToM() {
     const mInput = document.getElementById('input-m');
     const xInput = document.getElementById('input-x');
-    if (mInput && xInput) {
-        xInput.value = mInput.value;
-    }
+    if (mInput && xInput) xInput.value = mInput.value;
 }
 
 function updateYieldInline() {
@@ -660,67 +657,48 @@ function updateYieldInline() {
         return;
     }
 
-    // 1. Determine subscripts from oxidation states
-    const metalCharges = {
-        "ManganeseTwo":   2, "ManganeseThree": 3, "ChromiumTwo":    2, "ChromiumThree":  3,
-        "CobaltTwo":      2, "CobaltThree":    3, "CopperOne":      1, "CopperTwo":      2,
-        "NickelTwo":      2, "NickelThree":    3, "IronTwo":        2, "IronThree":      3
-    };
-    const nonmetalCharges = {
-        "Chlorine": 1, "Bromine": 1, "Sulfur": 2, "Phosphorus": 3
-    };
+    // 1. Look up compound and parse stoichiometric coefficients from its formula
+    const lookupKey = activeM.name + activeX.name;
+    const compound = compoundDatabase[lookupKey];
+    if (!compound) return;
 
-    const mCharge = metalCharges[activeM.name];
-    const xCharge = nonmetalCharges[activeX.name];
+    const { mCount, xCount } = parseFormulaCoefficients(compound.formula);
+    const productMolarMass = compound.molarMass;
 
-    const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
-    const divisor = gcd(mCharge, xCharge);
+    // 2. Per-atom mass of X (halves Cl/Br since DB stores diatomic mass)
+    const xAtomicMass = getXAtomicMass();
 
-    const mCount = xCharge / divisor;  // subscript on M
-    const xCount = mCharge / divisor;  // subscript on X (atoms)
-
-    // 2. Diatomic check — Br2 and Cl2 are supplied as molecules
-    //    1g of X means 1g of Br2/Cl2, so molar mass is 2× atomic mass
-    //    Each molecule provides 2 atoms, so effective atom moles = 2 × molecule moles
-    const isDiatomic = activeX.name === "Bromine" || activeX.name === "Chlorine";
-    const xMolarMass = isDiatomic ? activeX.mass * 2 : activeX.mass;
-    // xCount is in atoms; stoichiometric molecule coefficient = xCount / 2 (for diatomics)
-    const xMoleculeCount = isDiatomic ? xCount / 2 : xCount;
-
-    // 3. Molar mass of product (still uses atomic masses)
-    const productMolarMass = (mCount * activeM.mass) + (xCount * activeX.mass);
-
-    // 4. Convert input masses → moles
+    // 3. Convert input grams → moles of atoms
     const molesM = mVal / activeM.mass;
-    const molesX = xVal / xMolarMass;  // moles of Br2/Cl2 (or atomic X)
+    const molesX = xVal / xAtomicMass;
 
-    // 5. Limiting reactant via mole ratio
+    // 4. Find limiting reactant by comparing how many formula units each reactant can supply
     const ratioM = molesM / mCount;
-    const ratioX = molesX / xMoleculeCount;  // compare molecule moles to molecule coefficient
-
+    const ratioX = molesX / xCount;
     const limitingRatio = Math.min(ratioM, ratioX);
 
-    // 6. Theoretical yield
+    // 5. Theoretical yield — uses DB molar mass directly, guaranteeing correct result
     const actualYield = limitingRatio * productMolarMass;
     if (display) display.innerText = actualYield.toFixed(2);
 
-    // 7. Excess reactant
+    // 6. Excess — leftover moles × atomic mass back to grams
     if (excessDisplay) {
         const molesM_used = limitingRatio * mCount;
-        const molesX_used = limitingRatio * xMoleculeCount;  // molecules used
+        const molesX_used = limitingRatio * xCount;
 
         const excessM = (molesM - molesM_used) * activeM.mass;
-        const excessX = (molesX - molesX_used) * xMolarMass;  // back to grams of Br2/Cl2
+        const excessX = (molesX - molesX_used) * xAtomicMass;
 
         if (excessM > 0.01) {
-            excessDisplay.innerHTML = `<span class="text-blue-400">${excessM.toFixed(2)}g M</span>`;
+            excessDisplay.innerHTML = `<span class="text-blue-600">${excessM.toFixed(2)}g M</span>`;
         } else if (excessX > 0.01) {
-            excessDisplay.innerHTML = `<span class="text-emerald-400">${excessX.toFixed(2)}g X</span>`;
+            excessDisplay.innerHTML = `<span class="text-emerald-600">${excessX.toFixed(2)}g X</span>`;
         } else {
             excessDisplay.innerHTML = `<span class="text-stone-400">None</span>`;
         }
     }
 }
+
 function synthesizeCompound() {
     const mInput = document.getElementById('input-m');
     const xInput = document.getElementById('input-x');
@@ -793,12 +771,10 @@ function showCER() {
         phase3.classList.add('hidden');
     }
 
-    // 2. RESET PAGE ALIGNMENT
     document.body.classList.remove('flex', 'items-center', 'justify-center', 'min-h-screen');
     document.body.classList.add('block', 'pt-4'); 
     window.scrollTo(0, 0);
 
-    // 3. SETUP CER CONTAINER
     const cerScreen = document.getElementById('cer-screen');
     if (cerScreen) {
         cerScreen.classList.remove('hidden');
@@ -811,7 +787,6 @@ function showCER() {
     
     log.className = "w-full space-y-10 mt-0"; 
     
-    // 4. RENDER HTML 
     log.innerHTML = `
         <div class="w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
             
@@ -950,7 +925,6 @@ function closeWarning() {
 
 async function finalizeLab() {
     const student = JSON.parse(sessionStorage.getItem('activeStudent'));
-    // Removed the check for "assumption" textbox since we removed it from HTML
     
     const entry = {
         fName: student?.fName || "Unknown", 
@@ -960,7 +934,7 @@ async function finalizeLab() {
         actualIdentityX: activeX.name, 
         mExps: completedM.map(e => e.id), 
         xExps: completedX.map(e => e.id),
-        assumption: "See Physical Lab Notebook" // Default text
+        assumption: "See Physical Lab Notebook"
     };
     
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKHQd1vrdU7taJzdUtm2AwQB4fGVqg8DY9TPjPCf_h40gtvgukOuKj0xoIlfDweLaNPQ/exec';
@@ -993,13 +967,12 @@ async function finalizeLab() {
     }
 }
 
-// make sure people dont accidentally close/refresh
+// Prevent accidental page close/refresh before submission
 let isLabSubmitted = false; 
 
 window.addEventListener('beforeunload', function (e) {
-    // If the lab hasn't been submitted yet, trigger the browser's warning popup
     if (!isLabSubmitted) {
         e.preventDefault(); 
-        e.returnValue = ''; // This is required by most modern browsers to show the default "Leave Site?" warning
+        e.returnValue = '';
     }
 });
